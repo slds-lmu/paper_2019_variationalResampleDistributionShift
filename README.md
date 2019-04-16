@@ -7,3 +7,9 @@
 - https://github.com/hwalsuklee/tensorflow-generative-model-collections
 ## python make
 - https://pypi.org/project/py-make/
+## arguments for main.py
+  python main.py
+  --cluster <True,False (default)>
+  --dataset <'mnist', 'fashion-mnist' (default)>
+  --z_dim <1-inf,62(default)>
+  --labeled <True,False (default)>
