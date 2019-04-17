@@ -19,3 +19,8 @@ nvidia-docker run -it tensorflow/tensorflow:1.13.1
 # debug
 make sure  "nvidia-smi" works
 docker rmi -f <image ID> and rerun command  # does not work
+
+## remove everything in terms of memory full
+https://qiita.com/hshimo/items/4c79cbef12ccea6d5b20
+docker rm -v $(docker ps -qa)  
+docker rmi -f $(docker images -q)
