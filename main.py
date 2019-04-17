@@ -104,12 +104,15 @@ def main():
                     print(" [*] Testing finished!")
 
                     # save the transformed latent space into result dir
-                    z = vae.transform()
-                    z = z.eval()
-                    path = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
-                    np.save(path, z)
-                    path = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
-                    np.save(path, vae.data_y)
+                    filepath = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
+                    if not tf.gfile.Exists(filepath):
+                        z = vae.transform()
+                        z = z.eval()
+                        path = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
+                        np.save(path, z)
+                        path = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
+                        np.save(path, vae.data_y)
+
 
                     if args.cluster:
                         # cluster latent space using VGMM
@@ -119,9 +122,9 @@ def main():
 
             print(" [*] Training and Testing for all label finished!")
             # concatenate clustered data into one dict after clustering
-            result_path = args.result_dir + "/" + vae.model_dir
+            result_path = args.result_dir + "/" + vae.super_model_dir()
             data_dict = concatenate_data_from_dir(result_path,10,5)
-            T_SNE_Plot_with_datadict(data_dict,5)
+            T_SNE_Plot_with_datadict(data_dict,5,result_path)
 
 
         else:
@@ -191,24 +194,6 @@ def main():
             # visualize learned generator
             acgan.visualize_results(args.epoch - 1)
             print(" [*] Testing finished!")
-            # # save the transformed latent space into result dir
-            # z = vae.transform()
-            # z = z.eval()
-            # path = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
-            # np.save(path, z)
-            # path = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
-            # np.save(path, vae.data_y)
-            #
-            # if args.cluster:
-            #     # cluster latent space using VGMM
-            #     vgmm = VGMM()
-            #     dict, X_prediction_vgmm = vgmm.cluster(z)
-            #
-            #     # save the result of clustering
-            #     path = args.result_dir + "/" + vae.model_dir + "/" + "cluster_dict.json"
-            #     vgmm.save_dict(path, dict)
-            #     path = args.result_dir + "/" + vae.model_dir + "/" + "cluster_predict.tsv"
-            #     vgmm.save_predict(path, X_prediction_vgmm)
 
     else:
         raise NotImplementedError

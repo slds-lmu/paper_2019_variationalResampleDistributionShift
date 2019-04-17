@@ -35,8 +35,8 @@ def concatenate_data_from_dir(data_path,num_labels,num_clusters):
     for i in range(num_labels):
         path = data_path + "/L" + str(i)
         z = np.load(path + "/z.npy")
-        y = np.load(path + "y.npy")
-        cluster_predict = np.load(path + "/cluster_predict.tsv")
+        y = np.load(path + "/y.npy")
+        cluster_predict = np.load(path + "/cluster_predict.npy")
         if i == 0:
             for j in range(num_clusters):
                 pos[str(j)] = z[np.where(cluster_predict == j)]
@@ -92,6 +92,8 @@ def global_cluster(result_path,z):
     vgmm.save_dict(path, dict)
     path = result_path + "/" + "cluster_predict.tsv"
     vgmm.save_predict(path, X_prediction_vgmm)
+    path = result_path + "/" + "cluster_predict.npy"
+    np.save(path,X_prediction_vgmm)
 
 
 def main():
@@ -118,6 +120,7 @@ def main():
             pos[str(i) + str(j)] = data_pos[np.where(data_pred == j)[0]]
 
     # concatenate index array
+    # pos_index_cluster[i]: index of data which belongs to cluster i
     pos_index_cluster = concatenate_index_array(pos,num_labels=10,num_clusters=5)
     vgmm.save_dict(data_path+"/pos_index_cluster.json",pos_index_cluster)
 

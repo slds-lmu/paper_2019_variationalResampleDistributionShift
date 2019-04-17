@@ -265,6 +265,11 @@ class VAE(object):
             self.model_name, self.dataset_name,
             self.batch_size, self.z_dim, "L"+str(self.label))
 
+    def super_model_dir(self):
+        return "{}_{}_{}_{}".format(
+            self.model_name, self.dataset_name,
+            self.batch_size, self.z_dim)
+
     def save(self, checkpoint_dir, step):
         checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir, self.model_name)
 
