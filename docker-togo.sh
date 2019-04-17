@@ -1,6 +1,9 @@
 # nvidio-docker tutorial
 https://docs.nvidia.com/deeplearning/dgx/bp-docker/index.html
 
+# docker file
+https://github.com/KaiLicht/DataScience_Toolbox/blob/master/dockerfiles/Rbase_keras_tf/Dockerfile
+
 # check cuda version support for tensorflow
 https://www.tensorflow.org/install/source#tested_source_configurations
 
