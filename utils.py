@@ -186,12 +186,12 @@ def npy2csv(fileinput, fileoutput):
 def prepare_data():
     return 0
 
-def save_dict(self,path,dict):
+def save_dict(path,dict):
     with open(path, 'w') as f:
         json.dump(dict, f)
 
 
-def load_dict(self,path):
+def load_dict(path):
     with open(path) as f:
         my_dict = json.load(f)
     return my_dict

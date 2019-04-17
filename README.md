@@ -13,3 +13,7 @@
   --dataset <'mnist', 'fashion-mnist' (default)>
   --z_dim <1-inf,62(default)>
   --labeled <True,False (default)>
+  
+## dependency
+- pot: conda install -c conda-forge pot
+  
