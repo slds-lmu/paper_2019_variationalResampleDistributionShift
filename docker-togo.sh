@@ -1,5 +1,6 @@
 # nvidio-docker tutorial
 https://docs.nvidia.com/deeplearning/dgx/bp-docker/index.html
+https://marmelab.com/blog/2018/03/21/using-nvidia-gpu-within-docker-container.html
 
 # docker file
 https://github.com/KaiLicht/DataScience_Toolbox/blob/master/dockerfiles/Rbase_keras_tf/Dockerfile
