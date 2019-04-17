@@ -18,6 +18,8 @@ nvidia-docker run -it tensorflow/tensorflow:1.13.1
 
 # debug
 make sure  "nvidia-smi" works
+# Test nvidia-smi with the latest official CUDA image
+docker run --runtime=nvidia --rm nvidia/cuda:9.0-base nvidia-smi
 docker rmi -f <image ID> and rerun command  # does not work
 
 ## remove everything in terms of memory full
