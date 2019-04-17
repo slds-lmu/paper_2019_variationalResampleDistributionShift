@@ -13,7 +13,8 @@ docker exec -it [container-id] bash
 docker attach [container-id]
 
 # pull and run a container i:interactive, t: tty, p: publish port
-nvidia-docker run -it tensorflow/tensorflow:1.4.1-gpu  # 1.4.1 is the latest tensorflow that support cuda 8
+nvidia-docker run -it tensorflow/tensorflow:1.4.1-gpu  # 1.4.1 is the latest tensorflow that support cuda 8 but this does not work
+docker pull nvcr.io/nvidia/tensorflow:19.03-py<x>  # might require docker login
 nvidia-docker run -it tensorflow/tensorflow:1.13.1-py3 # always use the python3
 
 # debug
