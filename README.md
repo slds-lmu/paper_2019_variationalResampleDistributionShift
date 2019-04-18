@@ -14,6 +14,12 @@
   --z_dim <1-inf,62(default)>
   --labeled <True,False (default)>
   
+## command for main.py
+-- python main.py --cluster True : train model and cluster
+-- python main.py --labeled True --cluster True :train model based on splited data according to label and cluster
+## command for statistic.py
+-- python statistic.py
+  
 ## dependency
 - pot: conda install -c conda-forge pot
 
