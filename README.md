@@ -11,6 +11,7 @@
 - https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html
 ## python make
 - https://pypi.org/project/py-make/
+- https://snakemake.readthedocs.io/en/stable/
 ## arguments for main.py
   python main.py
   --cluster <True,False (default)>
