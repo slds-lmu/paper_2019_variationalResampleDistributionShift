@@ -38,6 +38,88 @@ def counting_label():
     print(y_3)
     print(y_4)
 
+def kernel_density_estimation_single_Cluster(xs,result_path,img_name):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import scipy.stats as st
+    from sklearn.datasets.samples_generator import make_blobs
+    from mpl_toolkits.mplot3d import Axes3D
+    # Extract x and y
+    x = xs[:, 0]
+    y = xs[:, 1]
+    # Define the borders
+    deltaX = (max(x) - min(x)) / 10
+    deltaY = (max(y) - min(y)) / 10
+    xmin = min(x) - deltaX
+    xmax = max(x) + deltaX
+    ymin = min(y) - deltaY
+    ymax = max(y) + deltaY
+    print(xmin, xmax, ymin, ymax)
+    # Create meshgrid
+    xx, yy = np.mgrid[xmin:xmax:100j, ymin:ymax:100j]
+
+    positions = np.vstack([xx.ravel(), yy.ravel()])
+    values = np.vstack([x, y])
+    kernel = st.gaussian_kde(values)
+    f = np.reshape(kernel(positions).T, xx.shape)
+
+    fig = plt.figure(figsize=(13, 7))
+    ax = plt.axes(projection='3d')
+    surf = ax.plot_surface(xx, yy, f, rstride=1, cstride=1, cmap='coolwarm', edgecolor='none')
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('PDF')
+    ax.set_title('Surface plot of Gaussian 2D KDE')
+    fig.colorbar(surf, shrink=0.5, aspect=5)  # add color bar indicating the PDF
+    ax.view_init(60, 35)
+    plt.savefig(result_path + "/KDE"+img_name+".jpg")
+    plt.clf()
+
+
+def kernel_density_estimation(xs,xt,result_path,img_name):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import scipy.stats as st
+    from sklearn.datasets.samples_generator import make_blobs
+    from mpl_toolkits.mplot3d import Axes3D
+    n_samples = min(xs.shape[0], xt.shape[0])
+    xs = xs[:n_samples]
+    xt = xt[:n_samples]
+    # concatenate the two datasets into the final training set
+    X_train = np.vstack([xs, xt])
+
+    # Extract x and y
+    x = X_train[:, 0]
+    y = X_train[:, 1]
+    # Define the borders
+    deltaX = (max(x) - min(x)) / 10
+    deltaY = (max(y) - min(y)) / 10
+    xmin = min(x) - deltaX
+    xmax = max(x) + deltaX
+    ymin = min(y) - deltaY
+    ymax = max(y) + deltaY
+    print(xmin, xmax, ymin, ymax)
+    # Create meshgrid
+    xx, yy = np.mgrid[xmin:xmax:100j, ymin:ymax:100j]
+
+    positions = np.vstack([xx.ravel(), yy.ravel()])
+    values = np.vstack([x, y])
+    kernel = st.gaussian_kde(values)
+    f = np.reshape(kernel(positions).T, xx.shape)
+
+    fig = plt.figure(figsize=(13, 7))
+    ax = plt.axes(projection='3d')
+    surf = ax.plot_surface(xx, yy, f, rstride=1, cstride=1, cmap='coolwarm', edgecolor='none')
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('PDF')
+    ax.set_title('Surface plot of Gaussian 2D KDE')
+    fig.colorbar(surf, shrink=0.5, aspect=5)  # add color bar indicating the PDF
+    ax.view_init(60, 35)
+    plt.savefig(result_path + "/KDE"+img_name+".jpg")
+    plt.clf()
+
+
 def density_estimation_GMM(xs,xt,result_path,img_name):
     # xs, xt: 2D array like data
     import numpy as np
