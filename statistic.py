@@ -1,4 +1,4 @@
-import seaborn as sns
+#import seaborn as sns
 import numpy as np
 import json
 from  data_generator import concatenate_data_from_dir
@@ -256,14 +256,14 @@ def gromov_wasserstein_distance_TSNE(data_path,num_labels,num_clusters,result_pa
 
 
 if __name__ == '__main__':
-    # gromov_wasserstein_distance_TSNE(config.data_path,10,5,config.data_path)
-    b = np.load(config.data_path + "/TSNE_transformed_data_dict.npy")
+    gromov_wasserstein_distance_TSNE(config.data_path,10,5,config.data_path)
+    #b = np.load(config.data_path + "/TSNE_transformed_data_dict.npy")
 
-    for i in range(5):
-        xs = b.item().get(str(i))
-        for j in range(5):
-            if i!=j:
-                xt = b.item().get(str(j))
-                density_estimation_GMM(xs,xt,config.result_path,str(i)+str(j))
+    #for i in range(5):
+    #    xs = b.item().get(str(i))
+    #    for j in range(5):
+    #        if i!=j:
+    #            xt = b.item().get(str(j))
+    #            density_estimation_GMM(xs,xt,config.result_path,str(i)+str(j))
 
 
