@@ -31,7 +31,7 @@ def T_SNE_Plot(data_x,pos,num_clusters,result_path):
         plt.savefig(result_path + "/TSNE" + str(i) + ".png")
     plt.grid(True)
     plt.savefig(result_path+"/TSNE.jpg")
-    save_dict(result_path+"TSNE_transformed_data_dict.json",fashion_pca_tsne)
+    np.save(result_path+"/TSNE_transformed_data_dict.npy",fashion_pca_tsne)
 
 def T_SNE_Plot_with_datadict(data_dict,num_clusters,result_path):
     from sklearn.manifold import TSNE
@@ -50,7 +50,7 @@ def T_SNE_Plot_with_datadict(data_dict,num_clusters,result_path):
         plt.savefig(result_path + "/TSNE"+str(i)+".png")
     plt.grid(True)
     plt.savefig(result_path+"/TSNE.jpg")
-    save_dict(result_path + "TSNE_transformed_data_dict.json", fashion_pca_tsne)
+    np.save(result_path + "/TSNE_transformed_data_dict.npy", fashion_pca_tsne)
 
 
 

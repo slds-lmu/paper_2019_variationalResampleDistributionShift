@@ -104,14 +104,22 @@ def main():
                     print(" [*] Testing finished!")
 
                     # save the transformed latent space into result dir
-                    filepath = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
-                    if not tf.gfile.Exists(filepath):
-                        z = vae.transform()
-                        z = z.eval()
-                        path = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
-                        np.save(path, z)
-                        path = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
-                        np.save(path, vae.data_y)
+                    z = vae.transform()
+                    z = z.eval()
+                    path = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
+                    np.save(path, z)
+                    path = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
+                    np.save(path, vae.data_y)
+
+                    # filepath = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
+                    # if not tf.gfile.Exists(filepath):
+                    #     z = vae.transform()
+                    #     z = z.eval()
+                    #     path = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
+                    #     np.save(path, z)
+                    #     path = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
+                    #     np.save(path, vae.data_y)
+
 
 
                     if args.cluster:
@@ -166,8 +174,9 @@ def main():
                 if args.cluster:
                     result_path = args.result_dir + "/" + vae.model_dir
                     filepath = result_path + "/cluster_dict.json"
-                    if not tf.gfile.Exists(filepath):
-                        cluster_for_each_label(result_path,10,5)
+                    cluster_for_each_label(result_path,10,5)
+                    # if not tf.gfile.Exists(filepath):
+                    #     cluster_for_each_label(result_path,10,5)
 
     elif args.model_name =="ACGAN":
         # declare instance for ACGANG
