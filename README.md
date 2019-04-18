@@ -8,6 +8,7 @@
 - https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gaussian_kde.html
 - https://pot.readthedocs.io/en/stable/auto_examples/plot_gromov.html
 - https://scikit-learn.org/stable/modules/generated/sklearn.utils.resample.html
+- https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html
 ## python make
 - https://pypi.org/project/py-make/
 ## arguments for main.py
