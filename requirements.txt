@@ -27,3 +27,5 @@ tornado
 Werkzeug==0.15.2
 sklearn
 pandas
+Cython
+pot
