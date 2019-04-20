@@ -215,9 +215,8 @@ def gromov_wasserstein_distance_TSNE(data_path,num_labels,num_clusters,result_pa
     import scipy as sp
     import matplotlib.pylab as pl
     import ot
-
-    d_t = load_dict(data_path+"/L-1/TSNE_transformed_data_dict.json")
-    d_s = load_dict(data_path+"TSNE_transformed_data_dict.json")
+    d_t = load_dict(data_path+ config.statistic_name4d_t)
+    d_s = load_dict(data_path+ config.statistic_name4d_s)
 
     for i in range(num_clusters):
         # Compute distance kernels, normalize them and then display
