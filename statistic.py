@@ -215,6 +215,7 @@ def gromov_wasserstein_distance_TSNE(data_path,num_labels,num_clusters,result_pa
     import scipy as sp
     import matplotlib.pylab as pl
     import ot
+    import config
     d_t = load_dict(data_path+ config.statistic_name4d_t)
     d_s = load_dict(data_path+ config.statistic_name4d_s)
 
