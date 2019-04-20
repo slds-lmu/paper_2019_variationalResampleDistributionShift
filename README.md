@@ -26,7 +26,7 @@
 -- python statistic.py
   
 ## dependency
-- pot: conda install -c conda-forge pot
+- pot: conda install -c conda-forge pot (no need for anaconda, one could first install Cython, then pot with pip)
 
 ## statistic
 - conda install -c conda-forge pot
