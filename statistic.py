@@ -215,13 +215,17 @@ def gromov_wasserstein_distance_TSNE(data_path,num_labels,num_clusters,result_pa
     import scipy as sp
     import matplotlib.pylab as pl
     import ot
-    d_t = load_dict(data_path+ config.statistic_name4d_t)
-    d_s = load_dict(data_path+ config.statistic_name4d_s)
+    # d_t = load_dict(data_path+ config.statistic_name4d_t)
+    # d_s = load_dict(data_path+ config.statistic_name4d_s)
+    d_t = np.load(data_path+ config.statistic_name4d_t)
+
+    d_s = np.load(data_path+ config.statistic_name4d_s)
 
     for i in range(num_clusters):
         # Compute distance kernels, normalize them and then display
-        xs = d_s[str(i)]
-        xt = d_t[str(i)]
+        xs = d_s.item().get(str(i))
+        xt = d_t.item().get(str(i))
+        print(xt.shape)
         n_samples = min(xs.shape[0], xt.shape[0])
         xs = xs[:n_samples]
         xt = xt[:n_samples]
