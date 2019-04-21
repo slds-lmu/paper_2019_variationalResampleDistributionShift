@@ -260,6 +260,8 @@ def gromov_wasserstein_distance_TSNE(data_path,num_labels,num_clusters,result_pa
 
 if __name__ == '__main__':
     gromov_wasserstein_distance_TSNE(config.data_path,10,5,config.data_path)
+
+    # code for density estimator
     #b = np.load(config.data_path + "/TSNE_transformed_data_dict.npy")
 
     #for i in range(5):

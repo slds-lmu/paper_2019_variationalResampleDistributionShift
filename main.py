@@ -134,8 +134,7 @@ def main():
             result_path = args.result_dir + "/" + vae.super_model_dir()
             data_dict = concatenate_data_from_dir(result_path,10,5)
             T_SNE_Plot_with_datadict(data_dict,5,result_path)
-
-
+            write_path_to_config(result_path)
         else:
             # declare instance for VAE
             with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
@@ -178,6 +177,8 @@ def main():
                     cluster_for_each_label(result_path,10,5)
                     # if not tf.gfile.Exists(filepath):
                     #     cluster_for_each_label(result_path,10,5)
+                result_path = args.result_dir + "/" + vae.super_model_dir()
+                write_path_to_config(result_path)
 
     elif args.model_name =="ACGAN":
         # declare instance for ACGANG

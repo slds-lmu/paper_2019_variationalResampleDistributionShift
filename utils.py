@@ -195,3 +195,18 @@ def load_dict(path):
     with open(path) as f:
         my_dict = json.load(f)
     return my_dict
+def write_path_to_config(result_path):
+    file = open('config.py', 'w')
+    file.write("SOURCE_URL_Mnist = 'http://yann.lecun.com/exdb/mnist/'")
+    file.write('\n')
+    file.write("SOURCE_URL_FMnist = 'https://storage.googleapis.com/tensorflow/tf-keras-datasets/'")
+    file.write('\n')
+    file.write("data_path = '{}'".format(result_path))
+    file.write('\n')
+    file.write("result_path = '{}'".format(result_path))
+    file.write('\n')
+    file.write('statistic_name4d_t = "/L-1/TSNE_transformed_data_dict.npy"')
+    file.write('\n')
+    file.write('statistic_name4d_s = "/TSNE_transformed_data_dict.npy"')
+    file.write('\n')
+    file.close()
