@@ -33,6 +33,7 @@ def parse_args():
     parser.add_argument('--cluster',type=bool,default=False,help="whether cluster using latent space")
     parser.add_argument('--num_labels',type=int,default=10,help="number of labels")
     parser.add_argument('--model_name',type=str,default='VAE',help="the name of model to be trained")
+    parser.add_argument('--plot',type=bool,default=True,help="visualise the result of cluster")
     return check_args(parser.parse_args())
 
 """checking arguments"""
@@ -103,22 +104,22 @@ def main():
                     vae.visualize_results(args.epoch - 1)
                     print(" [*] Testing finished!")
 
-                    # save the transformed latent space into result dir
-                    z = vae.transform()
-                    z = z.eval()
-                    path = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
-                    np.save(path, z)
-                    path = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
-                    np.save(path, vae.data_y)
+                    # # save the transformed latent space into result dir
+                    # z = vae.transform()
+                    # z = z.eval()
+                    # path = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
+                    # np.save(path, z)
+                    # path = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
+                    # np.save(path, vae.data_y)
 
-                    # filepath = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
-                    # if not tf.gfile.Exists(filepath):
-                    #     z = vae.transform()
-                    #     z = z.eval()
-                    #     path = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
-                    #     np.save(path, z)
-                    #     path = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
-                    #     np.save(path, vae.data_y)
+                    filepath = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
+                    if not tf.gfile.Exists(filepath):
+                        z = vae.transform()
+                        z = z.eval()
+                        path = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
+                        np.save(path, z)
+                        path = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
+                        np.save(path, vae.data_y)
 
 
 

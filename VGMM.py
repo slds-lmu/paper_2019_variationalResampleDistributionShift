@@ -18,10 +18,15 @@ class VGMM(object):
 
         dpgmm = mixture.BayesianGaussianMixture(n_components=5,
                                                 covariance_type='full').fit(X_train)
+        while dpgmm.converged_  ==False:
+
+            max_iter = dpgmm.n_iter_ *2
+            print("increase the number of iteration to {} to converge".format(max_iter))
+            dpgmm = mixture.BayesianGaussianMixture(n_components=5, covariance_type='full',max_iter=max_iter).fit(X_train)
         X_prediction_vgmm = dpgmm.predict(X_train)
         dict = {}
         for i in range(5):
-            # dict[i] store the index of data belongs to cluster i
+            # dict[i] istore the index of data belongs to cluster i
             dict[str(i)] = np.where(X_prediction_vgmm == i)[0].tolist()
         return dict,X_prediction_vgmm
 
