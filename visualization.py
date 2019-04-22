@@ -96,6 +96,7 @@ def visualization(log_path,data_path):
         projector.visualize_embeddings(tf.summary.FileWriter(LOG_DIR), config)
 
 if __name__ == '__main__':
-    log_path = "/project-tensorboard/VAE_10"
-    data_path = "/Users/wangyu/Documents/LMU/Fashion_mnist/mycode/results/VAE_fashion-mnist_64_10"
-    visualization(log_path,data_path)
+    print("visualization")
+    # log_path = "/project-tensorboard/VAE_10"
+    # data_path = "/Users/wangyu/Documents/LMU/Fashion_mnist/mycode/results/VAE_fashion-mnist_64_10"
+    # visualization(log_path,data_path)

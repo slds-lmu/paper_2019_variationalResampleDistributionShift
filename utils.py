@@ -79,6 +79,7 @@ def load_mnist(dataset_name):
     np.random.shuffle(y)
 
     y_vec = np.zeros((len(y), 10), dtype=np.float)
+    # one-hot code
     for i, label in enumerate(y):
         y_vec[i, y[i]] = 1.0
 

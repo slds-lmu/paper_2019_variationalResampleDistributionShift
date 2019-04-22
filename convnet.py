@@ -1,14 +1,15 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from utils import *
+import argparse
+from sklearn.model_selection import KFold
 
 import numpy as np
 import tensorflow as tf
-from sklearn.utils import shuffle
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
-from tensorflow.examples.tutorials.mnist import input_data
 
 DATA_DIR = './data/fashion'
 
@@ -18,7 +19,10 @@ def cnn_model_fn(features, labels, mode):
     # Input Layer
     # Reshape X to 4-D tensor: [batch_size, width, height, channels]
     # MNIST images are 28x28 pixels, and have one color channel
-    input_layer = tf.reshape(features["x"], [-1, 28, 28, 1])
+    # input_layer = tf.reshape(features["x"], [-1, 28, 28, 1])
+
+    input_layer = features["x"]
+    print(input_layer.shape)
 
     # Convolutional Layer #1
     # Computes 32 features using a 5x5 filter with ReLU activation.
@@ -87,7 +91,8 @@ def cnn_model_fn(features, labels, mode):
         return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
 
     # Calculate Loss (for both TRAIN and EVAL modes)
-    onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=10)
+    # onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=10)
+    onehot_labels = labels
     loss = tf.losses.softmax_cross_entropy(
         onehot_labels=onehot_labels, logits=logits)
 
@@ -106,43 +111,98 @@ def cnn_model_fn(features, labels, mode):
     return tf.estimator.EstimatorSpec(
         mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
 
+def parse_args():
+    desc = "Tensorflow implementation CNN"
+    parser = argparse.ArgumentParser(description=desc)
 
-def main(unused_argv):
-    # Load training and eval data
-    mnist = input_data.read_data_sets(DATA_DIR, one_hot=False, validation_size=0)
-    train_data = mnist.train.images  # Returns np.array
-    train_labels = np.asarray(mnist.train.labels, dtype=np.int32)
-    train_data, train_labels = shuffle(train_data, train_labels)
-    eval_data = mnist.test.images  # Returns np.array
-    eval_labels = np.asarray(mnist.test.labels, dtype=np.int32)
-    eval_data, eval_labels = shuffle(eval_data, eval_labels)
+    parser.add_argument('--dataset', type=str, default='fashion-mnist', choices=['mnist', 'fashion-mnist', 'celebA'],
+                        help='The name of dataset')
+    parser.add_argument('--epoch', type=int, default=10, help='The number of epochs to run')
+    parser.add_argument('--batch_size', type=int, default=64, help='The size of batch')
+    parser.add_argument('--checkpoint_dir', type=str, default='checkpoint',
+                        help='Directory name to save the checkpoints')
+    parser.add_argument('--result_dir', type=str, default='results',
+                        help='Directory name to save the generated images')
+    parser.add_argument('--log_dir', type=str, default='logs',
+                        help='Directory name to save training logs')
 
-    # Create the Estimator
-    mnist_classifier = tf.estimator.Estimator(
-        model_fn=cnn_model_fn, model_dir="/tmp/mnist_convnet_model")
+    # arguments specified for model
+    return check_args(parser.parse_args())
 
+"""checking arguments"""
+def check_args(args):
+    # --checkpoint_dir
+    check_folder(args.checkpoint_dir)
+
+    # --result_dir
+    check_folder(args.result_dir)
+
+    # --log_dir
+    check_folder(args.log_dir)
+
+    # --epoch
+    assert args.epoch >= 1, 'number of epochs must be larger than or equal to one'
+
+    # --batch_size
+    assert args.batch_size >= 1, 'batch size must be larger than or equal to one'
+
+    return args
+
+
+def train(X,y,val_x,val_y,args,i):
     # Train the model
     train_input_fn = tf.estimator.inputs.numpy_input_fn(
-        x={"x": train_data},
-        y=train_labels,
-        batch_size=400,
-        num_epochs=None,
+        x={"x": X},
+        y=y,
+        batch_size=args.batch_size,
+        num_epochs=args.epoch,
         shuffle=True)
 
     # Evaluate the model and print results
     eval_input_fn = tf.estimator.inputs.numpy_input_fn(
-        x={"x": eval_data},
-        y=eval_labels,
+        x={"x": val_x},
+        y=val_y,
         num_epochs=1,
         shuffle=False)
+    # Create the Estimator
+    model_dir = "{}/convnet_{}_{}_{}_{}".format(args.result_dir,args.dataset,args.batch_size,args.epoch,i)
+    check_folder(model_dir)
+    mnist_classifier = tf.estimator.Estimator(
+        model_fn=cnn_model_fn, model_dir=model_dir)
 
-    for j in range(100):
-        mnist_classifier.train(
-            input_fn=train_input_fn,
-            steps=2000)
+    mnist_classifier.train(
+        input_fn=train_input_fn,
+        steps=2000)
 
-        eval_results = mnist_classifier.evaluate(input_fn=eval_input_fn)
-        print(eval_results)
+    eval_results = mnist_classifier.evaluate(input_fn=eval_input_fn)
+    print(eval_results)
+    return eval_results
+
+
+def cross_validation(X,y,split_size=5,args=None):
+    kf = KFold(n_splits=split_size)
+    i = 0
+    for train_idx, val_idx in kf.split(X, y):
+        train_x = X[train_idx]
+        train_y = y[train_idx]
+        val_x = X[val_idx]
+        val_y = y[val_idx]
+        train(train_x, train_y,val_x,val_y,args,i)
+        i = i+1
+
+
+def main(unused_argv):
+    # parse arguments
+    args = parse_args()
+    if args is None:
+      exit()
+
+    # load training and eval data
+    X,y = load_mnist(args.dataset)
+    print(X.shape)
+    print(y.shape)
+    cross_validation(X,y,5,args)
+
 
 
 if __name__ == "__main__":

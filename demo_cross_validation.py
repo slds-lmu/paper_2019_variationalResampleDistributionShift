@@ -23,9 +23,12 @@ train_x_all = mnist.train.images
 train_y_all = mnist.train.labels
 test_x = mnist.test.images
 test_y = mnist.test.labels
+print(train_x_all.shape)
+print(train_y_all.shape)
+print(test_x.shape)
 
 def run_train(session, train_x, train_y):
-  print "\nStart training"
+  print ("\nStart training")
   session.run(init)
   for epoch in range(10):
     total_batch = int(train_x.shape[0] / batch_size)
@@ -34,7 +37,7 @@ def run_train(session, train_x, train_y):
       batch_y = train_y[i*batch_size:(i+1)*batch_size]
       _, c = session.run([optimizer, cost], feed_dict={x: batch_x, y: batch_y})
       if i % 50 == 0:
-        print "Epoch #%d step=%d cost=%f" % (epoch, i, c)
+        print ("Epoch #%d step=%d cost=%f" % (epoch, i, c))
 
 def cross_validate(session, split_size=5):
   results = []
@@ -50,5 +53,5 @@ def cross_validate(session, split_size=5):
 
 with tf.Session() as session:
   result = cross_validate(session)
-  print "Cross-validation result: %s" % result
-  print "Test accuracy: %f" % session.run(accuracy, feed_dict={x: test_x, y: test_y})
+  print ("Cross-validation result: %s" % result)
+  print ("Test accuracy: %f" % session.run(accuracy, feed_dict={x: test_x, y: test_y}))
