@@ -4,6 +4,8 @@ from __future__ import print_function
 from utils import *
 import argparse
 from sklearn.model_selection import KFold
+from data_generator import concatenate_data_from_dir
+from sklearn.model_selection import train_test_split
 
 import numpy as np
 import tensorflow as tf
@@ -164,6 +166,7 @@ def train(X,y,val_x,val_y,args,i):
         y=val_y,
         num_epochs=1,
         shuffle=False)
+
     # Create the Estimator
     model_dir = "{}/convnet_{}_{}_{}_{}".format(args.result_dir,args.dataset,args.batch_size,args.epoch,i)
     check_folder(model_dir)
@@ -190,6 +193,21 @@ def cross_validation(X,y,split_size=5,args=None):
         train(train_x, train_y,val_x,val_y,args,i)
         i = i+1
 
+def cross_validation_for_clustered_data(X,y,data_path,num_labels,num_cluster,args):
+    print("cross validation for clustered data")
+    if not tf.gfile.Exists(data_path+"/global_index_cluster_data.npy"):
+        _,global_index = concatenate_data_from_dir(data_path,num_labels=num_labels,num_clusters=num_cluster)
+    else:global_index = np.load(data_path+"/global_index_cluster_data.npy")
+    for i in range(num_cluster):
+        index = global_index.item().get(str(i))
+        X = X[index]
+        y = y[index]
+        train_x, val_x, train_y, val_y = train_test_split(X, y, test_size = 0.2, random_state = 42)
+        train(train_x, train_y, val_x, val_y, args, i)
+
+
+
+
 
 def main(unused_argv):
     # parse arguments
@@ -201,7 +219,8 @@ def main(unused_argv):
     X,y = load_mnist(args.dataset)
     print(X.shape)
     print(y.shape)
-    cross_validation(X,y,5,args)
+    # cross_validation(X,y,5,args)
+    cross_validation_for_clustered_data(X,y,config.data_path,10,5,args)
 
 
 

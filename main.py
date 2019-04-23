@@ -132,9 +132,11 @@ def main():
             print(" [*] Training and Testing for all label finished!")
             # concatenate clustered data into one dict after clustering
             result_path = args.result_dir + "/" + vae.super_model_dir()
-            data_dict = concatenate_data_from_dir(result_path,10,5)
-            T_SNE_Plot_with_datadict(data_dict,5,result_path)
-            write_path_to_config(result_path)
+            data_dict,global_index = concatenate_data_from_dir(result_path,10,5)
+            # save global index for cluster data
+            np.save(result_path+"/global_index_cluster_data.npy",global_index)
+            #T_SNE_Plot_with_datadict(data_dict,5,result_path)
+            #write_path_to_config(result_path)
         else:
             # declare instance for VAE
             with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
