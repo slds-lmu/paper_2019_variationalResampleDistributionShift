@@ -31,19 +31,23 @@ def concatenate_index_array(d,num_labels,num_clusters):
 def concatenate_data_from_dir(data_path,num_labels,num_clusters):
     pos ={}
     # pos[j]:cluster j
+    global_index = {}
 
     for i in range(num_labels):
         path = data_path + "/L" + str(i)
         z = np.load(path + "/z.npy")
+        # y is the index dictionary with respect to global data
         y = np.load(path + "/y.npy")
         cluster_predict = np.load(path + "/cluster_predict.npy")
         if i == 0:
             for j in range(num_clusters):
                 pos[str(j)] = z[np.where(cluster_predict == j)]
+                global_index[str(j)] = y[np.where(cluster_predict==j)]
         else:
             for j in range(num_clusters):
                 pos[str(j)] = np.concatenate((pos[str(j)],z[np.where(cluster_predict == j)]))
-    return pos
+                global_index[str(j)] = np.concatenate((global_index[str(j)],y[np.where(cluster_predict==j)]))
+    return pos,global_index
 
 
 def generate_metadata(m,dict,num_clusters):
@@ -62,6 +66,7 @@ def cluster_for_each_label(data_path,num_labels,num_clusters):
     vgmm = VGMM()
     pos = {}
     for i in range(num_labels):
+        print("cluster label "+str(i))
         # extract data of label i
         data = z[d_label[str(i)]]
         # extract global index of data with label i
