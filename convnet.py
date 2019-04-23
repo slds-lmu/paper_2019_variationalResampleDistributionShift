@@ -84,7 +84,9 @@ def cnn_model_fn(features, labels, mode):
 
     predictions = {
         # Generate predictions (for PREDICT and EVAL mode)
-        "classes": tf.argmax(input=logits, axis=1),
+        # change the classes to one hot encode
+        # "classes": tf.argmax(input=logits, axis=1),
+        "classes": tf.one_hot(indices=tf.cast(tf.argmax(input=logits, axis=1), tf.int32), depth=10),
         # Add `softmax_tensor` to the graph. It is used for PREDICT and by the
         # `logging_hook`.
         "probabilities": tf.nn.softmax(logits, name="softmax_tensor")
@@ -200,9 +202,9 @@ def cross_validation_for_clustered_data(X,y,data_path,num_labels,num_cluster,arg
     else:global_index = np.load(data_path+"/global_index_cluster_data.npy")
     for i in range(num_cluster):
         index = global_index.item().get(str(i))
-        X = X[index]
-        y = y[index]
-        train_x, val_x, train_y, val_y = train_test_split(X, y, test_size = 0.2, random_state = 42)
+        X_cluster = X[index]
+        y_cluster = y[index]
+        train_x, val_x, train_y, val_y = train_test_split(X_cluster, y_cluster, test_size = 0.2, random_state = 42)
         train(train_x, train_y, val_x, val_y, args, i)
 
 
