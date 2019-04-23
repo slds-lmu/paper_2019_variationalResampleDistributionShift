@@ -185,6 +185,7 @@ def train(X,y,val_x,val_y,args,i):
 
 
 def cross_validation(X,y,split_size=5,args=None):
+    results = {}
     kf = KFold(n_splits=split_size)
     i = 0
     for train_idx, val_idx in kf.split(X, y):
@@ -192,11 +193,14 @@ def cross_validation(X,y,split_size=5,args=None):
         train_y = y[train_idx]
         val_x = X[val_idx]
         val_y = y[val_idx]
-        train(train_x, train_y,val_x,val_y,args,i)
+        eval_result = train(train_x, train_y,val_x,val_y,args,i)
+        results[str(i)] = eval_result
         i = i+1
+    return results
 
 def cross_validation_for_clustered_data(X,y,data_path,num_labels,num_cluster,args):
     print("cross validation for clustered data")
+    results = {}
     if not tf.gfile.Exists(data_path+"/global_index_cluster_data.npy"):
         _,global_index = concatenate_data_from_dir(data_path,num_labels=num_labels,num_clusters=num_cluster)
     else:global_index = np.load(data_path+"/global_index_cluster_data.npy")
@@ -205,9 +209,10 @@ def cross_validation_for_clustered_data(X,y,data_path,num_labels,num_cluster,arg
         X_cluster = X[index]
         y_cluster = y[index]
         train_x, val_x, train_y, val_y = train_test_split(X_cluster, y_cluster, test_size = 0.2, random_state = 42)
-        train(train_x, train_y, val_x, val_y, args, i)
+        eval_result = train(train_x, train_y, val_x, val_y, args, i)
+        results[str(i)] = eval_result
 
-
+    return results
 
 
 
@@ -221,9 +226,9 @@ def main(unused_argv):
     X,y = load_mnist(args.dataset)
     print(X.shape)
     print(y.shape)
-    # cross_validation(X,y,5,args)
-    cross_validation_for_clustered_data(X,y,config.data_path,10,5,args)
-
+    results = cross_validation(X,y,5,args)
+    # results = cross_validation_for_clustered_data(X,y,config.data_path,10,5,args)
+    print(results)
 
 
 if __name__ == "__main__":
