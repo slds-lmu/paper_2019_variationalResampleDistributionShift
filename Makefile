@@ -5,6 +5,8 @@ build:
 label:
 	 python main.py --labeled True --cluster True
 
+test:  # only run 1 epoch to see if the code works 
+	python main.py --epoch 1
 
 statisic: ./results/VAE_fashion-mnist_64_62/L-1/TSNE_transformed_data_dict.json
 	 python statistic.py
