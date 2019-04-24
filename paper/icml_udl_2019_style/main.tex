@@ -16,7 +16,6 @@
 
 % Attempt to make hyperref and algorithmic work together better:
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
-
 % Use the following line for the initial blind version submitted for review:
 %\usepackage{icml2019}
 
@@ -31,6 +30,7 @@
 
 
 \begin{document}
+\newcommand{\DS}{\mathcal{D}}
 
 \twocolumn[
 \icmltitle{Resampling Deep Learning model with Distribution Shift}
@@ -78,13 +78,48 @@ A distribution shift based resampling framework is proposed to evaluate the robu
 \label{intro}
 Deep Learning methods seems to be prone to corruptions and adversarial perturbations \cite{carlini2017towards}, which makes it challenging for real world applications. Distribution Shift \cite{wen2014robust} is another phenomena that can occur in practical deep learning scenarios especially medical machine learning field \cite{sun2019high}. 
 
-Inspired from \cite{sun2019high}, we extend their work to image data and propose a resampling technique.
+Inspired from \cite{sun2019high}, which coined their work Restrictive Federated Model Selection over shifted distribution, we extend their work to image data and propose a resampling technique accordingly to evaluate how robust a model is with respect to distribution shift.
+Specifically, we are interested in how model testing will behave when samples are drawn from a different distribution of the one used for training.
+
+Our contributions are:
+
+\begin{itemize}
+\item Compared to adversarial attacks, the effect of distribution shift is not well studied in the area of deep learning. Our works evaluates how different models perform under distribution shift which serves as pioneer work in this direction.
+\item We propose a resampling framework based on distribution shift to measure how robust a deep learning model, specifically a classification deep learning model is. Alongside with the Wasserstein distance we use to quantify the distribution shift. Our method should give a projected profile to a model about its robustness to distribution shift.
+\end{itemize}
 
 \section{Prerequisite}
-Auto Encoder Variational Bayes\,
+\textbf{Auto-encoding Variational Bayes \cite{FIXME}:}\, To model the likelihood of data $p(x)$, a latent variable model $p_{\theta}(z|x)$ is approximated by a variational distribution $q_{\phi}(z|x)$ which is reparameterized to be $g(\epsilon, x)$, while the likelihood $p_{\theta}(x|z)$ can be modeled as Gaussian with mean and variance represented by decoder network. Evidence lower bound of the likelihood is optimized with stochastic gradient descent over the Monte Carlo estimation.
+
+\textbf{AC-GAN:}\, GAN \cite{FIXME} trains a discriminator and generator network simultaneously by the mini-max game. The discriminator is trained to distinguish data from samples and generators, while the generator is trained to mimic the samples data to deteriorate the performance of the discriminator. Auxiliary Classifier GAN \cite{FIXME} augment the input of the generator network with the class label, and augment the output of the discriminator network with a classification output. Both the discriminator and the generator is trained to recover the classification output at the discriminator output side, while they optimize against the ability of the discriminator to tell apart the fake samples. 
+
+
+\textbf{Bayesian Neural Network:}\, Different from generative represenation learning methods like VAE \cite{FIXME} and GAN \cite{FIXME} which models a variational approximator to the true posterior on the activation of neural network, Bayesian Neural Network build variational models on the weight of the network. \textbf{TOCONTINUE} 
+ 
+\textbf{Variational Gaussian Mixture Model:}\,
+
+\textbf{Wasserstein Distance:}\,
+
+\textbf{Distribution Shift:}\, In this work, we investigate the marginal distribution shift over $p(x)$ and the class label conditional distribution shift over $p(x|C)$ where $C$ is the class label.
+
 \section{Method}
+Given a dataset $\DS$, split it into $D_{train} \bigcup D_{val} \bigcup D_{test}$. Other than a seemingly arbitrary split in most deep learning papers or random split in Cross Validation, we split it such that the each split reside in a different distribution.
+
+Since high dimensional clustering is challenging, we first learned a representation of the whole dataset or with repsect to each class label. This gives us two benefits, one is the dimensionality reduction, and the other is we learned a latent representation that could generate new samples.
+
+Upon the latent representation, we use Variational Gaussian Mixture model to assign each instance a different cluster. Among those, one cluster is used for training, one for validation and the left over is used for testing. A combination of the assignment to $D_{train} \bigcup D_{val} \bigcup D_{test}$ forms a variation estimate on how good a model could generalize to $D_{test}$, similar to Cross Validation.
+
+Combined with conventional Cross Validation, our method serves as an alternative to charaterize or serves as a profile to the models' ability to generalize across distribution shift.
+ 
 \section{Related Work}
 \section{Experiment}
+We use fashion-mnist \cite{FIXME} as an initial example and compare both the distribution shift on the marginal $p(x)$ and $p(x|C)$. 
+
+Firstly, we compare our method with Cross Validation to prove emperically that Distribution Shift is indeed  a problem.
+
+Secondly, we compare how different deep classification methods could tolerate the distribution shift.
+
+We leave it for future work on how to amend the neural network training to tackle the distribution shift.
 \section{Summary}
 
 
