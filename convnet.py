@@ -121,7 +121,7 @@ def parse_args():
 
     parser.add_argument('--dataset', type=str, default='fashion-mnist', choices=['mnist', 'fashion-mnist', 'celebA'],
                         help='The name of dataset')
-    parser.add_argument('--epoch', type=int, default=10, help='The number of epochs to run')
+    parser.add_argument('--epoch', type=int, default=1, help='The number of epochs to run')
     parser.add_argument('--batch_size', type=int, default=64, help='The size of batch')
     parser.add_argument('--checkpoint_dir', type=str, default='checkpoint',
                         help='Directory name to save the checkpoints')
@@ -183,6 +183,23 @@ def train(X,y,val_x,val_y,args,i):
     print(eval_results)
     return eval_results
 
+def prediction(test_x,test_y,args,i):
+    test_input_fn = tf.estimator.inputs.numpy_input_fn(
+        x = {"x":test_x},
+        y = test_y,
+        batch_size = args.batch_size,
+        num_epochs = 1,
+        shuffle = False
+    )
+    # Create the Estimator
+    model_dir = "{}/convnet_{}_{}_{}_{}".format(args.result_dir, args.dataset, args.batch_size, args.epoch, i)
+    print(model_dir)
+    check_folder(model_dir)
+    mnist_classifier = tf.estimator.Estimator(
+        model_fn=cnn_model_fn, model_dir=model_dir)
+    test_result = mnist_classifier.predict(input_fn = test_input_fn)
+    return test_result
+
 
 def cross_validation(X,y,split_size=5,args=None):
     results = {}
@@ -214,6 +231,33 @@ def cross_validation_for_clustered_data(X,y,data_path,num_labels,num_cluster,arg
 
     return results
 
+def test_shifted_data(X,y,data_path,num_labels,num_cluster,args):
+    print("test shifted data using pre-trained model")
+    # results = {}
+    # if not tf.gfile.Exists(data_path+"/global_index_cluster_data.npy"):
+    #     _,global_index = concatenate_data_from_dir(data_path,num_labels=num_labels,num_clusters=num_cluster)
+    # else:global_index = np.load(data_path+"/global_index_cluster_data.npy")
+    # for i in range(1,num_cluster):
+    #     index = global_index.item().get(str(i))
+    #     X_cluster = X[index]
+    #     y_cluster = y[index]
+    #     test_result = prediction(X_cluster,y_cluster,args,0)
+    #     results[str(i)] = test_result
+    #
+    # return results
+    results = {}
+    if not tf.gfile.Exists(data_path+"/global_index_cluster_data.npy"):
+        _,global_index = concatenate_data_from_dir(data_path,num_labels=num_labels,num_clusters=num_cluster)
+    else:global_index = np.load(data_path+"/global_index_cluster_data.npy")
+    index = global_index.item().get('1')
+    X_cluster = X[index]
+    y_cluster = y[index]
+    test_result = prediction(X_cluster, y_cluster, args, 0)
+    return results
+
+
+
+
 
 
 def main(unused_argv):
@@ -226,9 +270,13 @@ def main(unused_argv):
     X,y = load_mnist(args.dataset)
     print(X.shape)
     print(y.shape)
-    results = cross_validation(X,y,5,args)
+    # results = cross_validation(X,y,5,args)
     # results = cross_validation_for_clustered_data(X,y,config.data_path,10,5,args)
+    # print(results)
+
+    results = test_shifted_data(X,y,config.data_path,10,5,args)
     print(results)
+
 
 
 if __name__ == "__main__":
