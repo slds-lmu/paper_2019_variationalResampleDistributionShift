@@ -102,6 +102,8 @@ Our contributions are:
 
 \textbf{Distribution Shift:}\, In this work, we investigate the marginal distribution shift over $p(x)$ and the class label conditional distribution shift over $p(x|C)$ where $C$ is the class label.
 
+\textbf{t-SNE:\,} Stochastic Neighborhood Embedding \cite{FIXME} use Gaussian density to model the conditional similarity between two points in the high dimensional space and the corresponding low dimensional embedding. The K-L divergence between the conditional similarity distributions are used as objective and optimized with stochastic gradient descent. t-SNE \cite{FIXME} extend the conditional similarity to symmetric version by adding up the conditional similarity of both directions. Futhermore, it use Student-t distribution instead of Gaussian Distribution in the embedding. 
+
 \section{Method}
 Given a dataset $\DS$, split it into $D_{train} \bigcup D_{val} \bigcup D_{test}$. Other than a seemingly arbitrary split in most deep learning papers or random split in Cross Validation, we split it such that the each split reside in a different distribution.
 
