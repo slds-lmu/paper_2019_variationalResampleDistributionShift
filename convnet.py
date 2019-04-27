@@ -234,20 +234,11 @@ def cross_validation_for_clustered_data(X,y,data_path,num_labels,num_cluster,arg
         x_train_eval = X[mask]
         y_train_eval = y[mask]
         train_x, val_x, train_y, val_y = train_test_split(x_train_eval, y_train_eval, test_size = 0.2, random_state = 42)
-        print(train_x.shape)
-        print(val_y.shape)
-        print(test_x.shape)
         args.result_dir = "results/clustercnn"
         eval_result,test_result = train(train_x, train_y, val_x, val_y,test_x,test_y, args, i)
         result = {"train":eval_result,"test":test_result}
         results[str(i)] = result
     return results
-
-
-
-
-
-
 
 
 
@@ -259,8 +250,6 @@ def main(unused_argv):
 
     # load training and eval data
     X,y = load_mnist(args.dataset)
-    print(X.shape)
-    print(y.shape)
     results_random_ressample = cross_validation(X,y,5,args)
     results_shifted = cross_validation_for_clustered_data(X,y,config.data_path,10,5,args)
     print("***********random************")
