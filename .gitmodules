@@ -1,3 +1,6 @@
 [submodule "tensorflow-generative-model-collections"]
 	path = tensorflow-generative-model-collections
 	url = https://github.com/hwalsuklee/tensorflow-generative-model-collections.git
+[submodule "Bayesian_CNN"]
+	path = Bayesian_CNN
+	url = https://github.com/felix-laumann/Bayesian_CNN.git
