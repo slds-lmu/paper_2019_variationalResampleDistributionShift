@@ -92,15 +92,9 @@ def cnn_model_fn(features, labels, mode):
         # `logging_hook`.
         "probabilities": tf.nn.softmax(logits, name="softmax_tensor")
     }
-    #     print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
-    #     print(labels)
-    #     preditc_metric_ops = {"accuracy":tf.metrics.accuracy(labels=labels,predictions=predictions["classes"])}
-    #     return tf.estimator.EstimatorSpec(mode=mode, predictions=preditc_metric_ops)
     if mode == tf.estimator.ModeKeys.PREDICT:
-        print("11111111111111111111")
         return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
     # Calculate Loss (for both TRAIN and EVAL modes)
-    # onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=10)
     onehot_labels = labels
     loss = tf.losses.softmax_cross_entropy(
         onehot_labels=onehot_labels, logits=logits)
@@ -115,8 +109,6 @@ def cnn_model_fn(features, labels, mode):
 
     # Add evaluation metrics (for EVAL mode)
     if mode == tf.estimator.ModeKeys.EVAL:
-        print("*************************************")
-        print(input_layer.shape[0])
         eval_metric_ops = {
             "accuracy": tf.metrics.accuracy(
                 labels=labels, predictions=predictions["classes"])}
@@ -203,40 +195,29 @@ def train(X,y,val_x,val_y,test_x,test_y,args,i):
     test_results = mnist_classifier.evaluate(input_fn = test_input_fn)
     print("*********************test************************")
     print(test_results)
-    return 0,test_results
+    return eval_results,test_results
 
-def prediction(test_x,test_y,args,i):
-    test_input_fn = tf.estimator.inputs.numpy_input_fn(
-        x = {"x":test_x},
-        y = test_y,
-        batch_size = args.batch_size,
-        num_epochs = 1,
-        shuffle = False
-    )
-    # Create the Estimator
-    model_dir = "{}/convnet_{}_{}_{}_{}".format(args.result_dir, args.dataset, args.batch_size, args.epoch, i)
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    print(model_dir)
-    check_folder(model_dir)
-    mnist_classifier = tf.estimator.Estimator(
-        model_fn=cnn_model_fn, model_dir=model_dir)
-    test_result = mnist_classifier.predict(input_fn = test_input_fn)
-    return test_result
 
 
 def cross_validation(X,y,split_size=5,args=None):
     results = {}
     kf = KFold(n_splits=split_size)
     i = 0
-    for train_idx, val_idx in kf.split(X, y):
-        train_x = X[train_idx]
-        train_y = y[train_idx]
-        val_x = X[val_idx]
-        val_y = y[val_idx]
-        eval_result = train(train_x, train_y,val_x,val_y,args,i)
-        results[str(i)] = eval_result
+    for train_eval_idx, test_idx in kf.split(X, y):
+        print(train_eval_idx.shape)
+        print(test_idx.shape)
+        x_train_eval = X[train_eval_idx]
+        y_train_eval = y[train_eval_idx]
+        test_x = X[test_idx]
+        test_y = y[test_idx]
+        train_x, val_x, train_y, val_y = train_test_split(x_train_eval, y_train_eval, test_size=0.2, random_state=42)
+        eval_result,test_result = train(train_x, train_y,val_x,val_y,test_x,test_y,args,i)
+        result = {"train":eval_result,"test":test_result}
+        results[str(i)] = result
         i = i+1
     return results
+
+
 
 def cross_validation_for_clustered_data(X,y,data_path,num_labels,num_cluster,args):
     print("cross validation for clustered data")
@@ -246,47 +227,27 @@ def cross_validation_for_clustered_data(X,y,data_path,num_labels,num_cluster,arg
     else:global_index = np.load(data_path+"/global_index_cluster_data.npy")
     for i in range(num_cluster):
         index = global_index.item().get(str(i))
-        X_cluster = X[index]
-        y_cluster = y[index]
-        train_x, val_x, train_y, val_y = train_test_split(X_cluster, y_cluster, test_size = 0.2, random_state = 42)
-        eval_result = train(train_x, train_y, val_x, val_y, args, i)
-        results[str(i)] = eval_result
-
+        test_x = X[index]
+        test_y = y[index]
+        mask = np.ones((y.shape[0],),bool)
+        mask[index]=False
+        x_train_eval = X[mask]
+        y_train_eval = y[mask]
+        train_x, val_x, train_y, val_y = train_test_split(x_train_eval, y_train_eval, test_size = 0.2, random_state = 42)
+        print(train_x.shape)
+        print(val_y.shape)
+        print(test_x.shape)
+        args.result_dir = "results/clustercnn"
+        eval_result,test_result = train(train_x, train_y, val_x, val_y,test_x,test_y, args, i)
+        result = {"train":eval_result,"test":test_result}
+        results[str(i)] = result
     return results
 
-def test_cluster_data(X,y,data_path,num_labels,num_cluster,args):
-    print("tiny train and test on clustered data")
-    results = {}
-    if not tf.gfile.Exists(data_path+"/global_index_cluster_data.npy"):
-        _,global_index = concatenate_data_from_dir(data_path,num_labels=num_labels,num_clusters=num_cluster)
-    else:global_index = np.load(data_path+"/global_index_cluster_data.npy")
-    index_train = global_index.item().get("0")
-    print(index_train.shape)
-    X_train_val = X[index_train]
-    y_train_Val = y[index_train]
-    train_x, val_x, train_y, val_y = train_test_split(X_train_val, y_train_Val, test_size=0.2, random_state=42)
-    index_test = global_index.item().get("1")
-    print(index_test.shape)
-    X_test = X[index_test]
-    y_test = y[index_test]
-    eval_result, test_result = train(train_x, train_y, val_x, val_y,X_test,y_test, args, 0)
-    return eval_result,test_result
 
 
 
 
 
-def test_shifted_data(X,y,data_path,num_labels,num_cluster,args):
-    print("test shifted data using pre-trained model")
-    if not tf.gfile.Exists(data_path+"/global_index_cluster_data.npy"):
-        _,global_index = concatenate_data_from_dir(data_path,num_labels=num_labels,num_clusters=num_cluster)
-    else:global_index = np.load(data_path+"/global_index_cluster_data.npy")
-    index = global_index.item().get('1')
-    X_cluster = X[index]
-    y_cluster = y[index]
-    test_result = prediction(X_cluster, y_cluster, args, 0)
-    print(test_result)
-    return test_result
 
 
 
@@ -300,27 +261,12 @@ def main(unused_argv):
     X,y = load_mnist(args.dataset)
     print(X.shape)
     print(y.shape)
-    # results = cross_validation(X,y,5,args)
-    # results = cross_validation_for_clustered_data(X,y,config.data_path,10,5,args)
-    # print(results)
-
-    eval_result, test_result = test_cluster_data(X,y,config.data_path,10,5,args)
-    print(eval_result)
-    print(test_result)
-    # for result in results:
-    #     print(result)
-
-    # data_path = config.data_path
-    # if not tf.gfile.Exists(data_path + "/global_index_cluster_data.npy"):
-    #     _, global_index = concatenate_data_from_dir(data_path, num_labels=10, num_clusters=5)
-    # else:
-    #     global_index = np.load(data_path + "/global_index_cluster_data.npy")
-    # index_test = global_index.item().get("1")
-    # print(index_test.shape)
-    # X_test = X[index_test]
-    # y_test = y[index_test]
-    # predictions = prediction(X_test,y_test,args,0)
-
+    results_random_ressample = cross_validation(X,y,5,args)
+    results_shifted = cross_validation_for_clustered_data(X,y,config.data_path,10,5,args)
+    print("***********random************")
+    print(results_random_ressample)
+    print("***********shifted************")
+    print(results_shifted)
 
 
 
