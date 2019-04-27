@@ -196,6 +196,7 @@ def load_dict(path):
     with open(path) as f:
         my_dict = json.load(f)
     return my_dict
+
 def write_path_to_config(result_path):
     file = open('config.py', 'w')
     file.write("SOURCE_URL_Mnist = 'http://yann.lecun.com/exdb/mnist/'")

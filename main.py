@@ -11,6 +11,7 @@ from ACGAN import ACGAN
 import numpy as np
 from data_generator import *
 from visualization import *
+from config_manager import config_manager
 """parsing and configuration"""
 def parse_args():
     desc = "Tensorflow implementation of GAN collections"
@@ -34,6 +35,7 @@ def parse_args():
     parser.add_argument('--num_labels',type=int,default=10,help="number of labels")
     parser.add_argument('--model_name',type=str,default='VAE',help="the name of model to be trained")
     parser.add_argument('--plot',type=bool,default=True,help="visualise the result of cluster")
+    parser.add_argument('--num_clusters',type=int,default=5,help="number of clusters")
     return check_args(parser.parse_args())
 
 """checking arguments"""
@@ -67,6 +69,7 @@ def main():
     args = parse_args()
     if args is None:
       exit()
+    config_m = config_manager(args)
 
     if args.model_name == "VAE":
         if args.labeled:
@@ -88,7 +91,8 @@ def main():
                               checkpoint_dir=args.checkpoint_dir,
                               result_dir=args.result_dir,
                               log_dir=args.log_dir,
-                              label=i
+                              label=i,
+                              config_manager=config_m
                               )
                     # build graph
                     vae.build_model()
@@ -104,39 +108,33 @@ def main():
                     vae.visualize_results(args.epoch - 1)
                     print(" [*] Testing finished!")
 
-                    # # save the transformed latent space into result dir
-                    # z = vae.transform()
-                    # z = z.eval()
-                    # path = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
-                    # np.save(path, z)
-                    # path = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
-                    # np.save(path, vae.data_y)
-
-                    filepath = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
+                    # save the transformed latent space into result dir
+                    # filepath = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
+                    filepath = config_m.get_data_path_for_each_label(i)
                     if not tf.gfile.Exists(filepath):
                         z = vae.transform()
                         z = z.eval()
-                        path = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
-                        np.save(path, z)
-                        path = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
-                        np.save(path, vae.data_y)
+                        np.save(filepath, z)
+                        # filepath = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
+                        np.save(config_m.get_data_path_for_each_label(i)+"/y.npy", vae.data_y)
 
 
 
                     if args.cluster:
                         # cluster latent space using VGMM
-                        result_path = args.result_dir + "/" + vae.model_dir
+                        # result_path = args.result_dir + "/" + vae.model_dir
                         # cluster the transformed latent space, and store the dictionary and prediction into result_path
-                        global_cluster(result_path,z)
+                        global_cluster(config_m.get_data_path_for_each_label(i),z)
 
             print(" [*] Training and Testing for all label finished!")
             # concatenate clustered data into one dict after clustering
-            result_path = args.result_dir + "/" + vae.super_model_dir()
-            data_dict,global_index = concatenate_data_from_dir(result_path,10,5)
+            # result_path = args.result_dir + "/" + vae.super_model_dir()
+            data_dict,global_index = concatenate_data_from_dir(data_path=config_m.get_data_path(),num_labels=config_m.num_labels,num_clusters=config_m.num_clusters)
             # save global index for cluster data
-            np.save(result_path+"/global_index_cluster_data.npy",global_index)
-            #T_SNE_Plot_with_datadict(data_dict,5,result_path)
-            #write_path_to_config(result_path)
+            np.save(config_m.get_data_path()+"/global_index_cluster_data.npy",global_index)
+            T_SNE_Plot_with_datadict(data_dict=data_dict,num_clusters=config_m.num_clusters,result_path=config_m.get_data_path())
+            # write_path_to_config(config_m.get_data_path())
+            config_m.write_config_file()
         else:
             # declare instance for VAE
             with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
@@ -148,7 +146,9 @@ def main():
                           dataset_name=args.dataset,
                           checkpoint_dir=args.checkpoint_dir,
                           result_dir=args.result_dir,
-                          log_dir=args.log_dir)
+                          log_dir=args.log_dir,
+                          config_manager=config_m
+                          )
                 # build graph
                 vae.build_model()
 
@@ -162,26 +162,25 @@ def main():
                 # visualize learned generator
                 vae.visualize_results(args.epoch - 1)
                 print(" [*] Testing finished!")
+
                 # save the transformed latent space into result dir
-                filepath = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
+                # filepath = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
+                filepath = config_m.get_data_path_for_each_label(-1)+"/z.npy"
                 if not tf.gfile.Exists(filepath):
                     z = vae.transform()
                     z = z.eval()
-                    path = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
-                    np.save(path, z)
-                    path = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
-                    np.save(path, vae.data_y)
+                    np.save(filepath, z)
+                    np.save(config_m.get_data_path_for_each_label(-1)+"/y.npy", vae.data_y)
 
 
                 if args.cluster:
-                    result_path = args.result_dir + "/" + vae.model_dir
-                    filepath = result_path + "/cluster_dict.json"
-                    cluster_for_each_label(result_path,10,5)
-                    # if not tf.gfile.Exists(filepath):
-                    #     cluster_for_each_label(result_path,10,5)
-                result_path = args.result_dir + "/" + vae.super_model_dir()
-                write_path_to_config(result_path)
-
+                    # result_path = args.result_dir + "/" + vae.model_dir
+                    filepath = config_m.get_data_path_for_each_label(-1) + "/cluster_dict.json"
+                    if not tf.gfile.Exists(filepath):
+                        cluster_for_each_label(config_m.get_data_path_for_each_label(-1),num_labels=config_m.num_labels,num_clusters=config_m.num_clusters)
+                # result_path = args.result_dir + "/" + vae.super_model_dir()
+                # write_path_to_config(config_m.get_data_path())
+                config_m.write_config_file()
     elif args.model_name =="ACGAN":
         # declare instance for ACGANG
         with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:

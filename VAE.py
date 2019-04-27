@@ -10,10 +10,11 @@ from utils import *
 
 import prior_factory as prior
 from data_generator import split_data_according_to_label
+from config_manager import config_manager
 class VAE(object):
     model_name = "VAE"     # name for checkpoint
 
-    def __init__(self, sess, epoch, batch_size, z_dim, dataset_name, checkpoint_dir, result_dir, log_dir, label = -1, num_labels=10):
+    def __init__(self, sess, epoch, batch_size, z_dim, dataset_name, checkpoint_dir, result_dir, log_dir, label = -1, num_labels=10,config_manager=None):
         self.sess = sess
         self.dataset_name = dataset_name
         self.checkpoint_dir = checkpoint_dir
@@ -22,6 +23,7 @@ class VAE(object):
         self.epoch = epoch
         self.batch_size = batch_size
         self.label = label
+        self.config_manager = config_manager
 
         if dataset_name == 'mnist' or dataset_name == 'fashion-mnist':
             # parameters
@@ -261,14 +263,16 @@ class VAE(object):
 
     @property
     def model_dir(self):
-        return "{}_{}_{}_{}/{}".format(
-            self.model_name, self.dataset_name,
-            self.batch_size, self.z_dim, "L"+str(self.label))
+        return self.config_manager.get_model_dir(self.label)
+        # return "{}_{}_{}_{}/{}".format(
+        #     self.model_name, self.dataset_name,
+        #     self.batch_size, self.z_dim, "L"+str(self.label))
 
     def super_model_dir(self):
-        return "{}_{}_{}_{}".format(
-            self.model_name, self.dataset_name,
-            self.batch_size, self.z_dim)
+        return self.config_manager.get_super_model_dir()
+        # return "{}_{}_{}_{}".format(
+        #     self.model_name, self.dataset_name,
+        #     self.batch_size, self.z_dim)
 
     def save(self, checkpoint_dir, step):
         checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir, self.model_name)
