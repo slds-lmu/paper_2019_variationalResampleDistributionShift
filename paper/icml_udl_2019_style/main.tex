@@ -94,7 +94,7 @@ Our contributions are:
 \textbf{AC-GAN:}\, GAN \cite{FIXME} trains a discriminator and generator network simultaneously by the mini-max game. The discriminator is trained to distinguish data from samples and generators, while the generator is trained to mimic the samples data to deteriorate the performance of the discriminator. Auxiliary Classifier GAN \cite{FIXME} augment the input of the generator network with the class label, and augment the output of the discriminator network with a classification output. Both the discriminator and the generator is trained to recover the classification output at the discriminator output side, while they optimize against the ability of the discriminator to tell apart the fake samples. 
 
 
-\textbf{Bayesian Neural Network:}\, Different from generative represenation learning methods like VAE \cite{FIXME} and GAN \cite{FIXME} which models a variational approximator to the true posterior on the activation of neural network, Bayesian Neural Network build variational models on the weight of the network. \textbf{TOCONTINUE} 
+\textbf{Bayesian Neural Network:}\, Different from generative representation learning methods like VAE \cite{FIXME} and GAN \cite{FIXME} which models a variational approximator to the true posterior on the activation of neural network, Bayesian Neural Network build variational models on the weight of the network. As Auto-encoding Variational Bayes, Bayes-by-Backpropagate \cite{FIXME:Blundel} also start from an independent noise distribution, but instead of transforming the noise together with observation to latent activation, Bayes-By-Backpropagate associate each weight with a variational mean and scale parameter to mix with the noise. Back-propagation is carries against the K-L divergence between the true posterior distribution of the weight with respect to data $p(w|D)$ and the variational posterior $q(w|\theta)$ where $\theta$ is the variational mean and variance.
  
 \textbf{Variational Gaussian Mixture Model:}\,
 
@@ -107,7 +107,7 @@ Our contributions are:
 \section{Method}
 Given a dataset $\DS$, split it into $D_{train} \bigcup D_{val} \bigcup D_{test}$. Other than a seemingly arbitrary split in most deep learning papers or random split in Cross Validation, we split it such that the each split reside in a different distribution.
 
-Since high dimensional clustering is challenging, we first learned a representation of the whole dataset or with repsect to each class label. This gives us two benefits, one is the dimensionality reduction, and the other is we learned a latent representation that could generate new samples.
+Since high dimensional clustering is challenging, we first learned a representation of the whole dataset or with respect to each class label. This gives us two benefits, one is the dimensionality reduction, and the other is we learned a latent representation that could generate new samples.
 
 Upon the latent representation, we use Variational Gaussian Mixture model to assign each instance a different cluster. Among those, one cluster is used for training, one for validation and the left over is used for testing. A combination of the assignment to $D_{train} \bigcup D_{val} \bigcup D_{test}$ forms a variation estimate on how good a model could generalize to $D_{test}$, similar to Cross Validation.
 
