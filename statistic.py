@@ -321,7 +321,7 @@ def gromov_wasserstein_distance_latent_space(data_path,num_labels,num_clusters,r
     import scipy as sp
     import matplotlib.pylab as pl
     import ot
-    z = np.load(data_path+ "/L-1/z.npy")
+    z = np.load(data_path+ "/L-1/z.npy")  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
     index = np.load(data_path+"/global_index_cluster_data.npy")
     d_t = z[index.item().get('0')]
     d_s = z[index.item().get('1')]

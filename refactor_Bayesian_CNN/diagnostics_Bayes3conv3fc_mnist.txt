@@ -1,1 +1,1 @@
-{'Epoch': 1, 'Loss': tensor(2.5008), 'Accuracy': tensor(10)}{'Epoch': 1, 'Loss': tensor(2.5439), 'Accuracy': tensor(10)}
+{'Epoch': 1, 'Loss': tensor(2.5008), 'Accuracy': tensor(10)}{'Epoch': 1, 'Loss': tensor(2.5439), 'Accuracy': tensor(10)}{'Epoch': 1, 'Loss': tensor(2.5753), 'Accuracy': tensor(10)}
