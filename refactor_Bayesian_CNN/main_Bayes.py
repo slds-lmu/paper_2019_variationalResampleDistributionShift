@@ -47,7 +47,7 @@ args = parser.parse_args()
 
 # Hyper Parameter settings
 # use_cuda = torch.cuda.is_available()
-use_cuda = False
+use_cuda = cf.use_cuda()
 if use_cuda is True:
     torch.cuda.set_device(0)
 best_acc = 0
@@ -150,7 +150,7 @@ def train(epoch):
 
     print('\n=> Training Epoch #%d, LR=%.4f' %(epoch, cf.learning_rate(args.lr, epoch)))
     for batch_idx, (inputs_value, targets) in enumerate(trainloader):
-
+        # repeat samples for
         x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
         y = targets.repeat(args.num_samples)
         if use_cuda:
@@ -215,7 +215,8 @@ def test(epoch):
 
         loss = vi(outputs, y, kl, beta)
 
-        test_loss += loss.data[0]
+        #test_loss += loss.data[0]
+        test_loss += loss.data
         _, predicted = torch.max(outputs.data, 1)
         preds = F.softmax(outputs, dim=1)
         results = torch.topk(preds.cpu().data, k=1, dim=1)
