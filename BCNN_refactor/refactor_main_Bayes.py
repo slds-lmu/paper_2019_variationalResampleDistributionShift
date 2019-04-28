@@ -51,7 +51,7 @@ use_cuda = cf.use_cuda()
 if use_cuda is True:
     torch.cuda.set_device(0)
 best_acc = 0
-resize = 32
+resize = cf.resize
 start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
 
 # Data Uplaod
@@ -91,18 +91,17 @@ elif (args.dataset == 'mnist'):
     sys.stdout.write("| ")
     trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
     testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
-    outputs = 10
-    inputs = 1
+    outputs = 10  # number of labels
+    inputs = 1   # input channel
 
 
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
+# num_workers: how many subprocesses to use for data loading. 0 means that the data will be loaded in the main process. (default: 0)# Return network & file name
 
-
-# Return network & file name
 def getNetwork(args):
     if (args.net_type == 'lenet'):
-        net = BBBLeNet(outputs,inputs)
+        net = BBBLeNet(outputs,inputs)    # inputs is number of input channels
         file_name = 'lenet'
     elif (args.net_type == 'alexnet'):
         net = BBBAlexNet(outputs,inputs)
@@ -135,13 +134,14 @@ else:
 if use_cuda:
     net.cuda()
 
-vi = GaussianVariationalInference(torch.nn.CrossEntropyLoss())
+vi = GaussianVariationalInference(torch.nn.CrossEntropyLoss())  ## GaussianVariationalInference is a subclass of nn.Module
+# vi(...) is equivalent to vi.forward(...)
 
 logfile = os.path.join('diagnostics_Bayes{}_{}.txt'.format(args.net_type, args.dataset))
 
 # Training
 def train(epoch):
-    net.train()
+    net.train()   # torch.nn.Module.train:torch.nn.Module.train:  Sets the module in training mode.
     train_loss = 0
     correct = 0
     total = 0
@@ -150,7 +150,7 @@ def train(epoch):
 
     print('\n=> Training Epoch #%d, LR=%.4f' %(epoch, cf.learning_rate(args.lr, epoch)))
     for batch_idx, (inputs_value, targets) in enumerate(trainloader):
-        # repeat samples for
+
         x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
         y = targets.repeat(args.num_samples)
         if use_cuda:
@@ -166,13 +166,14 @@ def train(epoch):
             beta = 0
         # Forward Propagation
         x, y = Variable(x), Variable(y)
-        outputs, kl = net.probforward(x)
-        loss = vi(outputs, y, kl, beta)  # Loss
-        optimizer.zero_grad()
+        outputs, kl = net.probforward(x)    # prob.forward is not from torch.nn.Module
+        # torch.nn.Module.forward: Although the recipe for forward pass needs to be defined within this function, one should call the Module instance afterwards instead of this since the former takes care of running the registered hooks while the latter silently ignores them.
+        loss = vi(outputs, y, kl, beta)  # Loss, equivalent to calling vi.forward(outputs, y, kl, beta)
+        optimizer.zero_grad()  # Clears the gradients of all optimized torch.Tensor s.
         loss.backward()  # Backward Propagation
         optimizer.step()  # Optimizer update
         train_loss += loss.data
-        _, predicted = torch.max(outputs.data, 1)
+        _, predicted = torch.max(outputs.data, dim = 1)  # Returns the maximum value of each row of the input tensor in the given dimension dim. The second return value is the index location of each maximum value found (argmax).
         total += targets.size(0)
         correct += predicted.eq(y.data).cpu().sum()
 
@@ -189,20 +190,21 @@ def train(epoch):
 
 def test(epoch):
     global best_acc
-    net.eval()
+    net.eval()   # torch.nn.Module.eval: set network into evaluation mode
     test_loss = 0
     correct = 0
     total = 0
     conf=[]
     m = math.ceil(len(testset) / batch_size)
     for batch_idx, (inputs_value, targets) in enumerate(testloader):
-        x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
+        x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)    # Repeats this tensor along the specified dimensions.
+        # torch.Tensor.view: Returns a new tensor with the same data as the self tensor but of a different shape.
         y = targets.repeat(args.num_samples)
         if use_cuda:
             x, y = x.cuda(), y.cuda()
         with torch.no_grad():
             x, y = Variable(x), Variable(y)
-        outputs, kl = net.probforward(x)
+        outputs, kl = net.probforward(x)   # probforward is not from torch.nn.Module
 
         if args.beta_type is "Blundell":
             beta = 2 ** (m - (batch_idx + 1)) / (2 ** m - 1)
@@ -215,8 +217,7 @@ def test(epoch):
 
         loss = vi(outputs, y, kl, beta)
 
-        #test_loss += loss.data[0]
-        test_loss += loss.data
+        test_loss += loss.data[0]
         _, predicted = torch.max(outputs.data, 1)
         preds = F.softmax(outputs, dim=1)
         results = torch.topk(preds.cpu().data, k=1, dim=1)
