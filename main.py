@@ -110,13 +110,14 @@ def main():
 
                     # save the transformed latent space into result dir
                     # filepath = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
+                    z = vae.transform()
+                    z = z.eval()
                     filepath = config_m.get_data_path_for_each_label(i)
                     if not tf.gfile.Exists(filepath):
-                        z = vae.transform()
-                        z = z.eval()
                         np.save(filepath, z)
                         # filepath = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
                         np.save(config_m.get_data_path_for_each_label(i)+"/y.npy", vae.data_y)
+
 
 
 
@@ -124,6 +125,7 @@ def main():
                         # cluster latent space using VGMM
                         # result_path = args.result_dir + "/" + vae.model_dir
                         # cluster the transformed latent space, and store the dictionary and prediction into result_path
+
                         global_cluster(config_m.get_data_path_for_each_label(i),z)
 
             print(" [*] Training and Testing for all label finished!")
