@@ -46,7 +46,7 @@ def T_SNE_Plot_with_datadict(data_dict,num_clusters,result_path):
             pca_result_50 = pca_50.fit_transform(X)
             fashion_pca_tsne[str(i)] = TSNE().fit_transform(pca_result_50)
         else:
-            fashion_pca_tsne[str(i)] = TSNE.fit_transform(X)
+            fashion_pca_tsne[str(i)] = TSNE().fit_transform(X)
         plt.scatter(fashion_pca_tsne[str(i)][:, 0], fashion_pca_tsne[str(i)][:, 1], color=color_dict[str(i)], alpha=0.1)
         plt.savefig(result_path + "/TSNE"+str(i)+".png")
     plt.grid(True)
