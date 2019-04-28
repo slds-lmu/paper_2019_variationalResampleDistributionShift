@@ -84,6 +84,7 @@ def cluster_for_each_label(data_path,num_labels,num_clusters):
     m = np.zeros(y.shape)
     m = generate_metadata(m,pos_index_cluster,num_clusters=num_clusters)
     vgmm.save_predict(data_path+"/cluster_predict.tsv",m)
+    print(z.shape)
     T_SNE_Plot(z,pos_index_cluster,num_clusters,data_path)
 
 def global_cluster(result_path,z):
