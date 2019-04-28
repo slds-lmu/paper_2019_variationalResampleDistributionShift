@@ -250,8 +250,8 @@ def main(unused_argv):
 
     # load training and eval data
     X,y = load_mnist(args.dataset)
-    results_random_ressample = cross_validation(X,y,5,args)
-    results_shifted = cross_validation_for_clustered_data(X,y,config.data_path,10,5,args)
+    results_random_ressample = cross_validation(X,y,config.num_clusters,args)
+    results_shifted = cross_validation_for_clustered_data(X,y,config.data_path,config.num_labels,config.num_clusters,args)
     print("***********random************")
     print(results_random_ressample)
     print("***********shifted************")

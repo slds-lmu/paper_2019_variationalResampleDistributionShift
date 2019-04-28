@@ -55,4 +55,8 @@ class config_manager(object):
         file.write('\n')
         file.write('statistic_name4d_s = "/TSNE_transformed_data_dict.npy"')
         file.write('\n')
+        file.write('num_clusters={}'.format(self.num_clusters))
+        file.write('\n')
+        file.write('num_labels={}'.format(self.num_labels))
+        file.write('\n')
         file.close()
