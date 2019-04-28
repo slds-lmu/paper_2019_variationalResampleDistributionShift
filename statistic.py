@@ -4,6 +4,7 @@ import json
 from  data_generator import concatenate_data_from_dir
 import config as config
 from utils import *
+from sklearn.decomposition import PCA
 
 def counting_label():
     # load data
@@ -38,6 +39,7 @@ def counting_label():
     print(y_3)
     print(y_4)
 
+#compute kernal density within one cluster
 def kernel_density_estimation_single_Cluster(xs,result_path,img_name):
     import numpy as np
     import matplotlib.pyplot as plt
@@ -75,7 +77,7 @@ def kernel_density_estimation_single_Cluster(xs,result_path,img_name):
     plt.savefig(result_path + "/KDE"+img_name+".jpg")
     plt.clf()
 
-
+# compute kernal density within combined data from two cluster
 def kernel_density_estimation(xs,xt,result_path,img_name):
     import numpy as np
     import matplotlib.pyplot as plt
@@ -298,18 +300,36 @@ def gromov_wasserstein_distance_TSNE_test(data_path,num_labels,num_clusters,resu
     pl.savefig(result_path + "/WD_TSNE.jpg")
 
 
+def kernel_density_estimation_on_latent_space(data_path,num_clusters):
+    z = np.load(data_path+"/L-1/z.npy")
+    b = np.load(config.data_path+"/global_index_cluster_data.npy")
+
+    for i in range(num_clusters):
+       xs = z[b.item().get(str(i))]
+       print(xs.shape)
+       pca_2 = PCA(n_components=2)
+       xs = pca_2.fit_transform(xs)
+       kernel_density_estimation_single_Cluster(xs,config.result_path,str(i))
+       for j in range(5):
+           if i!=j:
+               xt = z[b.item().get(str(j))]
+               xt = pca_2.fit_transform(xt)
+               kernel_density_estimation(xs,xt,config.result_path,str(i)+str(j))
+
 if __name__ == '__main__':
     # gromov_wasserstein_distance_TSNE(config.data_path,10,5,config.data_path)
-    gromov_wasserstein_distance_TSNE_test(config.data_path,10,5,config.data_path)
-
-    # code for density estimator
-    #b = np.load(config.data_path + "/TSNE_transformed_data_dict.npy")
-
-    #for i in range(5):
+    # gromov_wasserstein_distance_TSNE_test(config.data_path,config.num_labels,config.num_clusters,config.data_path)
+    #
+    # # code for density estimator
+    # b = np.load(config.data_path + "/TSNE_transformed_data_dict.npy")
+    #
+    # for i in range(5):
     #    xs = b.item().get(str(i))
+    #    kernel_density_estimation_single_Cluster(xs,config.result_path,str(i))
     #    for j in range(5):
     #        if i!=j:
     #            xt = b.item().get(str(j))
-    #            density_estimation_GMM(xs,xt,config.result_path,str(i)+str(j))
+    #            kernel_density_estimation(xs,xt,config.result_path,str(i)+str(j))
+    #            # density_estimation_GMM(xs,xt,config.result_path,str(i)+str(j))
 
-
+    kernel_density_estimation_on_latent_space(config.data_path,config.num_clusters)
