@@ -112,7 +112,7 @@ def main():
                     # filepath = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
                     z = vae.transform()
                     z = z.eval()
-                    filepath = config_m.get_data_path_for_each_label(i)
+                    filepath = config_m.get_data_path_for_each_label(i) +"/z.npy"
                     if not tf.gfile.Exists(filepath):
                         np.save(filepath, z)
                         # filepath = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
