@@ -224,7 +224,7 @@ def cross_validation_for_clustered_data(X,y,data_path,num_labels,num_cluster,arg
     results = {}
     if not tf.gfile.Exists(data_path+"/global_index_cluster_data.npy"):
         _,global_index = concatenate_data_from_dir(data_path,num_labels=num_labels,num_clusters=num_cluster)
-    else:global_index = np.load(data_path+"/global_index_cluster_data.npy")
+    else:global_index = np.load(data_path+"/global_index_cluster_data.npy",allow_pickle=True)
     for i in range(num_cluster):
         index = global_index.item().get(str(i))
         test_x = X[index]
