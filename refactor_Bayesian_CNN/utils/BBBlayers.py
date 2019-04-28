@@ -6,8 +6,8 @@ import torch.nn.functional as F
 from .BBBdistributions import Normal, Normalout, distribution_selector
 from torch.nn.modules.utils import _pair
 
-#cuda = torch.cuda.is_available()
-cuda = False
+cuda = torch.cuda.is_available()
+#cuda = False
 
 
 class FlattenLayer(nn.Module):

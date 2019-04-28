@@ -42,4 +42,5 @@ def get_hms(seconds):
 
 def use_cuda():
     use_cuda = torch.cuda.is_available()
-    return False
+    return use_cuda
+    #return False
