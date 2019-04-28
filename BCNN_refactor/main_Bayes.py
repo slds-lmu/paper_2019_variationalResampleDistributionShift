@@ -181,7 +181,8 @@ def train(epoch):
                     (len(trainset)//batch_size)+1, loss.data, (100*correct/total)/args.num_samples))
         sys.stdout.flush()
 
-    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': (100*correct/total)/args.num_samples}
+    #diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': (100*correct/total)/args.num_samples}
+    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': (100*correct/total)/args.num_samples}
     with open(logfile, 'a') as lf:
         lf.write(str(diagnostics_to_write))
 
