@@ -1,3 +1,4 @@
+import tensorflow as tf
 class VGMMDataset(Dataset):
     """Dataset after VGMM clustering"""
     def __init__(self, pattern, root_dir, transform=None, list_idx):
@@ -9,6 +10,9 @@ class VGMMDataset(Dataset):
                 on a sample.
             list_idx (list): the list of indexes of the cluster to choose as trainset or testset
         """
+        if not tf.gfile.Exists(data_path+"/global_index_cluster_data.npy"):
+        _,global_index = concatenate_data_from_dir(data_path,num_labels=num_labels,num_clusters=num_cluster)
+        else:global_index = np.load(data_path+"/global_index_cluster_data.npy",allow_pickle=True)
         self.landmarks_frame = pd.read_csv(csv_file)
         self.root_dir = root_dir
         self.transform = transform
