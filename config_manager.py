@@ -59,6 +59,6 @@ class config_manager(object):
         file.write('\n')
         file.write('num_labels={}'.format(self.num_labels))
         file.write('\n')
-        file.write('dataset_name={}'.format(self.dataset_name))
+        file.write("dataset_name='{}'".format(self.dataset_name))
         file.write('\n')
         file.close()
