@@ -133,7 +133,7 @@ def main():
             # result_path = args.result_dir + "/" + vae.super_model_dir()
             data_dict,global_index = concatenate_data_from_dir(data_path=config_m.get_data_path(),num_labels=config_m.num_labels,num_clusters=config_m.num_clusters)
             # save global index for cluster data
-            np.save(config_m.get_data_path()+"/global_index_cluster_data.npy",global_index)
+            np.save(config_m.get_data_path()+"/global_index_cluster_data.npy",global_index,allow_pickle=True)
             T_SNE_Plot_with_datadict(data_dict=data_dict,num_clusters=config_m.num_clusters,result_path=config_m.get_data_path())
             # write_path_to_config(config_m.get_data_path())
             config_m.write_config_file()
