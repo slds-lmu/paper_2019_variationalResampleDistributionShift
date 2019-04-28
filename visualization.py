@@ -20,13 +20,14 @@ def T_SNE_Plot(data_x,pos,num_clusters,result_path):
 
     for i in range(num_clusters):
         X = data_x[pos[str(i)]]
+        print(X.shape)
         # y = data_y[pos[str(i)]]
         if X.shape[1]>50:
             pca_50 = PCA(n_components=10)
             pca_result_50 = pca_50.fit_transform(X)
             fashion_pca_tsne[str(i)] = TSNE().fit_transform(pca_result_50)
         else:
-            fashion_pca_tsne[str(i)] = TSNE.fit_transform(X)
+            fashion_pca_tsne[str(i)] = TSNE().fit_transform(X)
         plt.scatter(fashion_pca_tsne[str(i)][:, 0], fashion_pca_tsne[str(i)][:, 1], color=color_dict[str(i)], alpha=0.1)
         plt.savefig(result_path + "/TSNE" + str(i) + ".png")
     plt.grid(True)
