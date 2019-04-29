@@ -6,8 +6,8 @@ import tensorflow as tf
 import numpy as np
 
 from ops import *
-from utils import *
-
+# from utils import *
+import utils as utils_parent
 import prior_factory as prior
 from data_generator import split_data_according_to_label
 from config_manager import config_manager
@@ -45,7 +45,7 @@ class VAE(object):
             # load mnist
             # if flag labeled is true, train data is the subset of data(Mnist) which has same label
             if label != -1:
-                X,y=load_mnist(self.dataset_name)
+                X,y=utils_parent.load_mnist(self.dataset_name)
                 # dict[i] represent data index with label i
                 dict = split_data_according_to_label(X,y,num_labels)
                 # extract data with label i from global training data
@@ -54,7 +54,7 @@ class VAE(object):
                 self.data_y = dict[str(label)]
                 # self.data_y = y[dict[str(label)]]
             else:
-                self.data_X, self.data_y = load_mnist(self.dataset_name)
+                self.data_X, self.data_y = utils_parent.load_mnist(self.dataset_name)
 
             # get number of batches for a single epoch
             self.num_batches = len(self.data_X) // self.batch_size
@@ -206,8 +206,8 @@ class VAE(object):
                     tot_num_samples = min(self.sample_num, self.batch_size)
                     manifold_h = int(np.floor(np.sqrt(tot_num_samples)))
                     manifold_w = int(np.floor(np.sqrt(tot_num_samples)))
-                    save_images(samples[:manifold_h * manifold_w, :, :, :], [manifold_h, manifold_w],
-                                './' + check_folder(self.result_dir + '/' + self.model_dir) + '/' + self.model_name + '_train_{:02d}_{:04d}.png'.format(
+                    utils_parent.save_images(samples[:manifold_h * manifold_w, :, :, :], [manifold_h, manifold_w],
+                                './' + utils_parent.check_folder(self.result_dir + '/' + self.model_dir) + '/' + self.model_name + '_train_{:02d}_{:04d}.png'.format(
                                     epoch, idx))
 
             # After an epoch, start_batch_id is set to zero
@@ -233,8 +233,8 @@ class VAE(object):
 
         samples = self.sess.run(self.fake_images, feed_dict={self.z: z_sample})
 
-        save_images(samples[:image_frame_dim * image_frame_dim, :, :, :], [image_frame_dim, image_frame_dim],
-                    check_folder(
+        utils_parent.save_images(samples[:image_frame_dim * image_frame_dim, :, :, :], [image_frame_dim, image_frame_dim],
+                                 utils_parent.check_folder(
                         self.result_dir + '/' + self.model_dir) + '/' + self.model_name + '_epoch%03d' % epoch + '_test_all_classes.png')
 
         """ learned manifold """
@@ -258,7 +258,7 @@ class VAE(object):
                     z_tot = np.concatenate((z_tot, z), axis=0)
                     id_tot = np.concatenate((id_tot, batch_labels), axis=0)
 
-            save_scattered_image(z_tot, id_tot, -4, 4, name=check_folder(
+            utils_parent.save_scattered_image(z_tot, id_tot, -4, 4, name=utils_parent.check_folder(
                 self.result_dir + '/' + self.model_dir) + '/' + self.model_name + '_epoch%03d' % epoch + '_learned_manifold.png')
 
     @property

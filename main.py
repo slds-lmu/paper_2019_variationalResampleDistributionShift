@@ -2,8 +2,9 @@ import os
 
 ## VAE Variants
 from VAE import VAE
-from utils import show_all_variables
-from utils import check_folder
+# from utils import show_all_variables
+# from utils import check_folder
+import utils as utils_parent
 import tensorflow as tf
 import argparse
 from VGMM import VGMM
@@ -98,7 +99,7 @@ def main():
                     vae.build_model()
 
                     # show network architecture
-                    show_all_variables()
+                    utils_parent.show_all_variables()
 
                     # launch the graph in a session
                     vae.train()
@@ -156,7 +157,7 @@ def main():
                 vae.build_model()
 
                 # show network architecture
-                show_all_variables()
+                utils_parent.show_all_variables()
 
                 # launch the graph in a session
                 vae.train()
@@ -202,7 +203,7 @@ def main():
             acgan.build_model()
 
             # show network architecture
-            show_all_variables()
+            utils_parent.show_all_variables()
 
             # launch the graph in a session
             acgan.train()

@@ -1,7 +1,9 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from utils import *
+# from utils import *
+import config
+import utils as utils_parent
 import argparse
 from sklearn.model_selection import KFold
 from data_generator import concatenate_data_from_dir
@@ -137,13 +139,13 @@ def parse_args():
 """checking arguments"""
 def check_args(args):
     # --checkpoint_dir
-    check_folder(args.checkpoint_dir)
+    utils_parent.check_folder(args.checkpoint_dir)
 
     # --result_dir
-    check_folder(args.result_dir)
+    utils_parent.check_folder(args.result_dir)
 
     # --log_dir
-    check_folder(args.log_dir)
+    utils_parent.check_folder(args.log_dir)
 
     # --epoch
     assert args.epoch >= 1, 'number of epochs must be larger than or equal to one'
@@ -181,7 +183,7 @@ def train(X,y,val_x,val_y,test_x,test_y,args,i):
 
     # Create the Estimator
     model_dir = "{}/convnet_{}_{}_{}_{}".format(args.result_dir,args.dataset,args.batch_size,args.epoch,i)
-    check_folder(model_dir)
+    utils_parent.check_folder(model_dir)
     mnist_classifier = tf.estimator.Estimator(
         model_fn=cnn_model_fn, model_dir=model_dir)
 
@@ -249,7 +251,7 @@ def main(unused_argv):
       exit()
 
     # load training and eval data
-    X,y = load_mnist(args.dataset)
+    X,y = utils_parent.load_mnist(args.dataset)
     results_random_ressample = cross_validation(X,y,config.num_clusters,args)
     results_shifted = cross_validation_for_clustered_data(X,y,config.data_path,config.num_labels,config.num_clusters,args)
     print("***********random************")

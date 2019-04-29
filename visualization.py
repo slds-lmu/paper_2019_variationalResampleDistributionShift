@@ -11,7 +11,7 @@ import utils as utils_parent
 import json
 # import matplotlib as plt
 import matplotlib.pyplot as plt
-from utils import *
+# from utils import *
 import config
 
 def T_SNE_Plot(data_x,pos,num_clusters,result_path):

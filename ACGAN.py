@@ -6,8 +6,8 @@ import tensorflow as tf
 import numpy as np
 
 from ops import *
-from utils import *
-
+# from utils import *
+import utils as utils_parent
 class ACGAN(object):
     model_name = "ACGAN"     # name for checkpoint
 
@@ -43,7 +43,7 @@ class ACGAN(object):
             self.len_continuous_code = 2  # gaussian distribution (e.g. rotation, thickness)
 
             # load mnist
-            self.data_X, self.data_y = load_mnist(self.dataset_name)
+            self.data_X, self.data_y = utils_parent.load_mnist(self.dataset_name)
 
             # get number of batches for a single epoch
             self.num_batches = len(self.data_X) // self.batch_size
@@ -243,7 +243,7 @@ class ACGAN(object):
                     tot_num_samples = min(self.sample_num, self.batch_size)
                     manifold_h = int(np.floor(np.sqrt(tot_num_samples)))
                     manifold_w = int(np.floor(np.sqrt(tot_num_samples)))
-                    save_images(samples[:manifold_h * manifold_w, :, :, :], [manifold_h, manifold_w], './' + check_folder(
+                    utils_parent.save_images(samples[:manifold_h * manifold_w, :, :, :], [manifold_h, manifold_w], './' + utils_parent.check_folder(
                         self.result_dir + '/' + self.model_dir) + '/' + self.model_name + '_train_{:02d}_{:04d}.png'.format(
                         epoch, idx))
 
@@ -272,8 +272,8 @@ class ACGAN(object):
 
         samples = self.sess.run(self.fake_images, feed_dict={self.z: z_sample, self.y: y_one_hot})
 
-        save_images(samples[:image_frame_dim*image_frame_dim,:,:,:], [image_frame_dim, image_frame_dim],
-                    check_folder(self.result_dir + '/' + self.model_dir) + '/' + self.model_name + '_epoch%03d' % epoch + '_test_all_classes.png')
+        utils_parent.save_images(samples[:image_frame_dim*image_frame_dim,:,:,:], [image_frame_dim, image_frame_dim],
+                    utils_parent.check_folder(self.result_dir + '/' + self.model_dir) + '/' + self.model_name + '_epoch%03d' % epoch + '_test_all_classes.png')
 
         """ specified condition, random noise """
         n_styles = 10  # must be less than or equal to self.batch_size
@@ -287,8 +287,8 @@ class ACGAN(object):
             y_one_hot[np.arange(self.batch_size), y] = 1
 
             samples = self.sess.run(self.fake_images, feed_dict={self.z: z_sample, self.y: y_one_hot})
-            save_images(samples[:image_frame_dim*image_frame_dim,:,:,:], [image_frame_dim, image_frame_dim],
-                        check_folder(self.result_dir + '/' + self.model_dir) + '/' + self.model_name + '_epoch%03d' % epoch + '_test_class_%d.png' % l)
+            utils_parent.save_images(samples[:image_frame_dim*image_frame_dim,:,:,:], [image_frame_dim, image_frame_dim],
+                        utils_parent.check_folder(self.result_dir + '/' + self.model_dir) + '/' + self.model_name + '_epoch%03d' % epoch + '_test_class_%d.png' % l)
 
             samples = samples[si, :, :, :]
 
@@ -303,8 +303,8 @@ class ACGAN(object):
             for c in range(self.len_discrete_code):
                 canvas[s * self.len_discrete_code + c, :, :, :] = all_samples[c * n_styles + s, :, :, :]
 
-        save_images(canvas, [n_styles, self.len_discrete_code],
-                    check_folder(self.result_dir + '/' + self.model_dir) + '/' + self.model_name + '_epoch%03d' % epoch + '_test_all_classes_style_by_style.png')
+        utils_parent.save_images(canvas, [n_styles, self.len_discrete_code],
+                    utils_parent.check_folder(self.result_dir + '/' + self.model_dir) + '/' + self.model_name + '_epoch%03d' % epoch + '_test_all_classes_style_by_style.png')
 
     @property
     def model_dir(self):
