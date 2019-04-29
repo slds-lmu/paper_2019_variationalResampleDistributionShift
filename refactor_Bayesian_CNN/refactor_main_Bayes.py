@@ -89,8 +89,12 @@ elif (args.dataset == 'cifar100'):
 elif (args.dataset == 'mnist'):
     print("| Preparing MNIST dataset...")
     sys.stdout.write("| ")
-    trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
-    testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
+    import refactor_dataset_class
+    #trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
+    trainset = refactor_dataset_class.VGMMDataset()
+    #testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
+    #testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
+    testset = refactor_dataset_class.VGMMDataset()
     outputs = 10  # number of labels
     inputs = 1   # input channel
 
