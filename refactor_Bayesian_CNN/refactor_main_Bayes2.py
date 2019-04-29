@@ -21,6 +21,7 @@ import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
 from torch.autograd import Variable
 
+
 import Bayesian_config as cf
 
 
@@ -212,8 +213,10 @@ def prepare_data(args,train_list,test_list,resize):
     elif (args.dataset == 'mnist'):
         print("| Preparing MNIST dataset...")
         sys.stdout.write("| ")
-        trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
-        testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
+        # trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
+        # testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
+        trainset = refactor_dataset_class.VGMMDataset(list_idx = train_list,transform=transform_train)
+        testset = refactor_dataset_class.VGMMDataset(list_idx = test_list,transform=transform_test)
         outputs = 10
         inputs = 1
     return trainset, testset, inputs,outputs
