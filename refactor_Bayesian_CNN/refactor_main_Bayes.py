@@ -71,6 +71,7 @@ transform_test = transforms.Compose([
 ])
 
 
+
 if (args.dataset == 'cifar10'):
     print("| Preparing CIFAR-10 dataset...")
     sys.stdout.write("| ")
@@ -91,10 +92,10 @@ elif (args.dataset == 'mnist'):
     print("| Preparing MNIST dataset...")
     sys.stdout.write("| ")
     #trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
-    trainset = refactor_dataset_class.VGMMDataset()
+    trainset = refactor_dataset_class.VGMMDataset(transform = transform_train)
     #testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
     #testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
-    testset = refactor_dataset_class.VGMMDataset()
+    testset = refactor_dataset_class.VGMMDataset(transform = transform_test)
     outputs = 10  # number of labels
     inputs = 1   # input channel
 
@@ -178,6 +179,9 @@ def train(epoch):
         x, y = Variable(x), Variable(y)
         outputs, kl = net.probforward(x)    # prob.forward is not from torch.nn.Module
         # torch.nn.Module.forward: Although the recipe for forward pass needs to be defined within this function, one should call the Module instance afterwards instead of this since the former takes care of running the registered hooks while the latter silently ignores them.
+        print(x.shape)
+        print(outputs.shape)  # here is the bug
+        print(kl.shape) # scalar shape should be empty here
         loss = vi(outputs, y, kl, beta)  # Loss, equivalent to calling vi.forward(outputs, y, kl, beta)
         optimizer.zero_grad()  # Clears the gradients of all optimized torch.Tensor s.
         loss.backward()  # Backward Propagation

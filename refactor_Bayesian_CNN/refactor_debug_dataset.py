@@ -46,7 +46,8 @@ transform_test = transforms.Compose([
 
 start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
 trainset_org = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
-trainset_refactor = refactor_dataset_class.VGMMDataset()
+trainset_refactor = refactor_dataset_class.VGMMDataset(transform = transform_train)
+
 trainloader_org = torch.utils.data.DataLoader(trainset_org, batch_size=batch_size, shuffle=True, num_workers=4)
 trainloader_refactor = torch.utils.data.DataLoader(trainset_refactor, batch_size=batch_size, shuffle=False, num_workers=4)
 # num_workers: how many subprocesses to use for data loading. 0 means that the data will be loaded in the main process. (default: 0)# Return network & file name

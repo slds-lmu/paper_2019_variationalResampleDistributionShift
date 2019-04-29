@@ -1,3 +1,4 @@
+from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 #from torchvision import transforms, utils
 import tensorflow as tf
@@ -88,10 +89,12 @@ class VGMMDataset(Dataset):
         return len(self.all_inds)
 
     def __getitem__(self, idx):
-        sample = self.samples["x"][idx, ], self.samples["y"][idx, ]
+        x, y = self.samples["x"][idx, ], self.samples["y"][idx, ]
+        x = Image.fromarray(x.squeeze(), mode = 'L')
         if self.transform:
-            sample = self.transform(sample)
-        return sample
+            #x = Image.fromarray(x.numpy(), mode='L')
+            x = self.transform(x)
+        return x,y
 
 
 class WVGMMDataset(VGMMDataset):
