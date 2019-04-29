@@ -6,7 +6,8 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
-from utils import check_folder
+#from utils import check_folder
+import utils as utils_parent
 import json
 # import matplotlib as plt
 import matplotlib.pyplot as plt
@@ -65,7 +66,7 @@ def visualization(log_path,data_path):
     ## Path to save the embedding and checkpoints generated
     # LOG_DIR = PATH + '/project-tensorboard/log-1/'
     LOG_DIR = PATH + log_path
-    check_folder(LOG_DIR)
+    utils_parent.check_folder(LOG_DIR)
 
     ## Load data
     data = np.load(data_path+"/z.npy")

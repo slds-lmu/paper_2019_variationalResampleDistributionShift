@@ -23,12 +23,14 @@ from torch.autograd import Variable
 
 import Bayesian_config as cf
 
+
 from utils.BBBlayers import GaussianVariationalInference
 
 from utils.BayesianModels.Bayesian3Conv3FC import BBB3Conv3FC
 from utils.BayesianModels.BayesianAlexNet import BBBAlexNet
 from utils.BayesianModels.BayesianLeNet import BBBLeNet
 
+import refactor_dataset_class
 
 parser = argparse.ArgumentParser(description='PyTorch Training')
 parser.add_argument('--lr', default=0.0001, type=float, help='learning_rate')
@@ -89,7 +91,6 @@ elif (args.dataset == 'cifar100'):
 elif (args.dataset == 'mnist'):
     print("| Preparing MNIST dataset...")
     sys.stdout.write("| ")
-    import refactor_dataset_class
     #trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
     trainset = refactor_dataset_class.VGMMDataset()
     #testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)

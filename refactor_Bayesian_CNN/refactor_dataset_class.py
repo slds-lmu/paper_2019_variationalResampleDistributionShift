@@ -21,11 +21,11 @@ sys.path.insert(0, parent_dir)
 
 #print('The value of dataset_name could only be: {}'.format("mnist or fashion-mnist"))
 
-import utils
+import utils as utils_parent
 
 # FIXME: the problem is the folder above has the same module named utils
-from utils import *
 from data_generator import concatenate_data_from_dir
+#sys.path.pop(0)  # remove parent folder from search path
 #os.path.realpath(__file__)
 #sys.path.append(os.path.dirname(os.path.dirname()))
 
@@ -66,7 +66,7 @@ class VGMMDataset(Dataset):
                 on a sample.
             list_idx (list): the list of indexes of the cluster to choose as trainset or testset
         """
-        X, y = load_mnist(dsname)
+        X, y = utils_parent.load_mnist(dsname)
         self.root_dir = root_dir
         self.pattern = pattern
         self.transform = transform
