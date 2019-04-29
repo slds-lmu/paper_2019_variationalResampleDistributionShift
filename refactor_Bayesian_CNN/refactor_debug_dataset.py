@@ -67,9 +67,18 @@ for batch_idx, (inputs_value, targets) in enumerate(trainloader_org):
     break
 
 for batch_idx, (inputs_value, targets) in enumerate(trainloader_refactor):
+    print("refactor")
     print(inputs_value)
     print(targets)
     print("......")
     print(targets.type)
     print(targets.shape)
     break
+
+for i in range(len(trainset_refactor)):
+    sample = trainset_refactor[i]
+    break
+
+
+trainset_refactor[8000][1]
+
