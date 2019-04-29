@@ -85,7 +85,7 @@ class VGMMDataset(Dataset):
         return len(self.all_inds)
 
     def __getitem__(self, idx):
-        sample = self.samples[idx, ]
+        sample = self.samples["x"][idx, ], self.samples["y"][idx, ]
         if self.transform:
             sample = self.transform(sample)
 
