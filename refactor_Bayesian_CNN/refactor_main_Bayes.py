@@ -162,8 +162,8 @@ def train(epoch):
         # after repeat, the first dimension of x becomes args.num_samples of the original size
         #x = inputs_value.repeat(args.num_samples, 1, 1, 1)
         #breakpoint()
-        #y = targets.repeat(args.num_samples)
-        y = targets.repeat(args.num_samples, 1)
+        y = targets.repeat(args.num_samples)
+        #y = targets.repeat(args.num_samples, 1)
         if use_cuda:
             x, y = x.cuda(), y.cuda() # GPU settings
 

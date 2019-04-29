@@ -152,6 +152,7 @@ def train(epoch):
     for batch_idx, (inputs_value, targets) in enumerate(trainloader):
         # repeat samples for
         x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
+        print(x.shape)
         y = targets.repeat(args.num_samples)
         if use_cuda:
             x, y = x.cuda(), y.cuda() # GPU settings
@@ -167,6 +168,7 @@ def train(epoch):
         # Forward Propagation
         x, y = Variable(x), Variable(y)
         outputs, kl = net.probforward(x)
+        #print(outputs.shape)
         loss = vi(outputs, y, kl, beta)  # Loss
         optimizer.zero_grad()
         loss.backward()  # Backward Propagation
