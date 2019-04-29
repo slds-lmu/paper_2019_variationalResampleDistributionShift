@@ -103,6 +103,6 @@ class WVGMMDataset(VGMMDataset):
 
 if __name__ == '__main__':
 
-    vgmmds = VGMMDataset()
-    #trainset = WVGMMDataset(list_idx = [1, 2, 3, 4])
-    #testset = WVGMMDataset(list_idx = [5])
+    # vgmmds = VGMMDataset()
+    trainset = VGMMDataset(list_idx = [0,1, 2, 3])
+    testset = VGMMDataset(list_idx = [4])
