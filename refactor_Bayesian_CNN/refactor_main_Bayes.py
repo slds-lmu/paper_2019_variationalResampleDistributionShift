@@ -234,7 +234,8 @@ def test(epoch):
 
         loss = vi(outputs, y, kl, beta)
 
-        test_loss += loss.data[0]
+        #test_loss += loss.data[0]
+        test_loss += loss.data
         _, predicted = torch.max(outputs.data, 1)
         preds = F.softmax(outputs, dim=1)
         results = torch.topk(preds.cpu().data, k=1, dim=1)
