@@ -206,10 +206,12 @@ def test(epoch):
     conf=[]
     m = math.ceil(len(testset) / batch_size)
     for batch_idx, (inputs_value, targets) in enumerate(testloader):
-        x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)    # Repeats this tensor along the specified dimensions.
+        #x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)    # Repeats this tensor along the specified dimensions.
+        x = inputs_value.repeat(args.num_samples, 1, 1, 1)    # Repeats this tensor along the specified dimensions.
         # torch.Tensor.view: Returns a new tensor with the same data as the self tensor but of a different shape.
         #y = targets.repeat(args.num_samples)  # works for mnist
-        y = targets.repeat(args.num_samples, 1) # works for fashion-mnist
+        #y = targets.repeat(args.num_samples, 1) # works for one-hot encoded mnist
+        y = targets.repeat(args.num_samples) # works for index as label mnist
         if use_cuda:
             x, y = x.cuda(), y.cuda()
         with torch.no_grad():
