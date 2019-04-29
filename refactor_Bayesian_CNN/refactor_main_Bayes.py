@@ -215,7 +215,7 @@ def test(epoch):
         x = inputs_value.repeat(args.num_samples, 1, 1, 1)    # Repeats this tensor along the specified dimensions.
         # torch.Tensor.view: Returns a new tensor with the same data as the self tensor but of a different shape.
         #y = targets.repeat(args.num_samples)  # works for mnist
-        #y = targets.repeat(args.num_samples, 1) # works for one-hot encoded mnist
+        #y = targets.repeat(args.num_samples, 1) # works for one-hot encoded mnist, but will generate bug of unmet dimension if use index as label
         y = targets.repeat(args.num_samples) # works for index as label mnist
         if use_cuda:
             x, y = x.cuda(), y.cuda()
