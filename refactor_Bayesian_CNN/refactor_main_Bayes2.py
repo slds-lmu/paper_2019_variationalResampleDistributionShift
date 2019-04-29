@@ -32,6 +32,8 @@ from utils.BayesianModels.BayesianLeNet import BBBLeNet
 
 import refactor_dataset_class
 
+best_acc = 0
+
 
 def getNetwork(args,inputs,outputs):
     if (args.net_type == 'lenet'):
