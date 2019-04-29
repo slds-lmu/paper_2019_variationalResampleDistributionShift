@@ -35,8 +35,7 @@ import refactor_dataset_class
 parser = argparse.ArgumentParser(description='PyTorch Training')
 parser.add_argument('--lr', default=0.0001, type=float, help='learning_rate')
 parser.add_argument('--net_type', default='3conv3fc', type=str, help='model')
-#parser.add_argument('--depth', default=28, type=int, help='depth of model')
-#parser.add_argument('--widen_factor', default=10, type=int, help='width of model')
+#parser.add_argument('--depth', default=28, type=int, help='depth of model') #parser.add_argument('--widen_factor', default=10, type=int, help='width of model')
 parser.add_argument('--num_samples', default=10, type=int, help='Number of samples')
 parser.add_argument('--beta_type', default="Blundell", type=str, help='Beta type')
 parser.add_argument('--p_logvar_init', default=0, type=int, help='p_logvar_init')
@@ -136,6 +135,7 @@ else:
     print('| Building net type [' + args.net_type + ']...')
     net, file_name = getNetwork(args)
 
+#print(net)
 if use_cuda:
     net.cuda()
 
@@ -157,8 +157,9 @@ def train(epoch):
     for batch_idx, (inputs_value, targets) in enumerate(trainloader):
         #print(input_value)
         #print(targets)
-        #breakpoint()
         x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
+        # after repeat, the first dimension of x becomes args.num_samples of the original size
+        #x = inputs_value.repeat(args.num_samples, 1, 1, 1)
         #breakpoint()
         #y = targets.repeat(args.num_samples)
         y = targets.repeat(args.num_samples, 1)
