@@ -7,7 +7,7 @@ import numpy as np
 
 from ops import *
 # from utils import *
-import utils as utils_parent
+import utils_parent as utils_parent
 class ACGAN(object):
     model_name = "ACGAN"     # name for checkpoint
 

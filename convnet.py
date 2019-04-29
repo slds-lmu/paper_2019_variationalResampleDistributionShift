@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 # from utils import *
 import config
-import utils as utils_parent
+import utils_parent as utils_parent
 import argparse
 from sklearn.model_selection import KFold
 from data_generator import concatenate_data_from_dir

@@ -8,7 +8,7 @@ import tensorflow as tf
 from tensorflow.python.framework import ops
 
 # from utils import *
-import utils as utils_parent
+import utils_parent as utils_parent
 if "concat_v2" in dir(tf):
     def concat(tensors, axis, *args, **kwargs):
         return tf.concat_v2(tensors, axis, *args, **kwargs)

@@ -2,7 +2,7 @@ import os
 
 ## VAE Variants
 from VAE import VAE
-import utils as utils_parent
+import utils_parent as utils_parent
 import tensorflow as tf
 import argparse
 from VGMM import VGMM

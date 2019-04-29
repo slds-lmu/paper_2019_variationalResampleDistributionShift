@@ -4,7 +4,7 @@ import json
 from  data_generator import concatenate_data_from_dir
 import config as config
 # from utils import *
-import utils as utils_parent
+import utils_parent as utils_parent
 from sklearn.decomposition import PCA
 
 # def counting_label():

@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 #from utils import check_folder
-import utils as utils_parent
+import utils_parent as utils_parent
 import json
 # import matplotlib as plt
 import matplotlib.pyplot as plt

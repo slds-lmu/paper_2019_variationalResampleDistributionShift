@@ -7,7 +7,7 @@ import numpy as np
 
 from ops import *
 # from utils import *
-import utils as utils_parent
+import utils_parent as utils_parent
 import prior_factory as prior
 from data_generator import split_data_according_to_label
 from config_manager import config_manager

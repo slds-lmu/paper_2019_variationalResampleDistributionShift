@@ -1,6 +1,6 @@
 import numpy as np
 # from utils import *
-import utils as utils_parent
+import utils_parent as utils_parent
 from VGMM import VGMM
 from visualization import T_SNE_Plot
 import json
