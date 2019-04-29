@@ -2,8 +2,6 @@ import os
 
 ## VAE Variants
 from VAE import VAE
-# from utils import show_all_variables
-# from utils import check_folder
 import utils as utils_parent
 import tensorflow as tf
 import argparse
@@ -42,13 +40,13 @@ def parse_args():
 """checking arguments"""
 def check_args(args):
     # --checkpoint_dir
-    check_folder(args.checkpoint_dir)
+    utils_parent.check_folder(args.checkpoint_dir)
 
     # --result_dir
-    check_folder(args.result_dir)
+    utils_parent.check_folder(args.result_dir)
 
     # --log_dir
-    check_folder(args.log_dir)
+    utils_parent.check_folder(args.log_dir)
 
     # --epoch
     assert args.epoch >= 1, 'number of epochs must be larger than or equal to one'
