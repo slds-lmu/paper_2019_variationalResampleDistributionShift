@@ -9,9 +9,7 @@ import math
 import pickle
 import numpy as np
 
-
-import torchvision
-import torchvision.transforms as transforms
+import torchvision import torchvision.transforms as transforms
 
 import torch
 import torch.utils.data as data
@@ -319,7 +317,11 @@ def cross_validation(num_labels,num_cluster,args):
 
         vi = GaussianVariationalInference(torch.nn.CrossEntropyLoss())
 
-        logfile = os.path.join('diagnostics_Bayes{}_{}.txt'.format(args.net_type, args.dataset))
+        #logfile = os.path.join('diagnostics_Bayes{}_{}.txt'.format(args.net_type, args.dataset))
+        logfile_train = os.path.join('diagnostics_Bayes{}_{}_cv{}_train.txt'.format(args.net_type, args.dataset, i))
+        logfile_test = os.path.join('diagnostics_Bayes{}_{}_cv{}_test.txt'.format(args.net_type, args.dataset, i))
+
+
 
         print('\n[Phase 3] : Training model')
         print('| Training Epochs = ' + str(num_epochs))
@@ -334,8 +336,8 @@ def cross_validation(num_labels,num_cluster,args):
         for epoch in range(start_epoch, start_epoch + num_epochs):
             start_time = time.time()
 
-            temp_train_return = train(epoch, trainset, inputs, net, batch_size, trainloader, resize, num_epochs, use_cuda, vi, logfile)
-            temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi, logfile,
+            temp_train_return = train(epoch, trainset, inputs, net, batch_size, trainloader, resize, num_epochs, use_cuda, vi, logfile_train)
+            temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi, logfile_test,
                  file_name)
 
             train_return = train_return.append(temp_train_return)
@@ -400,7 +402,8 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
 
         vi = GaussianVariationalInference(torch.nn.CrossEntropyLoss())
 
-        logfile = os.path.join('diagnostics_Bayes{}_{}.txt'.format(args.net_type, args.dataset))
+        logfile_train = os.path.join('diagnostics_Bayes{}_{}_cv{}_train.txt'.format(args.net_type, args.dataset, i))
+        logfile_test = os.path.join('diagnostics_Bayes{}_{}_cv{}_test.txt'.format(args.net_type, args.dataset, i))
 
         print('\n[Phase 3] : Training model')
         print('| Training Epochs = ' + str(num_epochs))
@@ -413,8 +416,8 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
         for epoch in range(start_epoch, start_epoch + num_epochs):
             start_time = time.time()
 
-            temp_train_return = train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,vi,logfile)
-            temp_test_return = test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resize,vi,logfile,file_name)
+            temp_train_return = train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,vi,logfile_train)
+            temp_test_return = test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resize,vi,logfile_test,file_name)
             train_return = train_return.append(temp_train_return)
             test_return = test_return.append(temp_test_return)
 
