@@ -80,6 +80,8 @@ class VGMMDataset(Dataset):
             to_append = self.global_index.item().get(str(index))
             all_inds = np.append(all_inds, to_append)
         self.all_inds = all_inds.tolist()
+        #self.all_inds = map(round, self.all_inds)
+        self.all_inds = [round(a) for a in self.all_inds]
         self.samples = {"x":X.take(self.all_inds, axis = 0), "y":y.take(self.all_inds, axis = 0)}
 
     def __len__(self):
@@ -89,7 +91,6 @@ class VGMMDataset(Dataset):
         sample = self.samples["x"][idx, ], self.samples["y"][idx, ]
         if self.transform:
             sample = self.transform(sample)
-
         return sample
 
 
