@@ -21,7 +21,7 @@ sys.path.insert(0, parent_dir)
 
 #print('The value of dataset_name could only be: {}'.format("mnist or fashion-mnist"))
 
-import utils as utils_parent
+import utils_parent
 
 # FIXME: the problem is the folder above has the same module named utils
 from data_generator import concatenate_data_from_dir
