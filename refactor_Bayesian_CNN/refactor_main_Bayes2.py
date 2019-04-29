@@ -55,26 +55,21 @@ def getNetwork(args,inputs,outputs):
 # Training
 def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,vi,logfile):
     print("************")
-    net.train()   # torch.nn.Module.train:torch.nn.Module.train:  Sets the module in training mode.
+    net.train()
     train_loss = 0
     correct = 0
     total = 0
     m = math.ceil(len(trainset) / batch_size)
     optimizer = optim.Adam(net.parameters(), lr=cf.learning_rate(args.lr, epoch), weight_decay=args.weight_decay)
 
-    print('\n=> Training Epoch #%d, LR=%.4f' %(epoch, cf.learning_rate(args.lr, epoch)))
+    print('\n=> Training Epoch #%d, LR=%.4f' % (epoch, cf.learning_rate(args.lr, epoch)))
     for batch_idx, (inputs_value, targets) in enumerate(trainloader):
-        #print(input_value)
-        #print(targets)
-        #breakpoint()
-
+        # repeat samples for
         x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
-        #breakpoint()
-        #y = targets.repeat(args.num_samples)
-        y = targets.repeat(args.num_samples, 1)
-
+        print(x.shape)
+        y = targets.repeat(args.num_samples)
         if use_cuda:
-            x, y = x.cuda(), y.cuda() # GPU settings
+            x, y = x.cuda(), y.cuda()  # GPU settings
 
         if args.beta_type is "Blundell":
             beta = 2 ** (m - (batch_idx + 1)) / (2 ** m - 1)
@@ -86,48 +81,47 @@ def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use
             beta = 0
         # Forward Propagation
         x, y = Variable(x), Variable(y)
-        outputs, kl = net.probforward(x)    # prob.forward is not from torch.nn.Module
-        # torch.nn.Module.forward: Although the recipe for forward pass needs to be defined within this function, one should call the Module instance afterwards instead of this since the former takes care of running the registered hooks while the latter silently ignores them.
-        loss = vi(outputs, y, kl, beta)  # Loss, equivalent to calling vi.forward(outputs, y, kl, beta)
-        optimizer.zero_grad()  # Clears the gradients of all optimized torch.Tensor s.
+        outputs, kl = net.probforward(x)
+        # print(outputs.shape)
+        loss = vi(outputs, y, kl, beta)  # Loss
+        optimizer.zero_grad()
         loss.backward()  # Backward Propagation
         optimizer.step()  # Optimizer update
         train_loss += loss.data
-        _, predicted = torch.max(outputs.data, dim = 1)  # Returns the maximum value of each row of the input tensor in the given dimension dim. The second return value is the index location of each maximum value found (argmax).
+        _, predicted = torch.max(outputs.data, 1)
         total += targets.size(0)
         correct += predicted.eq(y.data).cpu().sum()
 
         sys.stdout.write('\r')
-        sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%%' %(epoch, num_epochs, batch_idx+1,
-                    (len(trainset)//batch_size)+1, loss.data, (100*correct/total)/args.num_samples))
+        sys.stdout.write(
+            '| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%%' % (epoch, num_epochs, batch_idx + 1,
+                                                                             (len(trainset) // batch_size) + 1,
+                                                                             loss.data, (
+                                                                                         100 * correct / total) / args.num_samples))
         sys.stdout.flush()
 
-    #diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': (100*correct/total)/args.num_samples}
-    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': (100*correct/total)/args.num_samples}
+    # diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': (100*correct/total)/args.num_samples}
+    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': (100 * correct / total) / args.num_samples}
     with open(logfile, 'a') as lf:
         lf.write(str(diagnostics_to_write))
 
 
 def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resize,vi,logfile,file_name):
     global best_acc
-    net.eval()   # torch.nn.Module.eval: set network into evaluation mode
+    net.eval()
     test_loss = 0
     correct = 0
     total = 0
-    conf=[]
+    conf = []
     m = math.ceil(len(testset) / batch_size)
     for batch_idx, (inputs_value, targets) in enumerate(testloader):
-        x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)    # Repeats this tensor along the specified dimensions.
-        # torch.Tensor.view: Returns a new tensor with the same data as the self tensor but of a different shape.
-        #y = targets.repeat(args.num_samples)  # works for mnist
-        y = targets.repeat(args.num_samples, 1) # works for fashion-mnist
-        x = x.double()
-        print(x.type)
+        x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
+        y = targets.repeat(args.num_samples)
         if use_cuda:
             x, y = x.cuda(), y.cuda()
         with torch.no_grad():
             x, y = Variable(x), Variable(y)
-        outputs, kl = net.probforward(x)   # probforward is not from torch.nn.Module
+        outputs, kl = net.probforward(x)
 
         if args.beta_type is "Blundell":
             beta = 2 ** (m - (batch_idx + 1)) / (2 ** m - 1)
@@ -140,7 +134,8 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
 
         loss = vi(outputs, y, kl, beta)
 
-        test_loss += loss.data[0]
+        # test_loss += loss.data[0]
+        test_loss += loss.data
         _, predicted = torch.max(outputs.data, 1)
         preds = F.softmax(outputs, dim=1)
         results = torch.topk(preds.cpu().data, k=1, dim=1)
@@ -155,27 +150,27 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
     epistemic = np.mean(p_hat ** 2, axis=0) - np.mean(p_hat, axis=0) ** 2
     aleatoric = np.mean(p_hat * (1 - p_hat), axis=0)
 
-    acc =(100*correct/total)/args.num_samples
-    #print('\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%' %(epoch, loss.data[0], acc))
-    print('\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%' %(epoch, loss.data, acc))
-    #test_diagnostics_to_write = {'Validation Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': acc}
+    acc = (100 * correct / total) / args.num_samples
+    # print('\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%' %(epoch, loss.data[0], acc))
+    print('\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%' % (epoch, loss.data, acc))
+    # test_diagnostics_to_write = {'Validation Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': acc}
     test_diagnostics_to_write = {'Validation Epoch': epoch, 'Loss': loss.data, 'Accuracy': acc}
     with open(logfile, 'a') as lf:
         lf.write(str(test_diagnostics_to_write))
 
     if acc > best_acc:
-        print('| Saving Best model...\t\t\tTop1 = %.2f%%' %(acc))
+        print('| Saving Best model...\t\t\tTop1 = %.2f%%' % (acc))
         state = {
-                'net':net if use_cuda else net,
-                'acc':acc,
-                'epoch':epoch,
+            'net': net if use_cuda else net,
+            'acc': acc,
+            'epoch': epoch,
         }
         if not os.path.isdir('checkpoint'):
             os.mkdir('checkpoint')
-        save_point = './checkpoint/'+args.dataset+os.sep
+        save_point = './checkpoint/' + args.dataset + os.sep
         if not os.path.isdir(save_point):
             os.mkdir(save_point)
-        torch.save(state, save_point+file_name+'.t7')
+        torch.save(state, save_point + file_name + '.t7')
         best_acc = acc
 
 
@@ -215,13 +210,10 @@ def prepare_data(args,train_list,test_list,resize):
     elif (args.dataset == 'mnist'):
         print("| Preparing MNIST dataset...")
         sys.stdout.write("| ")
-        # trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
-        trainset = refactor_dataset_class.VGMMDataset(list_idx = train_list)
-        # testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
-        # testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
-        testset = refactor_dataset_class.VGMMDataset(list_idx = test_list)
-        outputs = 10  # number of labels
-        inputs = 1  # input channel
+        trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
+        testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
+        outputs = 10
+        inputs = 1
     return trainset, testset, inputs,outputs
 
 
@@ -255,12 +247,13 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
         # num_workers: how many subprocesses to use for data loading. 0 means that the data will be loaded in the main process. (default: 0)# Return network & file name
 
         # Model
+        # Model
         print('\n[Phase 2] : Model setup')
         if args.resume:
             # Load checkpoint
             print('| Resuming from checkpoint...')
             assert os.path.isdir('checkpoint'), 'Error: No checkpoint directory found!'
-            _, file_name = getNetwork(args, inputs= inputs,outputs=outputs)
+            _, file_name = getNetwork(args,inputs,outputs)
             checkpoint = torch.load('./checkpoint/' + args.dataset + os.sep + file_name + '.t7')
             net = checkpoint['net']
             best_acc = checkpoint['acc']
@@ -272,9 +265,7 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
         if use_cuda:
             net.cuda()
 
-        vi = GaussianVariationalInference(
-            torch.nn.CrossEntropyLoss())  ## GaussianVariationalInference is a subclass of nn.Module
-        # vi(...) is equivalent to vi.forward(...)
+        vi = GaussianVariationalInference(torch.nn.CrossEntropyLoss())
 
         logfile = os.path.join('diagnostics_Bayes{}_{}.txt'.format(args.net_type, args.dataset))
 
@@ -297,11 +288,29 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
         print('\n[Phase 4] : Testing model')
         print('* Test results : Acc@1 = %.2f%%' % (best_acc))
 
+        # print('\n[Phase 3] : Training model')
+        # print('| Training Epochs = ' + str(num_epochs))
+        # print('| Initial Learning Rate = ' + str(args.lr))
+        # print('| Optimizer = ' + str(optim_type))
+        #
+        # elapsed_time = 0
+        # for epoch in range(start_epoch, start_epoch + num_epochs):
+        #     start_time = time.time()
+        #
+        #     train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,vi,logfile)
+        #     test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resize,vi,logfile,file_name)
+        #
+        #     epoch_time = time.time() - start_time
+        #     elapsed_time += epoch_time
+        #     print('| Elapsed time : %d:%02d:%02d' % (cf.get_hms(elapsed_time)))
+        #
+        # print('\n[Phase 4] : Testing model')
+        # print('* Test results : Acc@1 = %.2f%%' % (best_acc))
+
     return results
 
 
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser(description='PyTorch Training')
     parser.add_argument('--lr', default=0.0001, type=float, help='learning_rate')
     parser.add_argument('--net_type', default='3conv3fc', type=str, help='model')

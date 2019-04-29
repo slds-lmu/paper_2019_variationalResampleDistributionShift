@@ -23,19 +23,18 @@ from torch.autograd import Variable
 
 import Bayesian_config as cf
 
-
 from utils.BBBlayers import GaussianVariationalInference
 
 from utils.BayesianModels.Bayesian3Conv3FC import BBB3Conv3FC
 from utils.BayesianModels.BayesianAlexNet import BBBAlexNet
 from utils.BayesianModels.BayesianLeNet import BBBLeNet
 
-import refactor_dataset_class
 
 parser = argparse.ArgumentParser(description='PyTorch Training')
 parser.add_argument('--lr', default=0.0001, type=float, help='learning_rate')
 parser.add_argument('--net_type', default='3conv3fc', type=str, help='model')
-#parser.add_argument('--depth', default=28, type=int, help='depth of model') #parser.add_argument('--widen_factor', default=10, type=int, help='width of model')
+#parser.add_argument('--depth', default=28, type=int, help='depth of model')
+#parser.add_argument('--widen_factor', default=10, type=int, help='width of model')
 parser.add_argument('--num_samples', default=10, type=int, help='Number of samples')
 parser.add_argument('--beta_type', default="Blundell", type=str, help='Beta type')
 parser.add_argument('--p_logvar_init', default=0, type=int, help='p_logvar_init')
@@ -52,7 +51,7 @@ use_cuda = cf.use_cuda()
 if use_cuda is True:
     torch.cuda.set_device(0)
 best_acc = 0
-resize = cf.resize
+resize = 32
 start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
 
 # Data Uplaod
@@ -69,7 +68,6 @@ transform_test = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
 ])
-
 
 
 if (args.dataset == 'cifar10'):
@@ -91,22 +89,20 @@ elif (args.dataset == 'cifar100'):
 elif (args.dataset == 'mnist'):
     print("| Preparing MNIST dataset...")
     sys.stdout.write("| ")
-    #trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
-    trainset = refactor_dataset_class.VGMMDataset(transform = transform_train)
-    #testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
-    #testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
-    testset = refactor_dataset_class.VGMMDataset(transform = transform_test)
-    outputs = 10  # number of labels
-    inputs = 1   # input channel
+    trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
+    testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
+    outputs = 10
+    inputs = 1
 
 
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
-# num_workers: how many subprocesses to use for data loading. 0 means that the data will be loaded in the main process. (default: 0)# Return network & file name
 
+
+# Return network & file name
 def getNetwork(args):
     if (args.net_type == 'lenet'):
-        net = BBBLeNet(outputs,inputs)    # inputs is number of input channels
+        net = BBBLeNet(outputs,inputs)
         file_name = 'lenet'
     elif (args.net_type == 'alexnet'):
         net = BBBAlexNet(outputs,inputs)
@@ -136,18 +132,16 @@ else:
     print('| Building net type [' + args.net_type + ']...')
     net, file_name = getNetwork(args)
 
-#print(net)
 if use_cuda:
     net.cuda()
 
-vi = GaussianVariationalInference(torch.nn.CrossEntropyLoss())  ## GaussianVariationalInference is a subclass of nn.Module
-# vi(...) is equivalent to vi.forward(...)
+vi = GaussianVariationalInference(torch.nn.CrossEntropyLoss())
 
 logfile = os.path.join('diagnostics_Bayes{}_{}.txt'.format(args.net_type, args.dataset))
 
 # Training
 def train(epoch):
-    net.train()   # torch.nn.Module.train:torch.nn.Module.train:  Sets the module in training mode.
+    net.train()
     train_loss = 0
     correct = 0
     total = 0
@@ -156,14 +150,10 @@ def train(epoch):
 
     print('\n=> Training Epoch #%d, LR=%.4f' %(epoch, cf.learning_rate(args.lr, epoch)))
     for batch_idx, (inputs_value, targets) in enumerate(trainloader):
-        #print(input_value)
-        #print(targets)
+        # repeat samples for
         x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
-        # after repeat, the first dimension of x becomes args.num_samples of the original size
-        #x = inputs_value.repeat(args.num_samples, 1, 1, 1)
-        #breakpoint()
+        print(x.shape)
         y = targets.repeat(args.num_samples)
-        #y = targets.repeat(args.num_samples, 1)
         if use_cuda:
             x, y = x.cuda(), y.cuda() # GPU settings
 
@@ -177,17 +167,14 @@ def train(epoch):
             beta = 0
         # Forward Propagation
         x, y = Variable(x), Variable(y)
-        outputs, kl = net.probforward(x)    # prob.forward is not from torch.nn.Module
-        # torch.nn.Module.forward: Although the recipe for forward pass needs to be defined within this function, one should call the Module instance afterwards instead of this since the former takes care of running the registered hooks while the latter silently ignores them.
-        print(x.shape)
-        print(outputs.shape)  # here is the bug
-        print(kl.shape) # scalar shape should be empty here
-        loss = vi(outputs, y, kl, beta)  # Loss, equivalent to calling vi.forward(outputs, y, kl, beta)
-        optimizer.zero_grad()  # Clears the gradients of all optimized torch.Tensor s.
+        outputs, kl = net.probforward(x)
+        #print(outputs.shape)
+        loss = vi(outputs, y, kl, beta)  # Loss
+        optimizer.zero_grad()
         loss.backward()  # Backward Propagation
         optimizer.step()  # Optimizer update
         train_loss += loss.data
-        _, predicted = torch.max(outputs.data, dim = 1)  # Returns the maximum value of each row of the input tensor in the given dimension dim. The second return value is the index location of each maximum value found (argmax).
+        _, predicted = torch.max(outputs.data, 1)
         total += targets.size(0)
         correct += predicted.eq(y.data).cpu().sum()
 
@@ -204,24 +191,20 @@ def train(epoch):
 
 def test(epoch):
     global best_acc
-    net.eval()   # torch.nn.Module.eval: set network into evaluation mode
+    net.eval()
     test_loss = 0
     correct = 0
     total = 0
     conf=[]
     m = math.ceil(len(testset) / batch_size)
     for batch_idx, (inputs_value, targets) in enumerate(testloader):
-        #x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)    # Repeats this tensor along the specified dimensions.
-        x = inputs_value.repeat(args.num_samples, 1, 1, 1)    # Repeats this tensor along the specified dimensions.
-        # torch.Tensor.view: Returns a new tensor with the same data as the self tensor but of a different shape.
-        #y = targets.repeat(args.num_samples)  # works for mnist
-        #y = targets.repeat(args.num_samples, 1) # works for one-hot encoded mnist, but will generate bug of unmet dimension if use index as label
-        y = targets.repeat(args.num_samples) # works for index as label mnist
+        x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
+        y = targets.repeat(args.num_samples)
         if use_cuda:
             x, y = x.cuda(), y.cuda()
         with torch.no_grad():
             x, y = Variable(x), Variable(y)
-        outputs, kl = net.probforward(x)   # probforward is not from torch.nn.Module
+        outputs, kl = net.probforward(x)
 
         if args.beta_type is "Blundell":
             beta = 2 ** (m - (batch_idx + 1)) / (2 ** m - 1)
