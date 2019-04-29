@@ -12,6 +12,7 @@
 ## python make
 - https://pypi.org/project/py-make/
 - https://snakemake.readthedocs.io/en/stable/
+- https://sacred.readthedocs.io/en/latest/apidoc.html  decorator for reproducible experiment
 ## arguments for main.py
   python main.py
   --cluster <True,False (default)>
