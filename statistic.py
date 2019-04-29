@@ -6,38 +6,38 @@ import config as config
 from utils import *
 from sklearn.decomposition import PCA
 
-def counting_label():
-    # load data
-    y = np.load('/Users/wangyu/Documents/LMU/Fashion_mnist/mycode/results/VAE_fashion-mnist_64_62/y.npy')
-
-    def load_dict(path):
-        with open(path) as f:
-            my_dict = json.load(f)
-        return my_dict
-
-    # cluster_dict = load_dict('/Users/wangyu/Documents/LMU/Fashion_mnist/mycode/results/VAE_fashion-mnist_64_62/cluster_dict.json')
-    cluster_dict = load_dict(
-        '/Users/wangyu/Documents/LMU/Fashion_mnist/mycode/results/VAE_fashion-mnist_64_62/pos_index_cluster.json')
-
-    y_0 = y[cluster_dict['0']]
-    y_0 = np.sum(y_0, axis=0)
-
-    y_1 = y[cluster_dict['1']]
-    y_1 = np.sum(y_1, axis=0)
-
-    y_2 = y[cluster_dict['2']]
-    y_2 = np.sum(y_2, axis=0)
-
-    y_3 = y[cluster_dict['3']]
-    y_3 = np.sum(y_3, axis=0)
-
-    y_4 = y[cluster_dict['4']]
-    y_4 = np.sum(y_4, axis=0)
-    print(y_0)
-    print(y_1)
-    print(y_2)
-    print(y_3)
-    print(y_4)
+# def counting_label():
+#     # load data
+#     y = np.load('/Users/wangyu/Documents/LMU/Fashion_mnist/mycode/results/VAE_fashion-mnist_64_62/y.npy')
+#
+#     def load_dict(path):
+#         with open(path) as f:
+#             my_dict = json.load(f)
+#         return my_dict
+#
+#     # cluster_dict = load_dict('/Users/wangyu/Documents/LMU/Fashion_mnist/mycode/results/VAE_fashion-mnist_64_62/cluster_dict.json')
+#     cluster_dict = load_dict(
+#         '/Users/wangyu/Documents/LMU/Fashion_mnist/mycode/results/VAE_fashion-mnist_64_62/pos_index_cluster.json')
+#
+#     y_0 = y[cluster_dict['0']]
+#     y_0 = np.sum(y_0, axis=0)
+#
+#     y_1 = y[cluster_dict['1']]
+#     y_1 = np.sum(y_1, axis=0)
+#
+#     y_2 = y[cluster_dict['2']]
+#     y_2 = np.sum(y_2, axis=0)
+#
+#     y_3 = y[cluster_dict['3']]
+#     y_3 = np.sum(y_3, axis=0)
+#
+#     y_4 = y[cluster_dict['4']]
+#     y_4 = np.sum(y_4, axis=0)
+#     print(y_0)
+#     print(y_1)
+#     print(y_2)
+#     print(y_3)
+#     print(y_4)
 
 #compute kernal density within one cluster
 def kernel_density_estimation_single_Cluster(xs,result_path,img_name):
@@ -166,9 +166,11 @@ def gromov_wasserstein_distance(data_path,num_labels,num_clusters,result_path):
     import ot
 
     # z: global training, cluster according to label
-    z = np.load(data_path + "/L-1/z.npy")
+    # z = np.load(data_path + "/L-1/z.npy")
+    z = np.load(data_path + "/L-1" + config.z_name)
 
-    with open(data_path + "/L-1/cluster_dict.json") as f:
+    # with open(data_path + "/L-1/cluster_dict.json") as f:
+    with open(data_path + "/L-1"+config.cluster_index_json_name) as f:
         pos_index_dict = json.load(f)
 
     # dict: dictionary of data which training and clustering within label
@@ -301,8 +303,10 @@ def gromov_wasserstein_distance_TSNE_test(data_path,num_labels,num_clusters,resu
 
 
 def kernel_density_estimation_on_latent_space(data_path,num_clusters):
-    z = np.load(data_path+"/L-1/z.npy")
-    b = np.load(config.data_path+"/global_index_cluster_data.npy")
+    # z = np.load(data_path+"/L-1/z.npy")
+    z = np.load(data_path+"/L-1" + config.z_name)
+    # b = np.load(config.data_path+"/global_index_cluster_data.npy")
+    b = np.load(config.data_path + config.global_index_name)
 
     for i in range(num_clusters):
        xs = z[b.item().get(str(i))]
@@ -321,8 +325,10 @@ def gromov_wasserstein_distance_latent_space(data_path,num_labels,num_clusters,r
     import scipy as sp
     import matplotlib.pylab as pl
     import ot
-    z = np.load(data_path+ "/L-1/z.npy")  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
-    index = np.load(data_path+"/global_index_cluster_data.npy")
+    # z = np.load(data_path+ "/L-1/z.npy")  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
+    z = np.load(data_path+ "/L-1" + config.z_name)  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
+    # index = np.load(data_path+"/global_index_cluster_data.npy")
+    index = np.load(data_path + config.global_index_name)
     d_t = z[index.item().get('0')]
     d_s = z[index.item().get('1')]
     # Compute distance kernels, normalize them and then display

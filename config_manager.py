@@ -13,6 +13,14 @@ class config_manager(object):
         self.num_labels = args.num_labels
         self.num_clusters = args.num_clusters
         self.plot = args.plot
+        self.global_index_name = "/global_index_cluster_data.npy"
+        self.TSNE_data_name = "/TSNE_transformed_data_dict.npy"
+        self.cluster_index_json_name = "/cluster_dict.json"
+        self.cluster_predict_tsv_name = "/cluster_predict.tsv"
+        self.cluster_predict_npy_name = "/cluster_predict.npy"
+        self.z_name ="/z.npy"
+        self.y_name = "/y.npy"
+
 
     def get_model_dir(self,label):
         return "{}_{}_{}_{}/{}".format(
@@ -61,4 +69,19 @@ class config_manager(object):
         file.write('\n')
         file.write("dataset_name='{}'".format(self.dataset_name))
         file.write('\n')
+        file.write("global_index_name='{}'".format(self.global_index_name))
+        file.write('\n')
+        file.write("TSNE_data_name='{}'".format(self.TSNE_data_name))
+        file.write('\n')
+        file.write("cluster_index_json_name='{}'".format(self.cluster_index_json_name))
+        file.write('\n')
+        file.write("cluster_predict_tsv_name='{}'".format(self.cluster_predict_tsv_name))
+        file.write('\n')
+        file.write("cluster_predict_npy_name='{}'".format(self.cluster_predict_npy_name))
+        file.write('\n')
+        file.write("z_name='{}'".format(self.z_name))
+        file.write('\n')
+        file.write("y_name='{}'".format(self.y_name))
+        file.write('\n')
+
         file.close()
