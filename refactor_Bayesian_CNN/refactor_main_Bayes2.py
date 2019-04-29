@@ -22,6 +22,12 @@ import torch.backends.cudnn as cudnn
 from torch.autograd import Variable
 
 
+try:
+    import cPickle as pickle
+except ImportError:  # python 3.x
+    import pickle
+import json
+
 import Bayesian_config as cf
 
 
@@ -109,6 +115,7 @@ def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use
     diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': (100 * correct / total) / args.num_samples}
     with open(logfile, 'a') as lf:
         lf.write(str(diagnostics_to_write))
+    return diagnostics_to_write
 
 
 def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resize,vi,logfile,file_name):
@@ -177,6 +184,7 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
             os.mkdir(save_point)
         torch.save(state, save_point + file_name + '.t7')
         best_acc = acc
+    return test_diagnostics_to_write
 
 
 
@@ -319,12 +327,21 @@ def cross_validation(num_labels,num_cluster,args):
         print('| Optimizer = ' + str(optim_type))
 
         elapsed_time = 0
+
+        train_return = []
+        test_return = []
+
         for epoch in range(start_epoch, start_epoch + num_epochs):
             start_time = time.time()
 
-            train(epoch, trainset, inputs, net, batch_size, trainloader, resize, num_epochs, use_cuda, vi, logfile)
-            test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi, logfile,
+            temp_train_return = train(epoch, trainset, inputs, net, batch_size, trainloader, resize, num_epochs, use_cuda, vi, logfile)
+            temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi, logfile,
                  file_name)
+
+            train_return = train_return.append(temp_train_return)
+            test_return = test_return.append(temp_test_return)
+
+
 
             epoch_time = time.time() - start_time
             elapsed_time += epoch_time
@@ -332,7 +349,8 @@ def cross_validation(num_labels,num_cluster,args):
 
         print('\n[Phase 4] : Testing model')
         print('* Test results : Acc@1 = %.2f%%' % (best_acc))
-
+        results[str(i)] = {"train": train_return, "test": test_return}
+    return results
 
 
 def cross_validation_for_clustered_data(num_labels,num_cluster,args):
@@ -390,11 +408,15 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
         print('| Optimizer = ' + str(optim_type))
 
         elapsed_time = 0
+        train_return = []
+        test_return = []
         for epoch in range(start_epoch, start_epoch + num_epochs):
             start_time = time.time()
 
-            train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,vi,logfile)
-            test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resize,vi,logfile,file_name)
+            temp_train_return = train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,vi,logfile)
+            temp_test_return = test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resize,vi,logfile,file_name)
+            train_return = train_return.append(temp_train_return)
+            test_return = test_return.append(temp_test_return)
 
             epoch_time = time.time() - start_time
             elapsed_time += epoch_time
@@ -402,6 +424,7 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
 
         print('\n[Phase 4] : Testing model')
         print('* Test results : Acc@1 = %.2f%%' % (best_acc))
+        results[str(i)] = {"train": train_return, "test": test_return}
 
         # print('\n[Phase 3] : Training model')
         # print('| Training Epochs = ' + str(num_epochs))
@@ -439,16 +462,22 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', default='mnist', type=str, help='dataset = [mnist/cifar10/cifar100]')
     parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
+    parser.add_argument('--cv_type', '-t', default = 'vgmm', type=str, help='cv_type=[rand/vgmm]')
     args = parser.parse_args()
 
     # cross_validation_for_clustered_data(num_labels=10,num_cluster=5,args=args)
-    cross_validation(10,5,args)
+    result = cross_validation(10,5,args)
+    with open(args.cv_type + '_cross_validation_result.p', 'wb') as fp:
+        pickle.dump(result, fp, protocol=pickle.HIGHEST_PROTOCOL)
+    with open(args.cv_type + '_cross_validation_result.json', 'w') as fp:
+        json.dump(data, fp)
 
 
 
 
 
-
+# cp rand_cross_validation_result.p
+# cp rand_cross_validation_result.json
 
 
 
