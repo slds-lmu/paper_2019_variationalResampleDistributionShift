@@ -49,6 +49,8 @@ def load_mnist(dataset_name):
         SOURCE_URL = config.SOURCE_URL_Mnist
     elif dataset_name =="fashion-mnist":
         SOURCE_URL = config.SOURCE_URL_FMnist
+    else:
+        raise Exception('The value of dataset_name could only be: {}'.format("mnist or fashion-mnist"))
     # Get the data.
     maybe_download(SOURCE_URL,data_dir,'train-images-idx3-ubyte.gz')
     maybe_download(SOURCE_URL,data_dir,'train-labels-idx1-ubyte.gz')
