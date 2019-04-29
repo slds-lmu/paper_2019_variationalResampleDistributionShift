@@ -155,9 +155,13 @@ def train(epoch):
 
     print('\n=> Training Epoch #%d, LR=%.4f' %(epoch, cf.learning_rate(args.lr, epoch)))
     for batch_idx, (inputs_value, targets) in enumerate(trainloader):
-
+        #print(input_value)
+        #print(targets)
+        #breakpoint()
         x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
-        y = targets.repeat(args.num_samples)
+        #breakpoint()
+        #y = targets.repeat(args.num_samples)
+        y = targets.repeat(args.num_samples, 1)
         if use_cuda:
             x, y = x.cuda(), y.cuda() # GPU settings
 
@@ -204,7 +208,8 @@ def test(epoch):
     for batch_idx, (inputs_value, targets) in enumerate(testloader):
         x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)    # Repeats this tensor along the specified dimensions.
         # torch.Tensor.view: Returns a new tensor with the same data as the self tensor but of a different shape.
-        y = targets.repeat(args.num_samples)
+        #y = targets.repeat(args.num_samples)  # works for mnist
+        y = targets.repeat(args.num_samples, 1) # works for fashion-mnist
         if use_cuda:
             x, y = x.cuda(), y.cuda()
         with torch.no_grad():

@@ -67,6 +67,7 @@ class VGMMDataset(Dataset):
             list_idx (list): the list of indexes of the cluster to choose as trainset or testset
         """
         X, y = utils_parent.load_mnist(dsname)
+        y = y.argmax(axis = 1)
         self.root_dir = root_dir
         self.pattern = pattern
         self.transform = transform

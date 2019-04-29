@@ -6,7 +6,8 @@ start_epoch = 1
 num_epochs = 1
 batch_size = 32
 optim_type = 'Adam'
-resize = 32  # image size
+#resize = 32  # image size, for mnist
+resize = 28  # image size, for fashion-mnist
 
 mean = {
     'cifar10': (0.4914, 0.4822, 0.4465),
