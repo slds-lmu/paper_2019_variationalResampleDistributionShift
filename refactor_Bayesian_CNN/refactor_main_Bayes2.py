@@ -32,6 +32,8 @@ from utils.BayesianModels.BayesianAlexNet import BBBAlexNet
 from utils.BayesianModels.BayesianLeNet import BBBLeNet
 
 import refactor_dataset_class
+import utils_parent as utils_parent
+from sklearn.model_selection import KFold
 
 best_acc = 0
 
@@ -219,9 +221,117 @@ def prepare_data(args,train_list,test_list,resize):
         testset = refactor_dataset_class.VGMMDataset(list_idx = test_list,transform=transform_test)
         outputs = 10
         inputs = 1
+    elif (args.dataset == 'fashion-mnist-random'):
+        print("| Preparing fashion MNIST dataset for random cv...")
+        sys.stdout.write("| ")
+        # trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
+        # testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
+        trainset = refactor_dataset_class.VGMMDataset(index = train_list,transform=transform_train,cluster = False)
+        testset = refactor_dataset_class.VGMMDataset(index = test_list,transform=transform_test,cluster =False)
+        outputs = 10
+        inputs = 1
     return trainset, testset, inputs,outputs
 
+def prepare_data_for_normal_cv(args,train_list,test_list,resize):
+    # Data Uplaod
+    print('\n[Phase 1] : Data Preparation')
 
+    transform_train = transforms.Compose([
+        transforms.Resize((resize, resize)),
+        transforms.ToTensor(),
+        transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
+    ])  # meanstd transformation
+
+    transform_test = transforms.Compose([
+        transforms.Resize((resize, resize)),
+        transforms.ToTensor(),
+        transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
+    ])
+
+    if (args.dataset == 'mnist'):
+        print("| Preparing fashion MNIST dataset for random cv...")
+        sys.stdout.write("| ")
+        # trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
+        # testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
+        trainset = refactor_dataset_class.VGMMDataset(index = train_list,transform=transform_train,cluster = False)
+        testset = refactor_dataset_class.VGMMDataset(index = test_list,transform=transform_test,cluster =False)
+        outputs = 10
+        inputs = 1
+    return trainset, testset, inputs,outputs
+
+def cross_validation(num_labels,num_cluster,args):
+    print("cross validation for random resampling")
+    best_acc = 0
+    resize = cf.resize
+    start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
+    results = {}
+    X, y = utils_parent.load_mnist('fashion-mnist')
+    kf = KFold(n_splits=num_cluster)
+    i = 0
+    for train_eval_idx, test_idx in kf.split(X, y):
+        i = i +1
+    # for i in range(num_cluster):
+    #     test_list = [i]
+    #     train_list = list(range(num_cluster))
+    #     train_list = [x for x in train_list if x != i]
+    #     print(test_list, train_list)
+        trainset, testset, inputs, outputs = prepare_data_for_normal_cv(args, train_eval_idx, test_idx, resize)
+        # Hyper Parameter settings
+        use_cuda = torch.cuda.is_available()
+        use_cuda = cf.use_cuda()
+        if use_cuda is True:
+            torch.cuda.set_device(0)
+        best_acc = 0
+        resize = cf.resize
+        start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
+
+        trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
+        testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
+
+        # num_workers: how many subprocesses to use for data loading. 0 means that the data will be loaded in the main process. (default: 0)# Return network & file name
+
+        # Model
+        # Model
+        print('\n[Phase 2] : Model setup')
+        if args.resume:
+            # Load checkpoint
+            print('| Resuming from checkpoint...')
+            assert os.path.isdir('checkpoint'), 'Error: No checkpoint directory found!'
+            _, file_name = getNetwork(args, inputs, outputs)
+            checkpoint = torch.load('./checkpoint/' + args.dataset + os.sep + file_name + '.t7')
+            net = checkpoint['net']
+            best_acc = checkpoint['acc']
+            start_epoch = checkpoint['epoch']
+        else:
+            print('| Building net type [' + args.net_type + ']...')
+            net, file_name = getNetwork(args, inputs, outputs)
+
+        if use_cuda:
+            net.cuda()
+
+        vi = GaussianVariationalInference(torch.nn.CrossEntropyLoss())
+
+        logfile = os.path.join('diagnostics_Bayes{}_{}.txt'.format(args.net_type, args.dataset))
+
+        print('\n[Phase 3] : Training model')
+        print('| Training Epochs = ' + str(num_epochs))
+        print('| Initial Learning Rate = ' + str(args.lr))
+        print('| Optimizer = ' + str(optim_type))
+
+        elapsed_time = 0
+        for epoch in range(start_epoch, start_epoch + num_epochs):
+            start_time = time.time()
+
+            train(epoch, trainset, inputs, net, batch_size, trainloader, resize, num_epochs, use_cuda, vi, logfile)
+            test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi, logfile,
+                 file_name)
+
+            epoch_time = time.time() - start_time
+            elapsed_time += epoch_time
+            print('| Elapsed time : %d:%02d:%02d' % (cf.get_hms(elapsed_time)))
+
+        print('\n[Phase 4] : Testing model')
+        print('* Test results : Acc@1 = %.2f%%' % (best_acc))
 
 
 
@@ -331,8 +441,8 @@ if __name__ == '__main__':
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
     args = parser.parse_args()
 
-    cross_validation_for_clustered_data(num_labels=10,num_cluster=5,args=args)
-
+    # cross_validation_for_clustered_data(num_labels=10,num_cluster=5,args=args)
+    cross_validation(10,5,args)
 
 
 

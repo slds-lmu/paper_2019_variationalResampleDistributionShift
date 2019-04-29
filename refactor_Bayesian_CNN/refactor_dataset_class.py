@@ -58,7 +58,7 @@ import config
 #
 class VGMMDataset(Dataset):
     """Dataset after VGMM clustering"""
-    def __init__(self, pattern = "/global_index_cluster_data.npy", root_dir = '../results/VAE_fashion-mnist_64_62', transform=None, list_idx = [0], dsname = "fashion-mnist", num_labels = 10, num_cluster = 5):
+    def __init__(self, pattern = "/global_index_cluster_data.npy", root_dir = '../results/VAE_fashion-mnist_64_62', transform=None, list_idx = [0], dsname = "fashion-mnist", num_labels = 10, num_cluster = 5,cluster = True,index=[]):
         """
         Args:
             pattern (string): Path to the npy file.
@@ -68,22 +68,31 @@ class VGMMDataset(Dataset):
             list_idx (list): the list of indexes of the cluster to choose as trainset or testset
         """
         X, y = utils_parent.load_mnist(dsname)
-        y = y.argmax(axis = 1)
+        y = y.argmax(axis=1)
         self.root_dir = root_dir
         self.pattern = pattern
         self.transform = transform
-        if not tf.gfile.Exists(self.root_dir + self.pattern):
-            _ , self.global_index = concatenate_data_from_dir(self.root_dir , num_labels=num_labels,num_clusters=num_cluster)
-        else:self.global_index = np.load(self.root_dir + pattern,allow_pickle=True)
-        self.list_idx = list_idx
-        all_inds = []
-        for index in self.list_idx:
-            to_append = self.global_index.item().get(str(index))
-            all_inds = np.append(all_inds, to_append)
-        self.all_inds = all_inds.tolist()
-        #self.all_inds = map(round, self.all_inds)
-        self.all_inds = [round(a) for a in self.all_inds]
-        self.samples = {"x":X.take(self.all_inds, axis = 0), "y":y.take(self.all_inds, axis = 0)}
+        if cluster ==True:
+
+            if not tf.gfile.Exists(self.root_dir + self.pattern):
+                _, self.global_index = concatenate_data_from_dir(self.root_dir, num_labels=num_labels,
+                                                                 num_clusters=num_cluster)
+            else:
+                self.global_index = np.load(self.root_dir + pattern, allow_pickle=True)
+            self.list_idx = list_idx
+            all_inds = []
+            for index in self.list_idx:
+                to_append = self.global_index.item().get(str(index))
+                all_inds = np.append(all_inds, to_append)
+            self.all_inds = all_inds.tolist()
+            # self.all_inds = map(round, self.all_inds)
+            self.all_inds = [round(a) for a in self.all_inds]
+            self.samples = {"x": X.take(self.all_inds, axis=0), "y": y.take(self.all_inds, axis=0)}
+        else:
+            self.all_inds = index
+            self.samples = {"x": X[index], "y": y[index]}
+
+
 
     def __len__(self):
         return len(self.all_inds)
