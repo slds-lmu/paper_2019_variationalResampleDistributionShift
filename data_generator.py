@@ -3,6 +3,7 @@ from utils import *
 from VGMM import VGMM
 from visualization import T_SNE_Plot
 import json
+import config
 
 def split_data_according_to_label(z,y,num_labels):
     d = {}
@@ -35,10 +36,13 @@ def concatenate_data_from_dir(data_path,num_labels,num_clusters):
 
     for i in range(num_labels):
         path = data_path + "/L" + str(i)
-        z = np.load(path + "/z.npy")
+        # z = np.load(path + "/z.npy")
+        z = np.load(path + config.z_name)
         # y is the index dictionary with respect to global data
-        y = np.load(path + "/y.npy")
-        cluster_predict = np.load(path + "/cluster_predict.npy")
+        # y = np.load(path + "/y.npy")
+        y = np.load(path + config.y_name)
+        # cluster_predict = np.load(path + "/cluster_predict.npy")
+        cluster_predict = np.load(path + config.cluster_predict_npy_name)
         if i == 0:
             for j in range(num_clusters):
                 pos[str(j)] = z[np.where(cluster_predict == j)]
@@ -58,9 +62,11 @@ def generate_metadata(m,dict,num_clusters):
 
 
 def cluster_for_each_label(data_path,num_labels,num_clusters):
-    z = np.load(data_path+"/z.npy")
+    # z = np.load(data_path+"/z.npy")
+    z = np.load(data_path + config.z_name)
     # global ground truth
-    y = np.load(data_path+"/y.npy")[:z.shape[0]]
+    # y = np.load(data_path+"/y.npy")[:z.shape[0]]
+    y = np.load(data_path + config.y_name)[:z.shape[0]]
     d_label = split_data_according_to_label(z,y,num_labels)
     # cluster data of each label
     vgmm = VGMM()
@@ -78,12 +84,14 @@ def cluster_for_each_label(data_path,num_labels,num_clusters):
 
     # concatenate index array
     pos_index_cluster = concatenate_index_array(pos,num_labels=num_labels,num_clusters=num_clusters)
-    vgmm.save_dict(data_path+"/cluster_dict.json",pos_index_cluster)
+    # vgmm.save_dict(data_path+"/cluster_dict.json",pos_index_cluster)
+    vgmm.save_dict(data_path + config.cluster_index_json_name,pos_index_cluster)
 
     #generate metadata for visualization
     m = np.zeros(y.shape)
     m = generate_metadata(m,pos_index_cluster,num_clusters=num_clusters)
-    vgmm.save_predict(data_path+"/cluster_predict.tsv",m)
+    # vgmm.save_predict(data_path+"/cluster_predict.tsv",m)
+    vgmm.save_predict(data_path + config.cluster_predict_tsv_name,m)
     print(z.shape)
     T_SNE_Plot(z,pos_index_cluster,num_clusters,data_path)
 
@@ -94,11 +102,14 @@ def global_cluster(result_path,z):
     dict, X_prediction_vgmm = vgmm.cluster(z)
 
     # save the result of clustering
-    path = result_path + "/" + "cluster_dict.json"
+    # path = result_path + "/" + "cluster_dict.json"
+    path = result_path + config.cluster_index_json_name
     vgmm.save_dict(path, dict)
-    path = result_path + "/" + "cluster_predict.tsv"
+    # path = result_path + "/" + "cluster_predict.tsv"
+    path = result_path + config.cluster_predict_tsv_name
     vgmm.save_predict(path, X_prediction_vgmm)
-    path = result_path + "/" + "cluster_predict.npy"
+    # path = result_path + "/" + "cluster_predict.npy"
+    path = result_path + config.cluster_predict_npy_name
     np.save(path,X_prediction_vgmm)
 
 

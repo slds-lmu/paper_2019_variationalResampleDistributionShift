@@ -11,6 +11,7 @@ import json
 # import matplotlib as plt
 import matplotlib.pyplot as plt
 from utils import *
+import config
 
 def T_SNE_Plot(data_x,pos,num_clusters,result_path):
     from sklearn.manifold import TSNE
@@ -32,7 +33,8 @@ def T_SNE_Plot(data_x,pos,num_clusters,result_path):
         plt.savefig(result_path + "/TSNE" + str(i) + ".png")
     plt.grid(True)
     plt.savefig(result_path+"/TSNE.jpg")
-    np.save(result_path+"/TSNE_transformed_data_dict.npy",fashion_pca_tsne)
+    # np.save(result_path+"/TSNE_transformed_data_dict.npy",fashion_pca_tsne)
+    np.save(result_path + config.TSNE_data_name,fashion_pca_tsne)
 
 def T_SNE_Plot_with_datadict(data_dict,num_clusters,result_path):
     from sklearn.manifold import TSNE
@@ -51,7 +53,8 @@ def T_SNE_Plot_with_datadict(data_dict,num_clusters,result_path):
         plt.savefig(result_path + "/TSNE"+str(i)+".png")
     plt.grid(True)
     plt.savefig(result_path+"/TSNE.jpg")
-    np.save(result_path + "/TSNE_transformed_data_dict.npy", fashion_pca_tsne)
+    # np.save(result_path + "/TSNE_transformed_data_dict.npy", fashion_pca_tsne)
+    np.save(result_path + config.TSNE_data_name, fashion_pca_tsne)
 
 
 
