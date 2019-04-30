@@ -3,7 +3,7 @@ import math
 import torch
 
 start_epoch = 1
-num_epochs = 1
+num_epochs = 2
 batch_size = 32
 optim_type = 'Adam'
 resize = 32  # image size, for mnist
