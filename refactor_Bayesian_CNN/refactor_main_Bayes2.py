@@ -385,8 +385,10 @@ def cross_validation(num_labels,num_cluster,args):
             temp_train_return = train(epoch, trainset, inputs, net, batch_size, trainloader, resize, num_epochs, use_cuda, vi, logfile_train)
             temp_eval_return = test(epoch, evalset, inputs, batch_size, evalloader, net, use_cuda, num_epochs, resize, vi, logfile_test,file_name)
 
-            train_return = train_return.append(temp_train_return)
-            eval_return = eval_return.append(temp_eval_return)
+            # train_return = train_return.append(temp_train_return)
+            train_return = np.append(train_return,temp_train_return)
+            # eval_return = eval_return.append(temp_eval_return)
+            eval_return = np.append(eval_return,temp_eval_return)
 
 
 
@@ -397,7 +399,8 @@ def cross_validation(num_labels,num_cluster,args):
         print('\n[Phase 4] : Testing model')
         print('* Test results : Acc@1 = %.2f%%' % (best_acc))
         temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi,logfile_test,file_name)
-        test_return = test_return.append(temp_test_return)
+        # test_return = test_return.append(temp_test_return)
+        test_return = np.append(test_return,temp_test_return)
         results[str(i)] = {"train": train_return, "test": test_return, "eval": eval_return}
     return results
 
@@ -469,8 +472,10 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
             temp_eval_return = test(epoch,evalset,inputs,batch_size,evalloader,net,use_cuda,num_epochs,resize,vi,logfile_test,file_name)
             print(temp_train_return)
             print(temp_eval_return)
-            train_return = train_return.append(temp_train_return)
-            eval_return = eval_return.append(temp_eval_return)
+            # train_return = train_return.append(temp_train_return)
+            train_return = np.append(train_return,temp_train_return)
+            # eval_return = eval_return.append(temp_eval_return)
+            eval_return = np.append(train_return,temp_eval_return)
 
             epoch_time = time.time() - start_time
             elapsed_time += epoch_time
@@ -480,7 +485,8 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
         print('* Test results : Acc@1 = %.2f%%' % (best_acc))
         temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi,
                                 logfile_test, file_name)
-        test_return = test_return.append(temp_test_return)
+        # test_return = test_return.append(temp_test_return)
+        test_return = np.append(test_return,temp_test_return)
         results[str(i)] = {"train": train_return, "test": test_return,"val":eval_return}
 
     return results
