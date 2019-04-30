@@ -453,10 +453,10 @@ if __name__ == '__main__':
     parser.add_argument('--cv_type', '-v', default = 'vgmm', type=str, help='cv_type=[rand/vgmm]')
     args = parser.parse_args()
     if args.cv_type == "vgmm":
-        result = cross_validation_for_clustered_data(num_labels=10,num_cluster=5,args=args)
+        result = cross_validation_for_clustered_data(num_labels=config_parent.num_labels,num_cluster=config_parent.num_clusters,args=args)
         path = 'results_clustered_bayes.csv'
     else:
-        result = cross_validation(10,5,args)
+        result = cross_validation(config_parent.num_labels,config_parent.num_clusters,args)
         path = 'results_normalcv_bayes.csv'
     with open(args.cv_type + '_cross_validation_result.p', 'wb') as fp:
         pickle.dump(result, fp, protocol=pickle.HIGHEST_PROTOCOL)

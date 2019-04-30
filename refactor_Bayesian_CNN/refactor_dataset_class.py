@@ -83,9 +83,11 @@ class VGMMDataset(Dataset):
                 self.global_index = np.load(self.root_dir + pattern, allow_pickle=True)
             self.list_idx = list_idx
             all_inds = []
+            print(list_idx)
             for index in self.list_idx:
                 to_append = self.global_index.item().get(str(index))
                 all_inds = np.append(all_inds, to_append)
+                print(all_inds.shape)
             self.all_inds = all_inds.tolist()
             # self.all_inds = map(round, self.all_inds)
             self.all_inds = [round(a) for a in self.all_inds]
