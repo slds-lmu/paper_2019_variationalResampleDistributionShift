@@ -65,7 +65,6 @@ def getNetwork(args,inputs,outputs):
 
 # Training,  input is network vi as argument, by reference?
 def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,vi,logfile):
-    print("************")
     net.train()
     train_loss = 0
     correct = 0
@@ -77,7 +76,6 @@ def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use
     for batch_idx, (inputs_value, targets) in enumerate(trainloader):
         # repeat samples for
         x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
-        print(x.shape)
         y = targets.repeat(args.num_samples)
         if use_cuda:
             x, y = x.cuda(), y.cuda()  # GPU settings
@@ -93,7 +91,6 @@ def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use
         # Forward Propagation
         x, y = Variable(x), Variable(y)
         outputs, kl = net.probforward(x)
-        # print(outputs.shape)
         loss = vi(outputs, y, kl, beta)  # Loss
         optimizer.zero_grad()
         loss.backward()  # Backward Propagation
@@ -188,7 +185,7 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
 
 
 
-def prepare_data(args,train_list,test_list,resize):
+def prepare_data(args,train_eval_list,test_list,resize):
     # Data Uplaod
     print('\n[Phase 1] : Data Preparation')
 
@@ -223,24 +220,18 @@ def prepare_data(args,train_list,test_list,resize):
     elif (args.dataset == 'mnist'):
         print("| Preparing MNIST dataset...")
         sys.stdout.write("| ")
-        # trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
-        # testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
-        trainset = refactor_dataset_class.VGMMDataset(pattern = config_parent.global_index_name,root_dir = "../"+config_parent.data_path,list_idx = train_list,transform=transform_train)
+        train_eval_set = refactor_dataset_class.VGMMDataset(pattern = config_parent.global_index_name,root_dir = "../"+config_parent.data_path,list_idx = train_eval_list,transform=transform_train)
+        # split train_eval_set into trainset and evalset
+        train_size = int(0.8 * len(train_eval_set))
+        eval_size = len(train_eval_set) - train_size
+        trainset, evalset = torch.utils.data.random_split(train_eval_set, [train_size, eval_size])
         testset = refactor_dataset_class.VGMMDataset(pattern = config_parent.global_index_name,root_dir = "../"+config_parent.data_path,list_idx = test_list,transform=transform_test)
         outputs = 10
         inputs = 1
-    # elif (args.dataset == 'fashion-mnist-random'):
-    #     print("| Preparing fashion MNIST dataset for random cv...")
-    #     sys.stdout.write("| ")
-    #     # trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
-    #     # testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
-    #     trainset = refactor_dataset_class.VGMMDataset(index = train_list,transform=transform_train,cluster = False)
-    #     testset = refactor_dataset_class.VGMMDataset(index = test_list,transform=transform_test,cluster =False)
-    #     outputs = 10
-    #     inputs = 1
-    return trainset, testset, inputs,outputs
 
-def prepare_data_for_normal_cv(args,train_list,test_list,resize):
+    return trainset, evalset, testset, inputs,outputs
+
+def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
     # Data Uplaod
     print('\n[Phase 1] : Data Preparation')
 
@@ -259,13 +250,15 @@ def prepare_data_for_normal_cv(args,train_list,test_list,resize):
     if (args.dataset == 'mnist'):
         print("| Preparing fashion MNIST dataset for random cv...")
         sys.stdout.write("| ")
-        # trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
-        # testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
-        trainset = refactor_dataset_class.VGMMDataset(pattern = config_parent.global_index_name,root_dir = "../"+config_parent.data_path,index = train_list,transform=transform_train,cluster = False)
+        train_eval_set = refactor_dataset_class.VGMMDataset(pattern = config_parent.global_index_name,root_dir = "../"+config_parent.data_path,index = train_eval_list,transform=transform_train,cluster = False)
+        # split train_eval_set into trainset and evalset
+        train_size = int(0.8 * len(train_eval_set))
+        eval_size = len(train_eval_set) - train_size
+        trainset, evalset = torch.utils.data.random_split(train_eval_set, [train_size, eval_size])
         testset = refactor_dataset_class.VGMMDataset(pattern = config_parent.global_index_name,root_dir = "../"+config_parent.data_path,index = test_list,transform=transform_test,cluster =False)
         outputs = 10
         inputs = 1
-    return trainset, testset, inputs,outputs
+    return trainset, evalset, testset, inputs,outputs
 
 def cross_validation(num_labels,num_cluster,args):
     print("cross validation for random resampling")
@@ -283,7 +276,7 @@ def cross_validation(num_labels,num_cluster,args):
     #     train_list = list(range(num_cluster))
     #     train_list = [x for x in train_list if x != i]
     #     print(test_list, train_list)
-        trainset, testset, inputs, outputs = prepare_data_for_normal_cv(args, train_eval_idx, test_idx, resize)
+        trainset, evalset, testset, inputs, outputs = prepare_data_for_normal_cv(args, train_eval_idx, test_idx, resize)
         # Hyper Parameter settings
         use_cuda = torch.cuda.is_available()
         use_cuda = cf.use_cuda()
@@ -294,11 +287,11 @@ def cross_validation(num_labels,num_cluster,args):
         start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
 
         trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
+        evalloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=False, num_workers=4)
         testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
 
         # num_workers: how many subprocesses to use for data loading. 0 means that the data will be loaded in the main process. (default: 0)# Return network & file name
 
-        # Model
         # Model
         print('\n[Phase 2] : Model setup')
         if args.resume:
@@ -334,16 +327,16 @@ def cross_validation(num_labels,num_cluster,args):
 
         train_return = []
         test_return = []
+        eval_return = []
 
         for epoch in range(start_epoch, start_epoch + num_epochs):
             start_time = time.time()
 
             temp_train_return = train(epoch, trainset, inputs, net, batch_size, trainloader, resize, num_epochs, use_cuda, vi, logfile_train)
-            temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi, logfile_test,
-                 file_name)
+            temp_eval_return = test(epoch, evalset, inputs, batch_size, evalloader, net, use_cuda, num_epochs, resize, vi, logfile_test,file_name)
 
             train_return = train_return.append(temp_train_return)
-            test_return = test_return.append(temp_test_return)
+            eval_return = eval_return.append(temp_eval_return)
 
 
 
@@ -353,6 +346,8 @@ def cross_validation(num_labels,num_cluster,args):
 
         print('\n[Phase 4] : Testing model')
         print('* Test results : Acc@1 = %.2f%%' % (best_acc))
+        temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi,logfile_test,file_name)
+        test_return = test_return.append(temp_test_return)
         results[str(i)] = {"train": train_return, "test": test_return}
     return results
 
@@ -365,10 +360,10 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
     results = {}
     for i in range(num_cluster):
         test_list = [i]
-        train_list = list(range(num_cluster))
-        train_list = [x for x in train_list if x != i]
-        print(test_list,train_list)
-        trainset, testset,inputs,outputs = prepare_data(args,train_list,test_list,resize)
+        train_eval_list = list(range(num_cluster))
+        train_eval_list = [x for x in train_eval_list if x != i]
+        print(test_list,train_eval_list)
+        trainset, evalset, testset,inputs,outputs = prepare_data(args,train_eval_list,test_list,resize)
         # Hyper Parameter settings
         use_cuda = torch.cuda.is_available()
         use_cuda = cf.use_cuda()
@@ -379,11 +374,11 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
         start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
 
         trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
+        evalloader = torch.utils.data.DataLoader(evalset, batch_size=batch_size, shuffle=False, num_workers=4)
         testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
 
         # num_workers: how many subprocesses to use for data loading. 0 means that the data will be loaded in the main process. (default: 0)# Return network & file name
 
-        # Model
         # Model
         print('\n[Phase 2] : Model setup')
         if args.resume:
@@ -414,17 +409,18 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
 
         elapsed_time = 0
         train_return = []
+        eval_return = []
         test_return = []
         for epoch in range(start_epoch, start_epoch + num_epochs):
             print(train_return)
             print(test_return)
             start_time = time.time()
             temp_train_return = train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,vi,logfile_train)
-            temp_test_return = test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resize,vi,logfile_test,file_name)
+            temp_eval_return = test(epoch,evalset,inputs,batch_size,evalloader,net,use_cuda,num_epochs,resize,vi,logfile_test,file_name)
             print(temp_train_return)
-            print(temp_test_return)
+            print(temp_eval_return)
             train_return = train_return.append(temp_train_return)
-            test_return = test_return.append(temp_test_return)
+            eval_return = eval_return.append(temp_eval_return)
 
             epoch_time = time.time() - start_time
             elapsed_time += epoch_time
@@ -432,26 +428,10 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
 
         print('\n[Phase 4] : Testing model')
         print('* Test results : Acc@1 = %.2f%%' % (best_acc))
-        results[str(i)] = {"train": train_return, "test": test_return}
-
-        # print('\n[Phase 3] : Training model')
-        # print('| Training Epochs = ' + str(num_epochs))
-        # print('| Initial Learning Rate = ' + str(args.lr))
-        # print('| Optimizer = ' + str(optim_type))
-        #
-        # elapsed_time = 0
-        # for epoch in range(start_epoch, start_epoch + num_epochs):
-        #     start_time = time.time()
-        #
-        #     train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,vi,logfile)
-        #     test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resize,vi,logfile,file_name)
-        #
-        #     epoch_time = time.time() - start_time
-        #     elapsed_time += epoch_time
-        #     print('| Elapsed time : %d:%02d:%02d' % (cf.get_hms(elapsed_time)))
-        #
-        # print('\n[Phase 4] : Testing model')
-        # print('* Test results : Acc@1 = %.2f%%' % (best_acc))
+        temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi,
+                                logfile_test, file_name)
+        test_return = test_return.append(temp_test_return)
+        results[str(i)] = {"train": train_return, "test": test_return,"eval":eval_return}
 
     return results
 
@@ -473,20 +453,20 @@ if __name__ == '__main__':
     parser.add_argument('--cv_type', '-v', default = 'vgmm', type=str, help='cv_type=[rand/vgmm]')
     args = parser.parse_args()
     if args.cv_type == "vgmm":
-    	result = cross_validation_for_clustered_data(num_labels=10,num_cluster=5,args=args)
+        result = cross_validation_for_clustered_data(num_labels=config_parent.num_labels,num_cluster=config_parent.num_clusters,args=args)
+        path = 'results_clustered_bayes.csv'
     else:
-    	result = cross_validation(10,5,args)
+        result = cross_validation(config_parent.num_labels,config_parent.num_clusters,args)
+        path = 'results_normalcv_bayes.csv'
     with open(args.cv_type + '_cross_validation_result.p', 'wb') as fp:
         pickle.dump(result, fp, protocol=pickle.HIGHEST_PROTOCOL)
     with open(args.cv_type + '_cross_validation_result.json', 'w') as fp:
         json.dump(result, fp)
 
-    utils_parent.write_results_to_csv("results.csv",result)
+    utils_parent.write_results_to_csv(path,result)
 
 
 
-# cp rand_cross_validation_result.p
-# cp rand_cross_validation_result.json
 
 
 
