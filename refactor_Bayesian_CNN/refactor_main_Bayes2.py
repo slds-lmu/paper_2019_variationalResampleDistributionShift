@@ -519,16 +519,19 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.cv_type == "vgmm":
         result = cross_validation_for_clustered_data(num_labels=config_parent.num_labels,num_cluster=config_parent.num_clusters,args=args)
-        path = 'results_clustered_bayes.csv'
+        # path = 'results_clustered_bayes.csv'
     else:
         result = cross_validation(config_parent.num_labels,config_parent.num_clusters,args)
-        path = 'results_normalcv_bayes.csv'
+        # path = 'results_normalcv_bayes.csv'
     with open(args.cv_type + '_cross_validation_result.p', 'wb') as fp:
         pickle.dump(result, fp, protocol=pickle.HIGHEST_PROTOCOL)
-    with open(args.cv_type + '_cross_validation_result.json', 'w') as fp:
-        json.dump(result, fp)
 
-    utils_parent.write_results_to_csv(path,result)
+    # cause ndarray is not json serializable
+    # with open(args.cv_type + '_cross_validation_result.json', 'w') as fp:
+    #     json.dump(result, fp)
+
+    np.save(args.cv_type+'_cross_validation_result.npy',result)
+    utils_parent.write_results_to_csv(args.cv_type+'_cross_validation_result.csv',result)
 
 
 
