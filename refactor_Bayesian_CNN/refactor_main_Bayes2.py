@@ -348,7 +348,7 @@ def cross_validation(num_labels,num_cluster,args):
         print('* Test results : Acc@1 = %.2f%%' % (best_acc))
         temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi,logfile_test,file_name)
         test_return = test_return.append(temp_test_return)
-        results[str(i)] = {"train": train_return, "test": test_return}
+        results[str(i)] = {"train": train_return, "test": test_return, "eval": eval_return}
     return results
 
 
@@ -402,7 +402,7 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
         logfile_train = os.path.join('diagnostics_Bayes{}_{}_cv{}_train.txt'.format(args.net_type, args.dataset, i))
         logfile_test = os.path.join('diagnostics_Bayes{}_{}_cv{}_test.txt'.format(args.net_type, args.dataset, i))
 
-        print('\n[Phase 3] : Training model')
+        print('\n[Phase 3] : Training model with validation')
         print('| Training Epochs = ' + str(num_epochs))
         print('| Initial Learning Rate = ' + str(args.lr))
         print('| Optimizer = ' + str(optim_type))
@@ -431,7 +431,7 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
         temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi,
                                 logfile_test, file_name)
         test_return = test_return.append(temp_test_return)
-        results[str(i)] = {"train": train_return, "test": test_return,"eval":eval_return}
+        results[str(i)] = {"train": train_return, "test": test_return,"val":eval_return}
 
     return results
 
