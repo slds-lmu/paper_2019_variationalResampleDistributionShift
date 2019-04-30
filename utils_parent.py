@@ -215,3 +215,37 @@ def write_path_to_config(result_path):
     file.write('statistic_name4d_s = "/TSNE_transformed_data_dict.npy"')
     file.write('\n')
     file.close()
+
+# write results dict like: {‘0’:{‘test’:[{‘epoch’:1,‘loss’:1},{‘epoch’:2,‘loss’:2}],‘train’:[{‘epoch’:1,‘loss’:1},{‘epoch’:2,‘loss’:2}]}}
+def write_results_to_csv(path,dict):
+    import csv
+    # with open('results.csv', 'w', newline='') as csvfile:
+    with open(path, 'w', newline='') as csvfile:
+        for key, val in dict.items():
+            w = csv.writer(csvfile)
+            w.writerow({"cv:", key})
+            for key, val in val.items():
+                # val:[{'epoch':1,'loss':1},{'epoch':2,'loss':2}]
+                w.writerow({"mode:", key})
+                fieldnames = val[0].keys()
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+                for d in val:
+                    writer.writerow(d)
+
+# write results dict like {'0':{'test':{'acc':1,'loss':1},'train':{'acc':1,'loss':1}}, '1':{'test':{'acc':1,'loss':1},'train':{'acc':1,'loss':1}}}
+def write_results_convnet_to_csv(path,dict):
+    import csv
+    with open(path, 'w', newline='') as csvfile:
+        head = True
+        for key, val in dict.items():
+            print(key)
+            w = csv.writer(csvfile)
+            for key, val in val.items():
+                print(key)
+                fieldnames = val.keys()
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                if head:
+                    writer.writeheader()
+                    head = False
+                writer.writerow(val)
