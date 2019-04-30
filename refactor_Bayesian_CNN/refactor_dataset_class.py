@@ -13,7 +13,6 @@ sys.path.append(os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
 from inspect import getsourcefile
 import os.path
 import sys
-
 current_path = os.path.abspath(getsourcefile(lambda:0))
 current_dir = os.path.dirname(current_path)
 parent_dir = current_dir[:current_dir.rfind(os.path.sep)]
@@ -49,8 +48,11 @@ from data_generator import concatenate_data_from_dir
 #from itertools import chain
 #gen2 = chain(gen)
 #list(gen2).ravel()
-import config
-#X, y = utils.load_mnist("fashion-mnist")
+#import config
+### smaller data, for debug, but this smaller data should find its intersection with the z data
+#X, y = utils_parent.load_mnist("fashion-mnist")
+#from sklearn.model_selection import train_test_split
+#X_1, X_2, Y_1, Y_2 = train_test_split(X, y, stratify=y, test_size=0.01)
 #y.take([1], axis = 0).shape
 #y[[1,2,3], ]
 #X[1,]
