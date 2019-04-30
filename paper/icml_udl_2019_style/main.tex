@@ -110,7 +110,7 @@ Given a dataset $\DS$, we usually split it into $D_{train} \bigcup D_{val} \bigc
 Most deep learning papers benchmark the performance of different models relying on the train-test split provided along with the dataset. Cross Validation, however, 
 split the data randomly, which should generate splits with the same distribution. In this work, we aim to split a dataset such that the each split resides in a different distribution by clustering the  dataset into different clusters.
 
-Since high dimensional clustering is challenging, we first train a representation of the dataset, either on the whole dataset or with respect to each class label. According to \cite{zhang2013domain}
+Since high dimensional clustering is challenging, we first train a representation of the dataset, either on the whole dataset or with respect to each class label. According to \cite{zhang2013domain}, suppose $X$ represent feature and $Y$ represent the target, we investigate two kinds of distribution shift: The conditional shift which refers to change in $P_{X|Y	}$
 
 Upon the latent representation, we use Variational Gaussian Mixture model to assign each instance a different cluster. Among those, one cluster is used for training, one for validation and the left over is used for testing. A combination of the assignment to $D_{train} \bigcup D_{val} \bigcup D_{test}$ forms a variation estimate on how good a model could generalize to $D_{test}$, similar to Cross Validation.
 
