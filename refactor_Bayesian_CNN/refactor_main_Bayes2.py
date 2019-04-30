@@ -475,7 +475,7 @@ if __name__ == '__main__':
     with open(args.cv_type + '_cross_validation_result.p', 'wb') as fp:
         pickle.dump(result, fp, protocol=pickle.HIGHEST_PROTOCOL)
     with open(args.cv_type + '_cross_validation_result.json', 'w') as fp:
-        json.dump(data, fp)
+        json.dump(result, fp)
 
 
 
