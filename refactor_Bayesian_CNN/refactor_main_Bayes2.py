@@ -466,7 +466,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', default='mnist', type=str, help='dataset = [mnist/cifar10/cifar100]')
     parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
-    parser.add_argument('--cv_type', '-t', default = 'vgmm', type=str, help='cv_type=[rand/vgmm]')
+    parser.add_argument('--cv_type', '-v', default = 'vgmm', type=str, help='cv_type=[rand/vgmm]')
     args = parser.parse_args()
     if args.cv_type == "vgmm":
     	result = cross_validation_for_clustered_data(num_labels=10,num_cluster=5,args=args)
