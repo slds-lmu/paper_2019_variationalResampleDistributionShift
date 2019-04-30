@@ -9,7 +9,7 @@ import math
 import pickle
 import numpy as np
 
-import torchvision 
+import torchvision
 import torchvision.transforms as transforms
 
 import torch
@@ -415,8 +415,8 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
         train_return = []
         test_return = []
         for epoch in range(start_epoch, start_epoch + num_epochs):
-	    print(train_return)
-	    print(test_return)
+	        print(train_return)
+	        print(test_return)
             start_time = time.time()
 
             temp_train_return = train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,vi,logfile_train)
