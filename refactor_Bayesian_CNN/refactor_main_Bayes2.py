@@ -39,6 +39,7 @@ from utils.BayesianModels.BayesianLeNet import BBBLeNet
 import refactor_dataset_class
 import utils_parent as utils_parent
 from sklearn.model_selection import KFold
+import config as config_parent
 
 best_acc = 0
 
@@ -224,19 +225,19 @@ def prepare_data(args,train_list,test_list,resize):
         sys.stdout.write("| ")
         # trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
         # testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
-        trainset = refactor_dataset_class.VGMMDataset(list_idx = train_list,transform=transform_train)
-        testset = refactor_dataset_class.VGMMDataset(list_idx = test_list,transform=transform_test)
+        trainset = refactor_dataset_class.VGMMDataset(pattern = config_parent.global_index_name,root_dir = "../"+config_parent.data_path,list_idx = train_list,transform=transform_train)
+        testset = refactor_dataset_class.VGMMDataset(pattern = config_parent.global_index_name,root_dir = "../"+config_parent.data_path,list_idx = test_list,transform=transform_test)
         outputs = 10
         inputs = 1
-    elif (args.dataset == 'fashion-mnist-random'):
-        print("| Preparing fashion MNIST dataset for random cv...")
-        sys.stdout.write("| ")
-        # trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
-        # testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
-        trainset = refactor_dataset_class.VGMMDataset(index = train_list,transform=transform_train,cluster = False)
-        testset = refactor_dataset_class.VGMMDataset(index = test_list,transform=transform_test,cluster =False)
-        outputs = 10
-        inputs = 1
+    # elif (args.dataset == 'fashion-mnist-random'):
+    #     print("| Preparing fashion MNIST dataset for random cv...")
+    #     sys.stdout.write("| ")
+    #     # trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
+    #     # testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
+    #     trainset = refactor_dataset_class.VGMMDataset(index = train_list,transform=transform_train,cluster = False)
+    #     testset = refactor_dataset_class.VGMMDataset(index = test_list,transform=transform_test,cluster =False)
+    #     outputs = 10
+    #     inputs = 1
     return trainset, testset, inputs,outputs
 
 def prepare_data_for_normal_cv(args,train_list,test_list,resize):
@@ -260,8 +261,8 @@ def prepare_data_for_normal_cv(args,train_list,test_list,resize):
         sys.stdout.write("| ")
         # trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
         # testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
-        trainset = refactor_dataset_class.VGMMDataset(index = train_list,transform=transform_train,cluster = False)
-        testset = refactor_dataset_class.VGMMDataset(index = test_list,transform=transform_test,cluster =False)
+        trainset = refactor_dataset_class.VGMMDataset(pattern = config_parent.global_index_name,root_dir = "../"+config_parent.data_path,index = train_list,transform=transform_train,cluster = False)
+        testset = refactor_dataset_class.VGMMDataset(pattern = config_parent.global_index_name,root_dir = "../"+config_parent.data_path,index = test_list,transform=transform_test,cluster =False)
         outputs = 10
         inputs = 1
     return trainset, testset, inputs,outputs
