@@ -63,7 +63,7 @@ def getNetwork(args,inputs,outputs):
 
 
 
-# Training
+# Training,  input is network vi as argument, by reference?
 def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,vi,logfile):
     print("************")
     net.train()

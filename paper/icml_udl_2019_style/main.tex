@@ -105,9 +105,12 @@ Our contributions are:
 \textbf{t-SNE:\,} Stochastic Neighborhood Embedding \cite{FIXME} use Gaussian density to model the conditional similarity between two points in the high dimensional space and the corresponding low dimensional embedding. The K-L divergence between the conditional similarity distributions are used as objective and optimized with stochastic gradient descent. t-SNE \cite{FIXME} extend the conditional similarity to symmetric version by adding up the conditional similarity of both directions. Futhermore, it use Student-t distribution instead of Gaussian Distribution in the embedding. 
 
 \section{Method}
-Given a dataset $\DS$, split it into $D_{train} \bigcup D_{val} \bigcup D_{test}$. Other than a seemingly arbitrary split in most deep learning papers or random split in Cross Validation, we split it such that the each split reside in a different distribution.
+Given a dataset $\DS$, we usually split it into $D_{train} \bigcup D_{val} \bigcup D_{test}$, where the validation dataset $D_{val}$ could be used to choose the best model along the epochs.
 
-Since high dimensional clustering is challenging, we first learned a representation of the whole dataset or with respect to each class label. This gives us two benefits, one is the dimensionality reduction, and the other is we learned a latent representation that could generate new samples.
+Most deep learning papers benchmark the performance of different models relying on the train-test split provided along with the dataset. Cross Validation, however, 
+split the data randomly, which should generate splits with the same distribution. In this work, we aim to split a dataset such that the each split resides in a different distribution by clustering the  dataset into different clusters.
+
+Since high dimensional clustering is challenging, we first train a representation of the dataset, either on the whole dataset or with respect to each class label. According to \cite{zhang2013domain}
 
 Upon the latent representation, we use Variational Gaussian Mixture model to assign each instance a different cluster. Among those, one cluster is used for training, one for validation and the left over is used for testing. A combination of the assignment to $D_{train} \bigcup D_{val} \bigcup D_{test}$ forms a variation estimate on how good a model could generalize to $D_{test}$, similar to Cross Validation.
 
