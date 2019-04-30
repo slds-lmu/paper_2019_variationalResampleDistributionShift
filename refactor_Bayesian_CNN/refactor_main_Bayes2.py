@@ -236,6 +236,7 @@ def prepare_data(args,train_eval_list,test_list,resize):
             testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
                                                          root_dir="../" + config_parent.data_path, list_idx=test_list,
                                                          transform=transform_test)
+            testset,_ =torch.utils.data.random_split(testset, [small_size, drop_size])
             outputs = 10
             inputs = 1
         else:
@@ -291,6 +292,7 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
             testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
                                                          root_dir="../" + config_parent.data_path, index=test_list,
                                                          transform=transform_test, cluster=False)
+            testset, _ = torch.utils.data.random_split(testset, [small_size, drop_size])
             outputs = 10
             inputs = 1
         else:
@@ -402,6 +404,7 @@ def cross_validation(num_labels,num_cluster,args):
         # test_return = test_return.append(temp_test_return)
         test_return = np.append(test_return,temp_test_return)
         results[str(i)] = {"train": train_return, "test": test_return, "eval": eval_return}
+        print(results)
     return results
 
 
@@ -466,7 +469,7 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
         test_return = []
         for epoch in range(start_epoch, start_epoch + num_epochs):
             print(train_return)
-            print(test_return)
+            print(eval_return)
             start_time = time.time()
             temp_train_return = train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,vi,logfile_train)
             temp_eval_return = test(epoch,evalset,inputs,batch_size,evalloader,net,use_cuda,num_epochs,resize,vi,logfile_test,file_name)
@@ -488,6 +491,7 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
         # test_return = test_return.append(temp_test_return)
         test_return = np.append(test_return,temp_test_return)
         results[str(i)] = {"train": train_return, "test": test_return,"val":eval_return}
+        print(results)
 
     return results
 
