@@ -258,6 +258,8 @@ def main(unused_argv):
     print(results_random_ressample)
     print("***********shifted************")
     print(results_shifted)
+    utils_parent.write_results_convnet_to_csv("results_random.csv",results_random_ressample)
+    utils_parent.write_results_convnet_to_csv("resuls_cluster.csv",results_shifted)
 
 
 

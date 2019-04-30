@@ -480,7 +480,7 @@ if __name__ == '__main__':
     with open(args.cv_type + '_cross_validation_result.json', 'w') as fp:
         json.dump(result, fp)
 
-
+    utils_parent.write_results_to_csv("results.csv",result)
 
 
 
