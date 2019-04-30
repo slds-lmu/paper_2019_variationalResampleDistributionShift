@@ -1,6 +1,6 @@
 INPUT4STAT = ./results/VAE_fashion-mnist_64_62/L-1/TSNE_transformed_data_dict.npy
 build:
-	python main.py --cluster True  # the same vae to map all the data, then use vgmm
+	python main.py --cluster True  # the same vae to map all the data, then use vgmm. This is useful to calculate the wasserstein distance
 
 
 label:
