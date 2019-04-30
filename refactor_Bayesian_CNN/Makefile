@@ -3,6 +3,6 @@ debugvgmm:
 debugrand:
 	python refactor_main_Bayes2.py --cv_type "rand" --debug True
 vgmm:
-	python refactor_main_Bayes2.py --cv_type "vgmm" --debug False
+	python refactor_main_Bayes2.py --cv_type "vgmm" # default debug False
 rand:
-	python refactor_main_Bayes2.py --cv_type "rand" --debug False
+	python refactor_main_Bayes2.py --cv_type "rand" # default --debug False
