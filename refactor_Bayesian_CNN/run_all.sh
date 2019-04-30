@@ -1,0 +1,2 @@
+make rand
+make vgmm

@@ -467,9 +467,10 @@ if __name__ == '__main__':
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
     parser.add_argument('--cv_type', '-t', default = 'vgmm', type=str, help='cv_type=[rand/vgmm]')
     args = parser.parse_args()
-
-    # cross_validation_for_clustered_data(num_labels=10,num_cluster=5,args=args)
-    result = cross_validation(10,5,args)
+    if args.cv_type == "vgmm":
+    	result = cross_validation_for_clustered_data(num_labels=10,num_cluster=5,args=args)
+    else:
+    	result = cross_validation(10,5,args)
     with open(args.cv_type + '_cross_validation_result.p', 'wb') as fp:
         pickle.dump(result, fp, protocol=pickle.HIGHEST_PROTOCOL)
     with open(args.cv_type + '_cross_validation_result.json', 'w') as fp:
