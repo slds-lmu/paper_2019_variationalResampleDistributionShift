@@ -236,6 +236,8 @@ def prepare_data(args,train_eval_list,test_list,resize):
             testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
                                                          root_dir="../" + config_parent.data_path, list_idx=test_list,
                                                          transform=transform_test)
+            small_size = int(0.01 * len(testset))
+            drop_size = len(testset) - small_size
             testset,_ =torch.utils.data.random_split(testset, [small_size, drop_size])
             outputs = 10
             inputs = 1
@@ -292,6 +294,8 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
             testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
                                                          root_dir="../" + config_parent.data_path, index=test_list,
                                                          transform=transform_test, cluster=False)
+            small_size = int(0.01 * len(testset))
+            drop_size = len(testset) - small_size
             testset, _ = torch.utils.data.random_split(testset, [small_size, drop_size])
             outputs = 10
             inputs = 1
