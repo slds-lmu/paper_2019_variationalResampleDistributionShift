@@ -239,10 +239,8 @@ def write_results_convnet_to_csv(path,dict):
     with open(path, 'w', newline='') as csvfile:
         head = True
         for key, val in dict.items():
-            print(key)
             w = csv.writer(csvfile)
             for key, val in val.items():
-                print(key)
                 fieldnames = val.keys()
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 if head:
