@@ -32,4 +32,7 @@
 ## statistic
 - conda install -c conda-forge pot
 - python statistic.py
-- before you run this command, you should previously run main.py and specifiy the data_path and result_path in config.py 
+- before you run this command, you should previously run main.py and specifiy the data_path and result_path in config.py
+
+## Paper
+https://www.overleaf.com/7877882767pnygnjtnntxp
