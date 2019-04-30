@@ -163,7 +163,7 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
     # print('\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%' %(epoch, loss.data[0], acc))
     print('\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%' % (epoch, loss.data, acc))
     # test_diagnostics_to_write = {'Validation Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': acc}
-    test_diagnostics_to_write = {'Validation Epoch': epoch, 'Loss': loss.data, 'Accuracy': acc}
+    test_diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': acc}
     with open(logfile, 'a') as lf:
         lf.write(str(test_diagnostics_to_write))
 
@@ -236,6 +236,9 @@ def prepare_data(args,train_eval_list,test_list,resize):
             testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
                                                          root_dir="../" + config_parent.data_path, list_idx=test_list,
                                                          transform=transform_test)
+            small_size = int(0.01 * len(testset))
+            drop_size = len(testset) - small_size
+            testset,_ =torch.utils.data.random_split(testset, [small_size, drop_size])
             outputs = 10
             inputs = 1
         else:
@@ -291,6 +294,9 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
             testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
                                                          root_dir="../" + config_parent.data_path, index=test_list,
                                                          transform=transform_test, cluster=False)
+            small_size = int(0.01 * len(testset))
+            drop_size = len(testset) - small_size
+            testset, _ = torch.utils.data.random_split(testset, [small_size, drop_size])
             outputs = 10
             inputs = 1
         else:
@@ -385,8 +391,10 @@ def cross_validation(num_labels,num_cluster,args):
             temp_train_return = train(epoch, trainset, inputs, net, batch_size, trainloader, resize, num_epochs, use_cuda, vi, logfile_train)
             temp_eval_return = test(epoch, evalset, inputs, batch_size, evalloader, net, use_cuda, num_epochs, resize, vi, logfile_test,file_name)
 
-            train_return = train_return.append(temp_train_return)
-            eval_return = eval_return.append(temp_eval_return)
+            # train_return = train_return.append(temp_train_return)
+            train_return = np.append(train_return,temp_train_return)
+            # eval_return = eval_return.append(temp_eval_return)
+            eval_return = np.append(eval_return,temp_eval_return)
 
 
 
@@ -397,8 +405,10 @@ def cross_validation(num_labels,num_cluster,args):
         print('\n[Phase 4] : Testing model')
         print('* Test results : Acc@1 = %.2f%%' % (best_acc))
         temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi,logfile_test,file_name)
-        test_return = test_return.append(temp_test_return)
+        # test_return = test_return.append(temp_test_return)
+        test_return = np.append(test_return,temp_test_return)
         results[str(i)] = {"train": train_return, "test": test_return, "eval": eval_return}
+        print(results)
     return results
 
 
@@ -463,14 +473,16 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
         test_return = []
         for epoch in range(start_epoch, start_epoch + num_epochs):
             print(train_return)
-            print(test_return)
+            print(eval_return)
             start_time = time.time()
             temp_train_return = train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,vi,logfile_train)
             temp_eval_return = test(epoch,evalset,inputs,batch_size,evalloader,net,use_cuda,num_epochs,resize,vi,logfile_test,file_name)
             print(temp_train_return)
             print(temp_eval_return)
-            train_return = train_return.append(temp_train_return)
-            eval_return = eval_return.append(temp_eval_return)
+            # train_return = train_return.append(temp_train_return)
+            train_return = np.append(train_return,temp_train_return)
+            # eval_return = eval_return.append(temp_eval_return)
+            eval_return = np.append(train_return,temp_eval_return)
 
             epoch_time = time.time() - start_time
             elapsed_time += epoch_time
@@ -480,8 +492,10 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
         print('* Test results : Acc@1 = %.2f%%' % (best_acc))
         temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi,
                                 logfile_test, file_name)
-        test_return = test_return.append(temp_test_return)
+        # test_return = test_return.append(temp_test_return)
+        test_return = np.append(test_return,temp_test_return)
         results[str(i)] = {"train": train_return, "test": test_return,"val":eval_return}
+        print(results)
 
     return results
 
@@ -503,18 +517,23 @@ if __name__ == '__main__':
     parser.add_argument('--cv_type', '-v', default = 'vgmm', type=str, help='cv_type=[rand/vgmm]')
     parser.add_argument('--debug',default=False,type=bool,help="debug mode has smaller data")
     args = parser.parse_args()
+
+
     if args.cv_type == "vgmm":
         result = cross_validation_for_clustered_data(num_labels=config_parent.num_labels,num_cluster=config_parent.num_clusters,args=args)
-        path = 'results_clustered_bayes.csv'
+        # path = 'results_clustered_bayes.csv'
     else:
         result = cross_validation(config_parent.num_labels,config_parent.num_clusters,args)
-        path = 'results_normalcv_bayes.csv'
+        # path = 'results_normalcv_bayes.csv'
     with open(args.cv_type + '_cross_validation_result.p', 'wb') as fp:
         pickle.dump(result, fp, protocol=pickle.HIGHEST_PROTOCOL)
-    with open(args.cv_type + '_cross_validation_result.json', 'w') as fp:
-        json.dump(result, fp)
 
-    utils_parent.write_results_to_csv(path,result)
+    # cause ndarray is not json serializable
+    # with open(args.cv_type + '_cross_validation_result.json', 'w') as fp:
+    #     json.dump(result, fp)
+
+    np.save(args.cv_type+'_cross_validation_result.npy',result)
+    utils_parent.write_results_to_csv(args.cv_type+'_cross_validation_result.csv',result)
 
 
 
