@@ -1,4 +1,8 @@
+debugvgmm:
+	python refactor_main_Bayes2.py --cv_type "vgmm" --debug True
+debugrand:
+	python refactor_main_Bayes2.py --cv_type "rand" --debug True
 vgmm:
-	python refactor_main_Bayes2.py --cv_type "vgmm"
+	python refactor_main_Bayes2.py --cv_type "vgmm" --debug False
 rand:
-	python refactor_main_Bayes2.py --cv_type "rand"
+	python refactor_main_Bayes2.py --cv_type "rand" --debug False
