@@ -363,8 +363,8 @@ def cross_validation(num_labels,num_cluster,args):
 
         criterion = nn.CrossEntropyLoss()
         # logfile = os.path.join('diagnostics_NonBayes{}_{}.txt'.format(args.net_type, args.dataset))
-        logfile_train = os.path.join('diagnostics_NonBayes{}_{}_cv{}_train.txt'.format(args.net_type, args.dataset, i))
-        logfile_test = os.path.join('diagnostics_NonBayes{}_{}_cv{}_test.txt'.format(args.net_type, args.dataset, i))
+        logfile_train = os.path.join('diagnostics_NonBayes{}_{}_cv{}_train_rand.txt'.format(args.net_type, args.dataset, i))
+        logfile_test = os.path.join('diagnostics_NonBayes{}_{}_cv{}_test_rand.txt'.format(args.net_type, args.dataset, i))
 
         print('\n[Phase 3] : Training model')
         print('| Training Epochs = ' + str(num_epochs))
@@ -459,8 +459,8 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
 
         criterion = nn.CrossEntropyLoss()
         # logfile = os.path.join('diagnostics_NonBayes{}_{}.txt'.format(args.net_type, args.dataset))
-        logfile_train = os.path.join('diagnostics_NonBayes{}_{}_cv{}_train.txt'.format(args.net_type, args.dataset, i))
-        logfile_test = os.path.join('diagnostics_NonBayes{}_{}_cv{}_test.txt'.format(args.net_type, args.dataset, i))
+        logfile_train = os.path.join('diagnostics_NonBayes{}_{}_cv{}_train_vgmm.txt'.format(args.net_type, args.dataset, i))
+        logfile_test = os.path.join('diagnostics_NonBayes{}_{}_cv{}_test_vgmm.txt'.format(args.net_type, args.dataset, i))
 
         print('\n[Phase 3] : Training model')
         print('| Training Epochs = ' + str(num_epochs))
@@ -527,12 +527,12 @@ if __name__ == '__main__':
         result = cross_validation_for_clustered_data(num_labels=config_parent.num_labels,num_cluster=config_parent.num_clusters,args=args)
     else:
         result = cross_validation(config_parent.num_labels,config_parent.num_clusters,args)
-    with open(args.cv_type + '_cross_validation_result.p', 'wb') as fp:
+    with open(args.cv_type + '_frequenst_cross_validation_result.p', 'wb') as fp:
         pickle.dump(result, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
     # cause ndarray is not json serializable
     # with open(args.cv_type + '_cross_validation_result.json', 'w') as fp:
     #     json.dump(result, fp)
 
-    np.save(args.cv_type+'_cross_validation_result.npy',result)
-    utils_parent.write_results_to_csv(args.cv_type+'_cross_validation_result.csv',result)
+    np.save(args.cv_type+'_frequenst_cross_validation_result.npy',result)
+    utils_parent.write_results_to_csv(args.cv_type+'_frequenst_cross_validation_result.csv',result)
