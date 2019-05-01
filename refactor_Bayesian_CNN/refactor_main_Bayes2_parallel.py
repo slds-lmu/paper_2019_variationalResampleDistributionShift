@@ -109,7 +109,6 @@ def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use
                                                                                          100 * correct / total) / args.num_samples))
         sys.stdout.flush()
 
-    # diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': (100*correct/total)/args.num_samples}
     diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': (100 * correct / total) / args.num_samples}
     with open(logfile, 'a') as lf:
         lf.write(str(diagnostics_to_write))
@@ -144,7 +143,6 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
 
         loss = vi(outputs, y, kl, beta)
 
-        # test_loss += loss.data[0]
         test_loss += loss.data
         _, predicted = torch.max(outputs.data, 1)
         preds = F.softmax(outputs, dim=1)
@@ -161,10 +159,9 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
     aleatoric = np.mean(p_hat * (1 - p_hat), axis=0)
 
     acc = (100 * correct / total) / args.num_samples
-    # print('\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%' %(epoch, loss.data[0], acc))
     print('\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%' % (epoch, loss.data, acc))
-    # test_diagnostics_to_write = {'Validation Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': acc}
     test_diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': acc}
+
     with open(logfile, 'a') as lf:
         lf.write(str(test_diagnostics_to_write))
 
@@ -320,95 +317,6 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
 
     return trainset, evalset, testset, inputs,outputs
 
-# def cross_validation(num_labels,num_cluster,args):
-#     print("cross validation for random resampling")
-#     best_acc = 0
-#     resize = cf.resize
-#     start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
-#     results = {}
-#     X, y = utils_parent.load_mnist('fashion-mnist')
-#     kf = KFold(n_splits=num_cluster)
-#     i = 0
-#     for train_eval_idx, test_idx in kf.split(X, y):
-#         cv_idx = i
-#         i = i +1
-#         trainset, evalset, testset, inputs, outputs = prepare_data_for_normal_cv(args, train_eval_idx, test_idx, resize)
-#         # Hyper Parameter settings
-#         use_cuda = torch.cuda.is_available()
-#         use_cuda = cf.use_cuda()
-#         if use_cuda is True:
-#             torch.cuda.set_device(0)
-#         best_acc = 0
-#         resize = cf.resize
-#         start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
-#
-#         trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
-#         evalloader = torch.utils.data.DataLoader(evalset, batch_size=batch_size, shuffle=False, num_workers=4)
-#         testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
-#
-#         # num_workers: how many subprocesses to use for data loading. 0 means that the data will be loaded in the main process. (default: 0)# Return network & file name
-#
-#         # Model
-#         print('\n[Phase 2] : Model setup')
-#         if args.resume:
-#             # Load checkpoint
-#             print('| Resuming from checkpoint...')
-#             assert os.path.isdir('checkpoint'), 'Error: No checkpoint directory found!'
-#             _, file_name = getNetwork(args, inputs, outputs)
-#
-#             checkpoint = torch.load('./checkpoint/' + args.dataset + os.sep + file_name+ args.cv_type + str(cv_idx)  + '.t7')
-#             net = checkpoint['net']
-#             best_acc = checkpoint['acc']
-#             start_epoch = checkpoint['epoch']
-#         else:
-#             print('| Building net type [' + args.net_type + ']...')
-#             net, file_name = getNetwork(args, inputs, outputs)
-#
-#         if use_cuda:
-#             net.cuda()
-#
-#         vi = GaussianVariationalInference(torch.nn.CrossEntropyLoss())
-#
-#         #logfile = os.path.join('diagnostics_Bayes{}_{}.txt'.format(args.net_type, args.dataset))
-#         logfile_train = os.path.join('diagnostics_Bayes{}_{}_cv{}_train_rand.txt'.format(args.net_type, args.dataset, i))
-#         logfile_test = os.path.join('diagnostics_Bayes{}_{}_cv{}_test_rand.txt'.format(args.net_type, args.dataset, i))
-#         logfile_eval = os.path.join('diagnostics_Bayes{}_{}_cv{}_val_rand.txt'.format(args.net_type, args.dataset, i))
-#
-#         print('\n[Phase 3] : Training model')
-#         print('| Training Epochs = ' + str(num_epochs))
-#         print('| Initial Learning Rate = ' + str(args.lr))
-#         print('| Optimizer = ' + str(optim_type))
-#
-#         elapsed_time = 0
-#
-#         train_return = []
-#         test_return = []
-#         eval_return = []
-#
-#         for epoch in range(start_epoch, start_epoch + num_epochs):
-#             start_time = time.time()
-#
-#             temp_train_return = train(epoch, trainset, inputs, net, batch_size, trainloader, resize, num_epochs, use_cuda, vi, logfile_train)
-#             temp_eval_return = test(epoch, evalset, inputs, batch_size, evalloader, net, use_cuda, num_epochs, resize, vi, logfile_eval,file_name)
-#             temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi, logfile_test, "test")
-#
-#             train_return = np.append(train_return,temp_train_return)
-#             eval_return = np.append(eval_return,temp_eval_return)
-#             test_return = np.append(test_return, temp_test_return)
-#
-#             print(temp_train_return)
-#             print(temp_eval_return)
-#             print(temp_test_return)
-#
-#             epoch_time = time.time() - start_time
-#             elapsed_time += epoch_time
-#             print('| Elapsed time : %d:%02d:%02d' % (cf.get_hms(elapsed_time)))
-#
-#         print('\n[Phase 4] : Testing model')
-#         print('* Test results : Acc@1 = %.2f%%' % (best_acc))
-#         results[str(i)] = {"train": train_return, "test": test_return, "eval": eval_return}
-#         print(results)
-#     return results
 def cross_validation_parallel(i):
     print("cross validation for random resampling")
     num_cluster = config_parent.num_clusters
@@ -419,7 +327,7 @@ def cross_validation_parallel(i):
     train_eval_idx = global_rand_idx[str(i)].get("train_eval_idx")
     test_idx = global_rand_idx[str(i)].get("test_idx")
     cv_idx = i
-    i = i + 1
+    # i = i + 1
     trainset, evalset, testset, inputs, outputs = prepare_data_for_normal_cv(args, train_eval_idx, test_idx, resize)
     # Hyper Parameter settings
     use_cuda = torch.cuda.is_available()
@@ -503,97 +411,6 @@ def cross_validation_parallel(i):
 
     return results
 
-# def cross_validation_for_clustered_data(num_labels,num_cluster,args):
-#     print("cross validation for clustered data")
-#     best_acc = 0
-#     resize = cf.resize
-#     start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
-#     results = {}
-#     for i in range(num_cluster):
-#         cv_idx = i
-#         test_list = [i]
-#         train_eval_list = list(range(num_cluster))
-#         train_eval_list = [x for x in train_eval_list if x != i]
-#         print(test_list,train_eval_list)
-#         trainset, evalset, testset,inputs,outputs = prepare_data(args,train_eval_list,test_list,resize)
-#         # Hyper Parameter settings
-#         use_cuda = torch.cuda.is_available()
-#         use_cuda = cf.use_cuda()
-#         if use_cuda is True:
-#             torch.cuda.set_device(0)
-#         best_acc = 0
-#         resize = cf.resize
-#         start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
-#
-#         trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
-#         evalloader = torch.utils.data.DataLoader(evalset, batch_size=batch_size, shuffle=False, num_workers=4)
-#         testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
-#
-#         # num_workers: how many subprocesses to use for data loading. 0 means that the data will be loaded in the main process. (default: 0)# Return network & file name
-#
-#         # Model
-#         print('\n[Phase 2] : Model setup')
-#         if args.resume:
-#             # Load checkpoint
-#             print('| Resuming from checkpoint...')
-#             assert os.path.isdir('checkpoint'), 'Error: No checkpoint directory found!'
-#             _, file_name = getNetwork(args,inputs,outputs)
-#             checkpoint = torch.load('./checkpoint/' + args.dataset + os.sep + file_name + args.cv_type + str(cv_idx) + '.t7')
-#             # checkpoint = torch.load('./checkpoint/' + args.dataset + os.sep + file_name + '.t7')
-#             net = checkpoint['net']
-#             best_acc = checkpoint['acc']
-#             start_epoch = checkpoint['epoch']
-#         else:
-#             print('| Building net type [' + args.net_type + ']...')
-#             net, file_name = getNetwork(args,inputs,outputs)
-#
-#         if use_cuda:
-#             net.cuda()
-#
-#         vi = GaussianVariationalInference(torch.nn.CrossEntropyLoss())
-#
-#         logfile_train = os.path.join('diagnostics_Bayes{}_{}_cv{}_train_vgmm.txt'.format(args.net_type, args.dataset, i))
-#         logfile_test = os.path.join('diagnostics_Bayes{}_{}_cv{}_test_vgmm.txt'.format(args.net_type, args.dataset, i))
-#         logfile_eval = os.path.join('diagnostics_Bayes{}_{}_cv{}_val_vgmm.txt'.format(args.net_type, args.dataset, i))
-#
-#         print('\n[Phase 3] : Training model with validation')
-#         print('| Training Epochs = ' + str(num_epochs))
-#         print('| Initial Learning Rate = ' + str(args.lr))
-#         print('| Optimizer = ' + str(optim_type))
-#
-#         elapsed_time = 0
-#         train_return = []
-#         eval_return = []
-#         test_return = []
-#         for epoch in range(start_epoch, start_epoch + num_epochs):
-#
-#             start_time = time.time()
-#
-#             temp_train_return = train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,vi,logfile_train)
-#             temp_eval_return = test(epoch,evalset,inputs,batch_size,evalloader,net,use_cuda,num_epochs,resize,vi,logfile_eval,file_name)
-#             temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize,vi,logfile_test, "test")
-#
-#             train_return = np.append(train_return,temp_train_return)
-#             eval_return = np.append(eval_return,temp_eval_return)
-#             test_return = np.append(test_return, temp_test_return)
-#
-#             print(temp_train_return)
-#             print(temp_eval_return)
-#             print(temp_test_return)
-#             epoch_time = time.time() - start_time
-#             elapsed_time += epoch_time
-#             print('| Elapsed time : %d:%02d:%02d' % (cf.get_hms(elapsed_time)))
-#
-#         print('\n[Phase 4] : Testing model')
-#         print('* Test results : Acc@1 = %.2f%%' % (best_acc))
-#         results[str(i)] = {"train": train_return, "test": test_return,"val":eval_return}
-#         print(results)
-#
-#     return results
-
-# def cv_fun(i):
-#     args = parser.parse_args()
-#     cross_validation_for_clustered_data_parallel(10,3,args,i,result)
 
 def cross_validation_for_clustered_data_parallel(i):
     print("cross validation {} for clustered data".format(i))
@@ -719,7 +536,7 @@ if __name__ == '__main__':
         global result
         # result ={}
         with MyPool(multiprocessing.cpu_count()) as p:
-            result = p.map(cross_validation_for_clustered_data_parallel,[0,1,2])
+            result = p.map(cross_validation_for_clustered_data_parallel,list(range(config_parent.num_clusters)))
 
         # result = cross_validation_for_clustered_data(num_labels=config_parent.num_labels,num_cluster=config_parent.num_clusters,args=args)
     else:
@@ -731,7 +548,7 @@ if __name__ == '__main__':
         for train_eval_idx, test_idx in kf.split(X, y):
             global_rand_idx[str(i)] = {"train_eval_idx":train_eval_idx,"test_idx":test_idx}
             with MyPool(multiprocessing.cpu_count()) as p:
-                result = p.map(cross_validation_parallel, [0, 1, 2])
+                result = p.map(cross_validation_parallel, list(range(config_parent.num_clusters)))
         # result = cross_validation(config_parent.num_labels,config_parent.num_clusters,args)
 
     final_file_prefix = "Bayes_"+args.cv_type + '_' + args.net_type + '_cross_validation_result'
