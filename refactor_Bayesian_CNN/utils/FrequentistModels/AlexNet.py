@@ -31,6 +31,6 @@ class AlexNet(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
-        x = x.view(x.size(0), -1)
+        x = x.view(x.size(0), -1)   # flatten, x.size(0) * [-1] = original dimension concatenate
         x = self.classifier(x)
         return x
