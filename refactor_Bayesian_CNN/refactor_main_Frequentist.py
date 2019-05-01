@@ -119,9 +119,9 @@ def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use
         sys.stdout.write('\r')
         sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%%'
                 %(epoch, num_epochs, batch_idx+1,
-                    (len(trainset)//batch_size)+1, loss.data, 100.*correct/total))
+                    (len(trainset)//batch_size)+1, loss.data, (100. * correct / total) / args.num_samples))
         sys.stdout.flush()
-    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': 100*correct / total}
+    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': (100. * correct / total) / args.num_samples}
     with open(logfile, 'a') as lf:
         lf.write(str(diagnostics_to_write))
     return diagnostics_to_write
