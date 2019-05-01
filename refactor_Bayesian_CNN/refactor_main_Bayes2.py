@@ -373,7 +373,6 @@ def cross_validation(num_labels,num_cluster,args):
         logfile_test = os.path.join('diagnostics_Bayes{}_{}_cv{}_test_rand.txt'.format(args.net_type, args.dataset, i))
         logfile_eval = os.path.join('diagnostics_Bayes{}_{}_cv{}_val_rand.txt'.format(args.net_type, args.dataset, i))
 
-
         print('\n[Phase 3] : Training model')
         print('| Training Epochs = ' + str(num_epochs))
         print('| Initial Learning Rate = ' + str(args.lr))
