@@ -342,7 +342,7 @@ def cross_validation(num_labels,num_cluster,args):
         start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
 
         trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
-        evalloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=False, num_workers=4)
+        evalloader = torch.utils.data.DataLoader(evalset, batch_size=batch_size, shuffle=False, num_workers=4)
         testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
 
         # Model
@@ -480,7 +480,7 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
             temp_eval_return = test(epoch,evalset,inputs,batch_size,evalloader,net,use_cuda,num_epochs,resize,criterion,logfile_eval,file_name)
             temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize,criterion, logfile_test, "test")
             train_return = np.append(train_return,temp_train_return)
-            eval_return = np.append(train_return,temp_eval_return)
+            eval_return = np.append(eval_return,temp_eval_return)
             test_return = np.append(test_return, temp_test_return)
             print(temp_train_return)
             print(temp_eval_return)
