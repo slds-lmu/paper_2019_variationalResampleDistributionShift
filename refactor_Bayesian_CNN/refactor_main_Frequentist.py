@@ -515,6 +515,7 @@ if __name__ == '__main__':
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
     parser.add_argument('--cv_type', '-v', default='vgmm', type=str, help='cv_type=[rand/vgmm]')
     parser.add_argument('--debug', default=False, type=bool, help="debug mode has smaller data")
+    parser.add_argument('--num_samples', default=10, type=int, help='Number of samples')
     args = parser.parse_args()
 
 
