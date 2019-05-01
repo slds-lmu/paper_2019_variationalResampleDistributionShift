@@ -15,7 +15,7 @@ fdebugvgmm:  # frequenst
 
 
 frand:  # frequenst
-	python refactor_main_Frequentist.py --cv_type "rand"# default --debug False
+	python refactor_main_Frequentist.py --cv_type "rand"   # default --debug False
 
 fvgmm:  # frequenst
-	python refactor_main_Frequentist.py --cv_type "vgmm"# default --debug False
+	python refactor_main_Frequentist.py --cv_type "vgmm"  # default --debug False
