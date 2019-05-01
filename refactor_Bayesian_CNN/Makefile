@@ -21,10 +21,14 @@ fvgmm_3conv3fc:  # frequenst
 	python refactor_main_Frequentist.py --cv_type "vgmm" --net_type "3conv3fc"  # default --debug False
 
 frand_alexnet:  # frequenst
-	python refactor_main_Frequentist.py --cv_type "rand" --net_type "3conv3fc"  # default --debug False
+	python refactor_main_Frequentist.py --cv_type "rand" --net_type "alexnet"  # default --debug False
 
 fvgmm_alexnet:  # frequenst
-	python refactor_main_Frequentist.py --cv_type "vgmm" --net_type "3conv3fc"  # default --debug False
+	python refactor_main_Frequentist.py --cv_type "vgmm" --net_type "alexnet"  # default --debug False
+
+f_org_3conv3fc:  # frequenst
+	python main_Frequentist.py --net_type "3conv3fc"  # original
+
 
 
 
