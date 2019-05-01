@@ -19,3 +19,7 @@ frand:  # frequenst
 
 fvgmm:  # frequenst
 	python refactor_main_Frequentist.py --cv_type "vgmm"  # default --debug False
+
+debugvgmm_alexnet:
+	python refactor_main_Bayes2.py --cv_type "vgmm" --debug True --net_type "alexnet"
+
