@@ -124,15 +124,18 @@ def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use
     diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': 100*correct / total}
     with open(logfile, 'a') as lf:
         lf.write(str(diagnostics_to_write))
+    return diagnostics_to_write
 
 def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resize,criterion,logfile,file_name):
     global best_acc
+    best_acc = 0
     net.eval()
     test_loss = 0
     correct = 0
     total = 0
     for batch_idx, (inputs_value, targets) in enumerate(testloader):
-        x = inputs_value.repeat(args.num_samples, 1, 1, 1)
+        # x = inputs_value.repeat(args.num_samples, 1, 1, 1)
+        x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
         y = targets.repeat(args.num_samples)
         if use_cuda:
             x, y = x.cuda(), y.cuda()
@@ -152,7 +155,7 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
 
     # Save checkpoint when best model
     # acc = 100.*correct/total
-    acc = 100.*correct/args.num_samples
+    acc = (100 * correct / total) / args.num_samples
     print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%" %(epoch, loss.data, acc))
     test_diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': acc}
     with open(logfile, 'a') as lf:
@@ -172,6 +175,7 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
             os.mkdir(save_point)
         torch.save(state, save_point+file_name+'.t7')
         best_acc = acc
+    return test_diagnostics_to_write
 
 
 def prepare_data(args,train_eval_list,test_list,resize):
