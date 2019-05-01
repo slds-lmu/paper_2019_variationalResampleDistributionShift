@@ -539,15 +539,20 @@ if __name__ == '__main__':
     else:
         result = cross_validation(config_parent.num_labels,config_parent.num_clusters,args)
         # path = 'results_normalcv_bayes.csv'
-    with open(args.cv_type + '_cross_validation_result.p', 'wb') as fp:
+
+    final_file_prefix = args.cv_type + '_' + args.net_type + '_cross_validation_result'
+    #with open(args.cv_type + '_cross_validation_result.p', 'wb') as fp:
+    with open(final_file_prefix + '.p', 'wb') as fp:
         pickle.dump(result, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
     # cause ndarray is not json serializable
     # with open(args.cv_type + '_cross_validation_result.json', 'w') as fp:
     #     json.dump(result, fp)
 
-    np.save(args.cv_type+'_cross_validation_result.npy',result)
-    utils_parent.write_results_to_csv(args.cv_type+'_cross_validation_result.csv',result)
+    #np.save(args.cv_type+'_cross_validation_result.npy',result)
+    np.save(final_file_prefix + '.npy',result)
+    #utils_parent.write_results_to_csv(args.cv_type+'_cross_validation_result.csv',result)
+    utils_parent.write_results_to_csv(final_file_prefix + '.csv', result)
 
 
 
