@@ -182,7 +182,7 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
             if not os.path.isdir(save_point):
                 os.mkdir(save_point)
             # torch.save(state, save_point + file_name + '.t7')
-            torch.save(state, save_point + file_name + args.cv_type + args.cv_idx + '.t7')
+            torch.save(state, save_point + file_name + args.cv_type + str(args.cv_idx) + '.t7')
             best_acc = acc
     return test_diagnostics_to_write
 
@@ -329,7 +329,7 @@ def cross_validation(num_labels,num_cluster,args):
     kf = KFold(n_splits=num_cluster)
     i = 0
     for train_eval_idx, test_idx in kf.split(X, y):
-        args.idx = i
+        args.cv_idx = i
         i = i +1
         trainset, evalset, testset, inputs, outputs = prepare_data_for_normal_cv(args, train_eval_idx, test_idx, resize)
         # Hyper Parameter settings
@@ -355,7 +355,7 @@ def cross_validation(num_labels,num_cluster,args):
             assert os.path.isdir('checkpoint'), 'Error: No checkpoint directory found!'
             _, file_name = getNetwork(args, inputs, outputs)
 
-            checkpoint = torch.load('./checkpoint/' + args.dataset + os.sep + file_name+ args.cv_type + args.cv_idx  + '.t7')
+            checkpoint = torch.load('./checkpoint/' + args.dataset + os.sep + file_name+ args.cv_type + str(args.cv_idx)  + '.t7')
             net = checkpoint['net']
             best_acc = checkpoint['acc']
             start_epoch = checkpoint['epoch']
@@ -418,7 +418,7 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
     start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
     results = {}
     for i in range(num_cluster):
-        args.idx = i
+        args.cv_idx = i
         test_list = [i]
         train_eval_list = list(range(num_cluster))
         train_eval_list = [x for x in train_eval_list if x != i]
@@ -446,7 +446,7 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
             print('| Resuming from checkpoint...')
             assert os.path.isdir('checkpoint'), 'Error: No checkpoint directory found!'
             _, file_name = getNetwork(args,inputs,outputs)
-            checkpoint = torch.load('./checkpoint/' + args.dataset + os.sep + file_name + args.cv_type + args.cv_idx + '.t7')
+            checkpoint = torch.load('./checkpoint/' + args.dataset + os.sep + file_name + args.cv_type + str(args.cv_idx) + '.t7')
             # checkpoint = torch.load('./checkpoint/' + args.dataset + os.sep + file_name + '.t7')
             net = checkpoint['net']
             best_acc = checkpoint['acc']
