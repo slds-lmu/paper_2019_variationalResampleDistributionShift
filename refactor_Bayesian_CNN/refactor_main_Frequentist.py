@@ -310,7 +310,7 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
     return trainset, evalset, testset, inputs,outputs
 
 
-def cross_validation(num_cluster,args):
+def cross_validation(num_labels,num_cluster,args):
     print("cross validation for random resampling")
     best_acc = 0
     # resize=32
@@ -406,7 +406,7 @@ def cross_validation(num_cluster,args):
 
 
 
-def cross_validation_for_clustered_data(num_cluster,args):
+def cross_validation_for_clustered_data(num_labels,num_cluster,args):
     print("cross validation for clustered resampling")
     best_acc = 0
     # resize=32
@@ -509,7 +509,7 @@ if __name__ == '__main__':
     parser.add_argument('--depth', default=28, type=int, help='depth of model')
     parser.add_argument('--widen_factor', default=10, type=int, help='width of model')
     parser.add_argument('--dropout', default=0.3, type=float, help='dropout_rate')
-    parser.add_argument('--dataset', default='cifar100', type=str,
+    parser.add_argument('--dataset', default='mnist', type=str,
                         help='dataset = [mnist/cifar10/cifar100/fashionmnist/stl10]')
     parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')

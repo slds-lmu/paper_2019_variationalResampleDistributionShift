@@ -1,10 +1,11 @@
 ############### Configuration file ###############
 import math
-
+import torch
 start_epoch = 1
 num_epochs = 100
 batch_size = 512
 optim_type = 'Adam'
+resize = 32  # image size, for mnist
 
 mean = {
     'cifar10': (0.4914, 0.4822, 0.4465),
@@ -37,3 +38,9 @@ def get_hms(seconds):
     h, m = divmod(m, 60)
 
     return h, m, s
+
+def use_cuda():
+    use_cuda = torch.cuda.is_available()
+    import getpass
+    if getpass.getuser() == "sunxd": use_cuda = False
+    return use_cuda
