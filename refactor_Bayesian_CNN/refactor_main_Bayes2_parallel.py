@@ -20,8 +20,13 @@ import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
 from torch.autograd import Variable
 
+#from multiprocessing import Pool
+#import multiprocessing
+
+import torch.multiprocessing as multiprocessing
+multiprocessing.set_start_method('spawn')
 from multiprocessing import Pool
-import multiprocessing
+
 try:
     import cPickle as pickle
 except ImportError:  # python 3.x
@@ -509,8 +514,13 @@ class NoDaemonProcess(multiprocessing.Process):
     def _set_daemon(self, value):
         pass
     daemon = property(_get_daemon, _set_daemon)
-class MyPool(multiprocessing.pool.Pool):
+#class MyPool(multiprocessing.pool.Pool):
+#    Process = NoDaemonProcess
+
+class MyPool(multiprocessing.Pool):
     Process = NoDaemonProcess
+
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch Training')
