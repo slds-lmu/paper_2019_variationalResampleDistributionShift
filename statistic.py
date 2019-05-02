@@ -372,18 +372,18 @@ def gromov_wasserstein_distance_latent_space(data_path,num_labels,num_clusters,r
 if __name__ == '__main__':
     # gromov_wasserstein_distance_TSNE(config.data_path,config.num_labels,config.num_clusters,config.data_path)
     # gromov_wasserstein_distance_TSNE_test(config.data_path,config.num_labels,config.num_clusters,config.data_path)
-    gromov_wasserstein_distance_latent_space(config.data_path,config.num_labels,config.num_clusters,config.data_path)
+    # gromov_wasserstein_distance_latent_space(config.data_path,config.num_labels,config.num_clusters,config.data_path)
     #
-    # # code for density estimator
-    # b = np.load(config.data_path + "/TSNE_transformed_data_dict.npy")
-    #
-    # for i in range(5):
-    #    xs = b.item().get(str(i))
-    #    kernel_density_estimation_single_Cluster(xs,config.result_path,str(i))
-    #    for j in range(5):
-    #        if i!=j:
-    #            xt = b.item().get(str(j))
-    #            kernel_density_estimation(xs,xt,config.result_path,str(i)+str(j))
-    #            # density_estimation_GMM(xs,xt,config.result_path,str(i)+str(j))
+    # code for density estimator
+    b = np.load(config.data_path + "/TSNE_transformed_data_dict.npy")
+
+    for i in range(config.num_clusters):
+       xs = b.item().get(str(i))
+       kernel_density_estimation_single_Cluster(xs,config.result_path,str(i))
+       for j in range(config.num_clusters):
+           if i!=j:
+               xt = b.item().get(str(j))
+               kernel_density_estimation(xs,xt,config.result_path,str(i)+str(j))
+               # density_estimation_GMM(xs,xt,config.result_path,str(i)+str(j))
 
     # kernel_density_estimation_on_latent_space(config.data_path,config.num_clusters)
