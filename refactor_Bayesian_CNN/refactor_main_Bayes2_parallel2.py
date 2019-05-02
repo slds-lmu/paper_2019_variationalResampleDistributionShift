@@ -183,7 +183,7 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
             if not os.path.isdir(save_point):
                 os.mkdir(save_point)
             # torch.save(state, save_point + file_name + '.t7')
-            torch.save(state, save_point + file_name + args.cv_type + str(cv_idx) + '.t7')
+            torch.save(state, save_point + file_name + args.cv_type + str(i) + '.t7')
             best_acc = acc
     return test_diagnostics_to_write
 
@@ -329,7 +329,7 @@ def cross_validation_parallel(i,args,global_rand_idx):
     results = {}
     train_eval_idx = global_rand_idx[str(i)].get("train_eval_idx")
     test_idx = global_rand_idx[str(i)].get("test_idx")
-    cv_idx = i
+    # i = i
     # i = i + 1
     trainset, evalset, testset, inputs, outputs = prepare_data_for_normal_cv(args, train_eval_idx, test_idx, resize)
     # Hyper Parameter settings
@@ -356,7 +356,7 @@ def cross_validation_parallel(i,args,global_rand_idx):
         _, file_name = getNetwork(args, inputs, outputs)
 
         checkpoint = torch.load(
-            './checkpoint/' + args.dataset + os.sep + file_name + args.cv_type + str(cv_idx) + '.t7')
+            './checkpoint/' + args.dataset + os.sep + file_name + args.cv_type + str(i) + '.t7')
         net = checkpoint['net']
         best_acc = checkpoint['acc']
         start_epoch = checkpoint['epoch']
@@ -421,7 +421,7 @@ def cross_validation_for_clustered_data_parallel(i,args):
     # args = parser.parse_args()
     resize = cf.resize
     results = {}
-    cv_idx = i
+    # i = i
     test_list = [i]
     train_eval_list = list(range(num_cluster))
     train_eval_list = [x for x in train_eval_list if x != i]
@@ -450,7 +450,7 @@ def cross_validation_for_clustered_data_parallel(i,args):
         assert os.path.isdir('checkpoint'), 'Error: No checkpoint directory found!'
         _, file_name = getNetwork(args, inputs, outputs)
         checkpoint = torch.load(
-            './checkpoint/' + args.dataset + os.sep + file_name + args.cv_type + str(cv_idx) + '.t7')
+            './checkpoint/' + args.dataset + os.sep + file_name + args.cv_type + str(i) + '.t7')
         # checkpoint = torch.load('./checkpoint/' + args.dataset + os.sep + file_name + '.t7')
         net = checkpoint['net']
         best_acc = checkpoint['acc']
@@ -536,10 +536,7 @@ if __name__ == '__main__':
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
     parser.add_argument('--cv_type', '-v', default = 'vgmm', type=str, help='cv_type=[rand/vgmm]')
     parser.add_argument('--debug',default=False,type=bool,help="debug mode has smaller data")
-    parser.add_argument('--cv_idx', default=0, type=int, help='index of cv')
     args = parser.parse_args()
-    global cv_idx
-    cv_idx = 0
 
 
 
