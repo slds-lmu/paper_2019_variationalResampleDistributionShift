@@ -168,23 +168,23 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
     with open(logfile, 'a') as lf:
         lf.write(str(test_diagnostics_to_write))
 
-    if file_name != "test":
-        # don't store model when test
-        if acc > best_acc:
-            print('| Saving Best model...\t\t\tTop1 = %.2f%%' % (acc))
-            state = {
-                'net': net if use_cuda else net,
-                'acc': acc,
-                'epoch': epoch,
-            }
-            if not os.path.isdir('checkpoint'):
-                os.mkdir('checkpoint')
-            save_point = './checkpoint/' + args.dataset + os.sep
-            if not os.path.isdir(save_point):
-                os.mkdir(save_point)
-            # torch.save(state, save_point + file_name + '.t7')
-            torch.save(state, save_point + file_name + args.cv_type + str(i) + '.t7')
-            best_acc = acc
+    # if file_name != "test":
+    #     # don't store model when test
+    #     if acc > best_acc:
+    #         print('| Saving Best model...\t\t\tTop1 = %.2f%%' % (acc))
+    #         state = {
+    #             'net': net if use_cuda else net,
+    #             'acc': acc,
+    #             'epoch': epoch,
+    #         }
+    #         if not os.path.isdir('checkpoint'):
+    #             os.mkdir('checkpoint')
+    #         save_point = './checkpoint/' + args.dataset + os.sep
+    #         if not os.path.isdir(save_point):
+    #             os.mkdir(save_point)
+    #         # torch.save(state, save_point + file_name + '.t7')
+    #         torch.save(state, save_point + file_name + args.cv_type + str( + '.t7')
+    #         best_acc = acc
     return test_diagnostics_to_write
 
 
@@ -324,7 +324,7 @@ def cross_validation_parallel(i,args,global_rand_idx):
     print("cross validation for random resampling")
     num_cluster = config_parent.num_clusters
     # args =parser.parse_args()
-    best_acc = 0
+    # best_acc = 0
     resize = cf.resize
     results = {}
     train_eval_idx = global_rand_idx[str(i)].get("train_eval_idx")
@@ -337,7 +337,7 @@ def cross_validation_parallel(i,args,global_rand_idx):
     use_cuda = cf.use_cuda()
     if use_cuda is True:
         torch.cuda.set_device(0)
-    best_acc = 0
+    # best_acc = 0
     resize = cf.resize
     start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
 
@@ -407,8 +407,8 @@ def cross_validation_parallel(i,args,global_rand_idx):
         elapsed_time += epoch_time
         print('| Elapsed time : %d:%02d:%02d' % (cf.get_hms(elapsed_time)))
 
-    print('\n[Phase 4] : Testing model')
-    print('* Test results : Acc@1 = %.2f%%' % (best_acc))
+    # print('\n[Phase 4] : Testing model')
+    # print('* Test results : Acc@1 = %.2f%%' % (best_acc))
     results[str(i)] = {"train": train_return, "test": test_return, "eval": eval_return}
     print(results)
 
@@ -432,7 +432,7 @@ def cross_validation_for_clustered_data_parallel(i,args):
     use_cuda = cf.use_cuda()
     if use_cuda is True:
         torch.cuda.set_device(0)
-    best_acc = 0
+    # best_acc = 0
     resize = cf.resize
     start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
 
@@ -498,8 +498,8 @@ def cross_validation_for_clustered_data_parallel(i,args):
         elapsed_time += epoch_time
         print('| Elapsed time : %d:%02d:%02d' % (cf.get_hms(elapsed_time)))
 
-    print('\n[Phase 4] : Testing model')
-    print('* Test results : Acc@1 = %.2f%%' % (best_acc))
+    # print('\n[Phase 4] : Testing model')
+    # print('* Test results : Acc@1 = %.2f%%' % (best_acc))
     results[str(i)] = {"train": train_return, "test": test_return, "val": eval_return}
     print(results)
 
