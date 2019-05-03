@@ -6,6 +6,7 @@ import config as config
 # from utils import *
 import utils_parent as utils_parent
 from sklearn.decomposition import PCA
+import argparse
 
 # def counting_label():
 #     # load data
@@ -369,22 +370,138 @@ def gromov_wasserstein_distance_latent_space(data_path,num_labels,num_clusters,r
     pl.savefig(result_path + "/WD_TSNE.jpg")
 
 
+# computer gromov wasserstein distance on latent space z
+def gromov_wasserstein_distance_latent_space_cluster(data_path,num_labels,num_clusters,result_path):
+    import scipy as sp
+    import matplotlib.pylab as pl
+    import ot
+    # z = np.load(data_path+ "/L-1/z.npy")  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
+    z = np.load(data_path+ "/L-1" + config.z_name)  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
+    # index = np.load(data_path+"/global_index_cluster_data.npy")
+    index = np.load(data_path + config.global_index_name)   # according to label, vae, vgmm, merge , cluster , per cluster-index(globally)
+    results = {}
+    for i in range(num_clusters):
+        xs = z[index.item().get(str(i))]
+        for j in range(i+1,num_clusters):
+            xt = z[index.item().get(str(j))]
+            # Compute distance kernels, normalize them and then display
+            n_samples = min(100, xs.shape[0], xt.shape[0])
+            xs = xs[:n_samples]
+            xt = xt[:n_samples]
+            C1 = sp.spatial.distance.cdist(xs, xs)
+            C2 = sp.spatial.distance.cdist(xt, xt)
+            C1 /= C1.max()
+            C2 /= C2.max()
 
+            p = ot.unif(n_samples)
+            q = ot.unif(n_samples)
+
+            gw0, log0 = ot.gromov.gromov_wasserstein(
+                C1, C2, p, q, 'square_loss', verbose=True, log=True)
+
+            gw, log = ot.gromov.entropic_gromov_wasserstein(
+                C1, C2, p, q, 'square_loss', epsilon=5e-4, log=True, verbose=True)
+
+            print('Gromov-Wasserstein distances between {}_{} clusters: {} '.format(i,j,str(log0['gw_dist'])) )
+            print('Entropic Gromov-Wasserstein distances between {}_{} clusters: {}'.format(i,j,str(log['gw_dist'])) )
+            results[str(i)+str(j)]={"GW":log0['gw_dist'],"EGW":log['gw_dist']}
+            pl.figure(1, (10, 5))
+            pl.subplot(1, 2, 1)
+            pl.imshow(gw0, cmap='jet')
+            pl.title('Gromov Wasserstein')
+
+            pl.subplot(1, 2, 2)
+            pl.imshow(gw, cmap='jet')
+            pl.title('Entropic Gromov Wasserstein')
+            pl.savefig(result_path + "/WD_TSNE{}_{}.jpg".format(i,j))
+    print(results)
+    with open("wd_vgmm.txt", 'a') as lf:
+        lf.write(str(results))
+    return results
+
+
+
+# computer gromov wasserstein distance on latent space z
+def gromov_wasserstein_distance_latent_space_rand(data_path,num_labels,num_clusters,result_path):
+    import scipy as sp
+    import matplotlib.pylab as pl
+    import ot
+    # z = np.load(data_path+ "/L-1/z.npy")  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
+    z = np.load(data_path+ "/L-1" + config.z_name)  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
+    # index = np.load(data_path+"/global_index_cluster_data.npy")
+    # index = np.load(data_path + config.global_index_name)   # according to label, vae, vgmm, merge , cluster , per cluster-index(globally)
+    np.random.shuffle(z)
+    results = {}
+    for i in range(num_clusters):
+        xs = z[i:i+100]
+        for j in range(i+1,num_clusters):
+            xt = z[j:j+100]
+            # Compute distance kernels, normalize them and then display
+            n_samples = min(100, xs.shape[0], xt.shape[0])
+            xs = xs[:n_samples]
+            xt = xt[:n_samples]
+            C1 = sp.spatial.distance.cdist(xs, xs)
+            C2 = sp.spatial.distance.cdist(xt, xt)
+            C1 /= C1.max()
+            C2 /= C2.max()
+
+            p = ot.unif(n_samples)
+            q = ot.unif(n_samples)
+
+            gw0, log0 = ot.gromov.gromov_wasserstein(
+                C1, C2, p, q, 'square_loss', verbose=True, log=True)
+
+            gw, log = ot.gromov.entropic_gromov_wasserstein(
+                C1, C2, p, q, 'square_loss', epsilon=5e-4, log=True, verbose=True)
+
+            print('Gromov-Wasserstein distances between {}_{} clusters: {} '.format(i,j,str(log0['gw_dist'])) )
+            print('Entropic Gromov-Wasserstein distances between {}_{} clusters: {}'.format(i,j,str(log['gw_dist'])) )
+            results[str(i)+str(j)]={"GW":log0['gw_dist'],"EGW":log['gw_dist']}
+            pl.figure(1, (10, 5))
+            pl.subplot(1, 2, 1)
+            pl.imshow(gw0, cmap='jet')
+            pl.title('Gromov Wasserstein')
+
+            pl.subplot(1, 2, 2)
+            pl.imshow(gw, cmap='jet')
+            pl.title('Entropic Gromov Wasserstein')
+            pl.savefig(result_path + "/WD_TSNE{}_{}.jpg".format(i,j))
+    print(results)
+    with open("wd_rand.txt", 'a') as lf:
+        lf.write(str(results))
+    return results
 if __name__ == '__main__':
+    desc = "statistic"
+    parser = argparse.ArgumentParser(description=desc)
+
+    parser.add_argument('--method',type=str,default='wd_vgmm', choices=['wd_vgmm', 'wd_rand', 'kde'],help="method of statistic ")
+
+    args = parser.parse_args()
+    if args.method =='wd_vgmm':
+        gromov_wasserstein_distance_latent_space_cluster(config.data_path,config.num_labels,config.num_clusters,config.data_path)
+    elif args.method == 'wd_rand':
+        gromov_wasserstein_distance_latent_space_rand(config.data_path, config.num_labels, config.num_clusters,
+                                                      config.data_path)
+    elif args.method == 'kde':
+        # code for density estimator
+        b = np.load(config.data_path + "/TSNE_transformed_data_dict.npy")
+
+        for i in range(config.num_clusters):
+            xs = b.item().get(str(i))
+            kernel_density_estimation_single_Cluster(xs, config.result_path, str(i))
+            for j in range(config.num_clusters):
+                if i != j:  # compare cluster $i$'s KDE with all other cluters, in pairwised way, to see if the estimated KDE surface changed
+                    xt = b.item().get(str(j))
+                    kernel_density_estimation(xs, xt, config.result_path,
+                                              str(i) + str(j))  # merge two clusters data then do KDE
+        density_estimation_GMM(xs, xt, config.result_path, str(i) + str(j))
+
+
+
     # gromov_wasserstein_distance_TSNE(config.data_path,config.num_labels,config.num_clusters,config.data_path)
     # gromov_wasserstein_distance_TSNE_test(config.data_path,config.num_labels,config.num_clusters,config.data_path)
-    gromov_wasserstein_distance_latent_space(config.data_path,config.num_labels,config.num_clusters,config.data_path)
+    # gromov_wasserstein_distance_latent_space_cluster(config.data_path,config.num_labels,config.num_clusters,config.data_path)
     #
-    # code for density estimator
-    b = np.load(config.data_path + "/TSNE_transformed_data_dict.npy")
 
-    for i in range(config.num_clusters):
-       xs = b.item().get(str(i))
-       kernel_density_estimation_single_Cluster(xs,config.result_path,str(i))
-       for j in range(config.num_clusters):
-           if i!=j:   # compare cluster $i$'s KDE with all other cluters, in pairwised way, to see if the estimated KDE surface changed
-               xt = b.item().get(str(j))
-               kernel_density_estimation(xs,xt,config.result_path,str(i)+str(j))  # merge two clusters data then do KDE
-               # density_estimation_GMM(xs,xt,config.result_path,str(i)+str(j))
 
     # kernel_density_estimation_on_latent_space(config.data_path,config.num_clusters)
