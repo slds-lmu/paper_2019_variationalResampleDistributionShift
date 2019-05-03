@@ -499,7 +499,7 @@ def cross_validation_for_clustered_data_parallel(i,args):
         print('| Elapsed time : %d:%02d:%02d' % (cf.get_hms(elapsed_time)))
 
     # print('\n[Phase 4] : Testing model')
-    # print('* Test results : Acc@1 = %.2f%%' % (best_acc))
+    # print('* Test results : Acc@1 = %.2f%%' % (best_acc))    # FIXME: best_acc has problem under concurrency
     results[str(i)] = {"train": train_return, "test": test_return, "val": eval_return}
     print(results)
 

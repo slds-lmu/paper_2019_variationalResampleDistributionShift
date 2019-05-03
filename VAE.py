@@ -112,7 +112,7 @@ class VAE(object):
 
         """ Loss Function """
         # encoding
-        self.mu, sigma = self.encoder(self.inputs, is_training=True, reuse=False)        
+        self.mu, sigma = self.encoder(self.inputs, is_training=True, reuse=False)
 
         # sampling by re-parameterization technique
         z = self.mu + sigma * tf.random_normal(tf.shape(self.mu), 0, 1, dtype=tf.float32)
@@ -303,10 +303,10 @@ class VAE(object):
         # Note: This maps to mean of distribution, we could alternatively
         # sample from Gaussian distribution
         # get batch data
-        # return r are only (69952,62) from original dataset which are 70000
+        # return r are only (69952,62) from original dataset which are 70000, 50 datapoints
         batch_images = self.data_X[0:self.batch_size]
         r = self.sess.run(self.mu, feed_dict={self.inputs: batch_images})
-        for idx in range(1, self.num_batches):
+        for idx in range(1, self.num_batches):     # from the beginning to the end of the dataset, each time do batchsize, conform to the net tensor definiation
             batch_images = self.data_X[idx * self.batch_size:(idx + 1) * self.batch_size]
             z = self.sess.run(self.mu, feed_dict={self.inputs: batch_images})
             r = tf.concat([r, z], 0)
