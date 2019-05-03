@@ -423,6 +423,61 @@ def gromov_wasserstein_distance_latent_space_cluster(data_path,num_labels,num_cl
     return results
 
 
+#
+# # computer gromov wasserstein distance on latent space z
+# def gromov_wasserstein_distance_latent_space_rand(data_path,num_labels,num_clusters,result_path):
+#     import scipy as sp
+#     import matplotlib.pylab as pl
+#     import ot
+#     # z = np.load(data_path+ "/L-1/z.npy")  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
+#     z = np.load(data_path+ "/L-1" + config.z_name)  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
+#     # index = np.load(data_path+"/global_index_cluster_data.npy")
+#     # index = np.load(data_path + config.global_index_name)   # according to label, vae, vgmm, merge , cluster , per cluster-index(globally)
+#     np.random.shuffle(z)
+#     results = {}
+#     mat = np.zeros((num_clusters,num_clusters))
+#     for i in range(num_clusters):
+#         xs = z[i*100:i*100+100]
+#         for j in range(num_clusters):
+#             xt = z[j*100:j*100+100]
+#             # Compute distance kernels, normalize them and then display
+#             n_samples = min(xs.shape[0], xt.shape[0])
+#             xs = xs[:n_samples]
+#             xt = xt[:n_samples]
+#             C1 = sp.spatial.distance.cdist(xs, xs)
+#             C2 = sp.spatial.distance.cdist(xt, xt)
+#             C1 /= C1.max()
+#             C2 /= C2.max()
+#
+#             p = ot.unif(n_samples)
+#             q = ot.unif(n_samples)
+#
+#             gw0, log0 = ot.gromov.gromov_wasserstein(
+#                 C1, C2, p, q, 'square_loss', verbose=True, log=True)
+#
+#             gw, log = ot.gromov.entropic_gromov_wasserstein(
+#                 C1, C2, p, q, 'square_loss', epsilon=5e-4, log=True, verbose=True)
+#
+#             print('Gromov-Wasserstein distances between {}_{} clusters: {} '.format(i,j,str(log0['gw_dist'])) )
+#             print('Entropic Gromov-Wasserstein distances between {}_{} clusters: {}'.format(i,j,str(log['gw_dist'])) )
+#             results[str(i)+str(j)]={"GW":log0['gw_dist'],"EGW":log['gw_dist']}
+#             mat[i,j] = log0['gw_dist']
+#             pl.figure(1, (10, 5))
+#             pl.subplot(1, 2, 1)
+#             pl.imshow(gw0, cmap='jet')
+#             pl.title('Gromov Wasserstein')
+#
+#             pl.subplot(1, 2, 2)
+#             pl.imshow(gw, cmap='jet')
+#             pl.title('Entropic Gromov Wasserstein')
+#             pl.savefig(result_path + "/WD_TSNE{}_{}.jpg".format(i,j))
+#     # print(results)
+#     print(mat)
+#     with open("wd_rand.txt", 'a') as lf:
+#         lf.write(str(results))
+#     return results
+
+
 
 # computer gromov wasserstein distance on latent space z
 def gromov_wasserstein_distance_latent_space_rand(data_path,num_labels,num_clusters,result_path):
@@ -431,15 +486,25 @@ def gromov_wasserstein_distance_latent_space_rand(data_path,num_labels,num_clust
     import ot
     # z = np.load(data_path+ "/L-1/z.npy")  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
     z = np.load(data_path+ "/L-1" + config.z_name)  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
-    # index = np.load(data_path+"/global_index_cluster_data.npy")
-    # index = np.load(data_path + config.global_index_name)   # according to label, vae, vgmm, merge , cluster , per cluster-index(globally)
     np.random.shuffle(z)
     results = {}
     mat = np.zeros((num_clusters,num_clusters))
+    from sklearn.model_selection import KFold
+    kf = KFold(n_splits=num_clusters)
+    i = 0
+    cluster_idx = {}
+    for train_eval_idx, test_idx in kf.split(z):
+        cluster_idx[str(i)] = test_idx
+        i = i +1
+
+    i = 0
+    print(z.shape)
     for i in range(num_clusters):
-        xs = z[i*100:i*100+100]
+        xs = z[cluster_idx[str(i)]]
+        print(xs.shape)
         for j in range(num_clusters):
-            xt = z[j*100:j*100+100]
+            xt = z[cluster_idx[str(j)]]
+            print(xt.shape)
             # Compute distance kernels, normalize them and then display
             n_samples = min(xs.shape[0], xt.shape[0])
             xs = xs[:n_samples]
@@ -476,6 +541,8 @@ def gromov_wasserstein_distance_latent_space_rand(data_path,num_labels,num_clust
     with open("wd_rand.txt", 'a') as lf:
         lf.write(str(results))
     return results
+
+
 if __name__ == '__main__':
     desc = "statistic"
     parser = argparse.ArgumentParser(description=desc)
