@@ -31,7 +31,7 @@ kde:
 	python statistic.py --method kde
 
 test_wasser_vgmm:
-    python statistic.py --method wd_vgmm --debug True
+	python statistic.py --method wd_vgmm --debug True
 
 #compute wasserstein distance of random-pick 100 sample
 test_wasser_cv:
