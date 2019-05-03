@@ -371,14 +371,14 @@ def gromov_wasserstein_distance_latent_space(data_path,num_labels,num_clusters,r
 
 
 # computer gromov wasserstein distance on latent space z
-def gromov_wasserstein_distance_latent_space_cluster(data_path,num_labels,num_clusters,result_path):
+def gromov_wasserstein_distance_latent_space_cluster(data_path,num_labels,num_clusters,result_path,args):
     import scipy as sp
     import matplotlib.pylab as pl
     import ot
     # z = np.load(data_path+ "/L-1/z.npy")  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
-    z = np.load(data_path+ "/L-1" + config.z_name)  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
+    z = np.load(data_path+ "/L-1" + config.z_name,allow_pickle=True)  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
     # index = np.load(data_path+"/global_index_cluster_data.npy")
-    index = np.load(data_path + config.global_index_name)   # according to label, vae, vgmm, merge , cluster , per cluster-index(globally)
+    index = np.load(data_path + config.global_index_name,allow_pickle=True)   # according to label, vae, vgmm, merge , cluster , per cluster-index(globally)
     results = {}
     mat = np.zeros((num_clusters,num_clusters))
     for i in range(num_clusters):
@@ -387,6 +387,8 @@ def gromov_wasserstein_distance_latent_space_cluster(data_path,num_labels,num_cl
             xt = z[index.item().get(str(j))]
             # Compute distance kernels, normalize them and then display
             n_samples = min(xs.shape[0], xt.shape[0])
+            if args.debug == True:
+                n_samples = 100
             xs = xs[:n_samples]
             xt = xt[:n_samples]
             C1 = sp.spatial.distance.cdist(xs, xs)
@@ -480,12 +482,12 @@ def gromov_wasserstein_distance_latent_space_cluster(data_path,num_labels,num_cl
 
 
 # computer gromov wasserstein distance on latent space z
-def gromov_wasserstein_distance_latent_space_rand(data_path,num_labels,num_clusters,result_path):
+def gromov_wasserstein_distance_latent_space_rand(data_path,num_labels,num_clusters,result_path,args):
     import scipy as sp
     import matplotlib.pylab as pl
     import ot
     # z = np.load(data_path+ "/L-1/z.npy")  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
-    z = np.load(data_path+ "/L-1" + config.z_name)  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
+    z = np.load(data_path+ "/L-1" + config.z_name,allow_pickle=True)  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
     np.random.shuffle(z)
     results = {}
     mat = np.zeros((num_clusters,num_clusters))
@@ -507,6 +509,8 @@ def gromov_wasserstein_distance_latent_space_rand(data_path,num_labels,num_clust
             print(xt.shape)
             # Compute distance kernels, normalize them and then display
             n_samples = min(xs.shape[0], xt.shape[0])
+            if args.debug == True:
+                n_samples = 100
             xs = xs[:n_samples]
             xt = xt[:n_samples]
             C1 = sp.spatial.distance.cdist(xs, xs)
@@ -548,16 +552,17 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=desc)
 
     parser.add_argument('--method',type=str,default='wd_vgmm', choices=['wd_vgmm', 'wd_rand', 'kde'],help="method of statistic ")
-
+    parser.add_argument('--debug',default=False,type=bool,help="debug mode has smaller data")
     args = parser.parse_args()
+
     if args.method =='wd_vgmm':
-        gromov_wasserstein_distance_latent_space_cluster(config.data_path,config.num_labels,config.num_clusters,config.data_path)
+        gromov_wasserstein_distance_latent_space_cluster(config.data_path,config.num_labels,config.num_clusters,config.data_path,args)
     elif args.method == 'wd_rand':
         gromov_wasserstein_distance_latent_space_rand(config.data_path, config.num_labels, config.num_clusters,
-                                                      config.data_path)
+                                                      config.data_path,args)
     elif args.method == 'kde':
         # code for density estimator
-        b = np.load(config.data_path + "/TSNE_transformed_data_dict.npy")
+        b = np.load(config.data_path + "/TSNE_transformed_data_dict.npy",allow_pickle=True)
 
         for i in range(config.num_clusters):
             xs = b.item().get(str(i))
