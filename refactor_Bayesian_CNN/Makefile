@@ -40,3 +40,9 @@ fixed-frequenst-alex:
 
 fixed-bayesian-alex:
 	python main_Bayes.py --dataset fashion-mnist --net_type "alexnet"
+
+fixed-frequenst-lenet:
+	python main_Frequentist.py --dataset fashion-mnist --net_type "lenet"
+
+fixed-bayesian-lenet:
+	python main_Bayes.py --dataset fashion-mnist --net_type "lenet"
