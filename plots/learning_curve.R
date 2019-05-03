@@ -98,11 +98,13 @@ NonBayesalexnet_mnist_cv_df$dataset <- factor(NonBayesalexnet_mnist_cv_df$datase
                                               levels = c("Train", "Validation", "Test"))
 NonBayesalexnet_mnist_cv_df %>%
   mutate(Fold = factor(cv)) %>%
-  ggplot(aes(epoch, accuracy, color = Fold, linetype = Fold)) +
+  ggplot(aes(epoch, accuracy, color = Fold)) +
     geom_line() +
+    stat_summary(fun.y = mean, geom="line", lwd=1, aes(group=1)) +
     facet_grid(rand~dataset) +
-    theme_bw() + xlab("Epoch") + ylab("Accuracy") +
-    ggtitle("AlexNet (non-Bayesian) on Fashion-MNIST")
+    theme_bw() +
+    xlab("Epoch") + ylab("Accuracy")
+  # + ggtitle("AlexNet (non-Bayesian) on Fashion-MNIST")
 
 ggsave("./output/NonBayesalexnet_mnist_cv_accuracy.png")
 ggsave("./output/NonBayesalexnet_mnist_cv_accuracy.pdf")
@@ -113,9 +115,11 @@ NonBayesalexnet_mnist_cv_df %>%
   mutate(Fold = factor(cv)) %>%
   ggplot(aes(epoch, loss, color = Fold, linetype = Fold)) +
     geom_line() +
+    stat_summary(fun.y = mean, geom="line", lwd=1, aes(group=1)) +
     facet_grid(rand~dataset) +
-    theme_bw() + xlab("Epoch") + ylab("Loss") +
-    ggtitle("AlexNet (non-Bayesian) on Fashion-MNIST")
+    theme_bw() +
+    xlab("Epoch") + ylab("Accuracy")
+  #+ ggtitle("AlexNet (non-Bayesian) on Fashion-MNIST")
 
 ggsave("./output/NonBayesalexnet_mnist_cv_loss.png")
 ggsave("./output/NonBayesalexnet_mnist_cv_loss.pdf")
@@ -136,11 +140,12 @@ Bayesalexnet_mnist_cv_df$dataset <- factor(Bayesalexnet_mnist_cv_df$dataset,
                                            levels = c("Train", "Validation", "Test"))
 Bayesalexnet_mnist_cv_df %>%
   mutate(Fold = factor(cv)) %>%
-  ggplot(aes(epoch, accuracy, color = Fold, linetype = Fold)) +
+  ggplot(aes(epoch, accuracy, color = Fold)) +
     geom_line() +
+    stat_summary(fun.y = mean, geom="line", lwd=1, aes(group=1)) +
     facet_grid(rand~dataset) +
-    theme_bw() + xlab("Epoch") + ylab("Accuracy") +
-    ggtitle("Bayesian AlexNet on Fashion-MNIST")
+    theme_bw() + xlab("Epoch") + ylab("Accuracy")
+  #+ ggtitle("Bayesian AlexNet on Fashion-MNIST")
 
 ggsave("./output/Bayesalexnet_mnist_cv_accuracy.png")
 ggsave("./output/Bayesalexnet_mnist_cv_accuracy.pdf")
@@ -151,9 +156,10 @@ Bayesalexnet_mnist_cv_df %>%
   mutate(Fold = factor(cv)) %>%
   ggplot(aes(epoch, loss, color = Fold, shape = Fold)) +
     geom_line() +
+    stat_summary(fun.y = mean, geom="line", lwd=1, aes(group=1)) +
     facet_grid(rand~dataset) +
-    theme_bw() + xlab("Epoch") + ylab("Loss") +
-    ggtitle("Bayesian AlexNet on Fashion-MNIST")
+    theme_bw() + xlab("Epoch") + ylab("Loss")
+  #+ ggtitle("Bayesian AlexNet on Fashion-MNIST")
 
 ggsave("./output/Bayesalexnet_mnist_cv_loss.png")
 ggsave("./output/Bayesalexnet_mnist_cv_loss.pdf")
