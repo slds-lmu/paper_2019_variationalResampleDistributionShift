@@ -100,7 +100,7 @@ NonBayesalexnet_mnist_cv_df %>%
   mutate(Fold = factor(cv)) %>%
   ggplot(aes(epoch, accuracy, color = Fold)) +
     geom_line() +
-    stat_summary(fun.y = mean, geom="line", lwd=1, aes(group=1)) +
+    stat_summary(fun.y = mean, geom = "line", lwd = 0.7, aes(group = 1)) +
     facet_grid(rand~dataset) +
     theme_bw() +
     xlab("Epoch") + ylab("Accuracy")
@@ -115,10 +115,10 @@ NonBayesalexnet_mnist_cv_df %>%
   mutate(Fold = factor(cv)) %>%
   ggplot(aes(epoch, loss, color = Fold, linetype = Fold)) +
     geom_line() +
-    stat_summary(fun.y = mean, geom="line", lwd=1, aes(group=1)) +
+    stat_summary(fun.y = mean, geom = "line", lwd = 0.7, aes(group = 1)) +
     facet_grid(rand~dataset) +
     theme_bw() +
-    xlab("Epoch") + ylab("Accuracy")
+    xlab("Epoch") + ylab("Loss")
   #+ ggtitle("AlexNet (non-Bayesian) on Fashion-MNIST")
 
 ggsave("./output/NonBayesalexnet_mnist_cv_loss.png")
@@ -150,7 +150,7 @@ Bayesalexnet_mnist_cv_df %>%
   mutate(Fold = factor(cv)) %>%
   ggplot(aes(epoch, accuracy, color = Fold)) +
     geom_line() +
-    stat_summary(fun.y = mean, geom="line", lwd=1, aes(group=1)) +
+    stat_summary(fun.y = mean, geom = "line", lwd = 0.7, aes(group = 1)) +
     facet_grid(rand~dataset) +
     theme_bw() + xlab("Epoch") + ylab("Accuracy")
   #+ ggtitle("Bayesian AlexNet on Fashion-MNIST")
@@ -164,7 +164,7 @@ Bayesalexnet_mnist_cv_df %>%
   mutate(Fold = factor(cv)) %>%
   ggplot(aes(epoch, loss, color = Fold, shape = Fold)) +
     geom_line() +
-    stat_summary(fun.y = mean, geom="line", lwd=1, aes(group=1)) +
+    stat_summary(fun.y = mean, geom = "line", lwd = 0.7, aes(group = 1)) +
     facet_grid(rand~dataset) +
     theme_bw() + xlab("Epoch") + ylab("Loss")
   #+ ggtitle("Bayesian AlexNet on Fashion-MNIST")
@@ -175,6 +175,104 @@ ggsave("./output/Bayesalexnet_mnist_cv_loss.pdf")
 # mean and std of accuracy at epoch 100 for the VGMM splits
 
 Bayesalexnet_mnist_cv_df %>%
+  filter(epoch == 100, rand == "VGMM-CV") %>%
+  group_by(dataset) %>%
+  summarize(mean_acc = mean(accuracy),
+            std_acc = sqrt(var(accuracy)))
+
+
+#--- Non-Bayesian LeNet
+
+# parse the data
+
+NonBayeslenet_mnist_cv_df <- parse_data("diagnostics_NonBayeslenet_mnist_cv",
+                                        epochs = 100)
+table(complete.cases(NonBayeslenet_mnist_cv_df))
+
+# plot accuracy
+
+NonBayeslenet_mnist_cv_df$dataset <- factor(NonBayeslenet_mnist_cv_df$dataset,
+                                            ordered = TRUE,
+                                            levels = c("Train", "Validation", "Test"))
+NonBayeslenet_mnist_cv_df %>%
+  mutate(Fold = factor(cv)) %>%
+  ggplot(aes(epoch, accuracy, color = Fold)) +
+    geom_line() +
+    stat_summary(fun.y = mean, geom = "line", lwd = 0.7, aes(group = 1)) +
+    facet_grid(rand~dataset) +
+    theme_bw() +
+    xlab("Epoch") + ylab("Accuracy")
+  # + ggtitle("lenet (non-Bayesian) on Fashion-MNIST")
+
+ggsave("./output/NonBayeslenet_mnist_cv_accuracy.png")
+ggsave("./output/NonBayeslenet_mnist_cv_accuracy.pdf")
+
+# plot loss
+
+NonBayeslenet_mnist_cv_df %>%
+  mutate(Fold = factor(cv)) %>%
+  ggplot(aes(epoch, loss, color = Fold, linetype = Fold)) +
+    geom_line() +
+    stat_summary(fun.y = mean, geom = "line", lwd = 0.7, aes(group = 1)) +
+    facet_grid(rand~dataset) +
+    theme_bw() +
+    xlab("Epoch") + ylab("Loss")
+  #+ ggtitle("lenet (non-Bayesian) on Fashion-MNIST")
+
+ggsave("./output/NonBayeslenet_mnist_cv_loss.png")
+ggsave("./output/NonBayeslenet_mnist_cv_loss.pdf")
+
+# mean and std of accuracy at epoch 100 for the VGMM splits
+
+NonBayeslenet_mnist_cv_df %>%
+  filter(epoch == 100, rand == "VGMM-CV") %>%
+  group_by(dataset) %>%
+  summarize(mean_acc = mean(accuracy),
+            std_acc = sqrt(var(accuracy)))
+
+
+#--- Bayesian lenet
+
+# parse the data
+
+Bayeslenet_mnist_cv_df <- parse_data("diagnostics_Bayeslenet_mnist_cv",
+                                       epochs = 100)
+table(complete.cases(Bayeslenet_mnist_cv_df))
+
+# plot accuracy
+
+Bayeslenet_mnist_cv_df$dataset <- factor(Bayeslenet_mnist_cv_df$dataset,
+                                           ordered = TRUE,
+                                           levels = c("Train", "Validation", "Test"))
+Bayeslenet_mnist_cv_df %>%
+  mutate(Fold = factor(cv)) %>%
+  ggplot(aes(epoch, accuracy, color = Fold)) +
+    geom_line() +
+    stat_summary(fun.y = mean, geom = "line", lwd = 0.7, aes(group = 1)) +
+    facet_grid(rand~dataset) +
+    theme_bw() + xlab("Epoch") + ylab("Accuracy")
+  #+ ggtitle("Bayesian lenet on Fashion-MNIST")
+
+ggsave("./output/Bayeslenet_mnist_cv_accuracy.png")
+ggsave("./output/Bayeslenet_mnist_cv_accuracy.pdf")
+
+# plot loss
+
+Bayeslenet_mnist_cv_df %>%
+  mutate(Fold = factor(cv)) %>%
+  ggplot(aes(epoch, loss, color = Fold, shape = Fold)) +
+    geom_line() +
+    stat_summary(fun.y = mean, geom = "line", lwd = 0.7, aes(group = 1)) +
+    facet_grid(rand~dataset) +
+    theme_bw() + xlab("Epoch") + ylab("Loss")
+  #+ ggtitle("Bayesian lenet on Fashion-MNIST")
+
+ggsave("./output/Bayeslenet_mnist_cv_loss.png")
+ggsave("./output/Bayeslenet_mnist_cv_loss.pdf")
+
+# mean and std of accuracy at epoch 100 for the VGMM splits
+
+Bayeslenet_mnist_cv_df %>%
   filter(epoch == 100, rand == "VGMM-CV") %>%
   group_by(dataset) %>%
   summarize(mean_acc = mean(accuracy),
