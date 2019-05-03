@@ -35,5 +35,8 @@ f_org_3conv3fc:  # frequenst
 debugvgmm_alexnet:
 	python refactor_main_Bayes2.py --cv_type "vgmm" --debug True --net_type "alexnet"
 
-fixed-frequenst:
-	python main_Frequentist.py --dataset fashion-mnist
+fixed-frequenst-alex:
+	python main_Frequentist.py --dataset fashion-mnist --net_type "alexnet"
+
+fixed-bayesian-alex:
+	python main_Bayes.py --dataset fashion-mnist --net_type "alexnet"
