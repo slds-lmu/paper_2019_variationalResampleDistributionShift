@@ -17,20 +17,19 @@ fdebugrand:  # frequenst
 fdebugvgmm:  # frequenst
 	python refactor_main_Frequentist.py --cv_type "vgmm" --debug True --net_type "3conv3fc" # default --debug False
 
-
 frand:  # frequenst
 	python refactor_main_Frequentist.py --cv_type "rand" --net_type "3conv3fc"   # default --debug False
 
 fvgmm:  # frequenst
 	python refactor_main_Frequentist.py --cv_type "vgmm" --net_type "3conv3fc"  # default --debug False
 
+f_org_3conv3fc:  # frequenst
+	python main_Frequentist.py --net_type "3conv3fc"  # original
+
 
 ###############
 ### AlexNet ###
 ###############
-
-debugvgmm_alexnet:
-	python refactor_main_Bayes2.py --cv_type "vgmm" --debug True --net_type "alexnet"
 
 debugrand_alexnet:
 	python refactor_main_Bayes2.py --cv_type "rand" --debug True --net_type "alexnet"
@@ -80,3 +79,17 @@ frand_lenet:  # frequenst
 
 fvgmm_lenet:  # frequenst
 	python refactor_main_Frequentist.py --cv_type "vgmm" --net_type "lenet"  # default --debug False
+
+
+
+fixed-frequenst-alex:
+	python main_Frequentist.py --dataset fashion-mnist --net_type "alexnet"
+
+fixed-bayesian-alex:
+	python main_Bayes.py --dataset fashion-mnist --net_type "alexnet"
+
+fixed-frequenst-lenet:
+	python main_Frequentist.py --dataset fashion-mnist --net_type "lenet"
+
+fixed-bayesian-lenet:
+	python main_Bayes.py --dataset fashion-mnist --net_type "lenet"

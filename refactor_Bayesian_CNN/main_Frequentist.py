@@ -70,7 +70,7 @@ elif(args.dataset == 'cifar100'):
     testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=False, transform=transform_test)
     num_classes = 100
     inputs = 3
-    
+
 elif(args.dataset == 'mnist'):
     print("| Preparing MNIST dataset...")
     sys.stdout.write("| ")
@@ -78,6 +78,15 @@ elif(args.dataset == 'mnist'):
     testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
     num_classes = 10
     inputs = 1
+
+elif(args.dataset == 'fashion-mnist'):
+    print("| Preparing fashion-MNIST dataset...")
+    sys.stdout.write("| ")
+    trainset = torchvision.datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform_train)
+    testset = torchvision.datasets.FashionMNIST(root='./data', train=False, download=False, transform=transform_test)
+    num_classes = 10
+    inputs = 1
+
 
 
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
@@ -177,7 +186,8 @@ def train(epoch):
         loss.backward()  # Backward Propagation
         optimizer.step() # Optimizer update
 
-        train_loss += loss.data[0]
+        #train_loss += loss.data[0]
+        train_loss += loss.data
         _, predicted = torch.max(outputs.data, 1)
         total += targets.size(0)
         correct += predicted.eq(targets.data).cpu().sum()
@@ -185,9 +195,11 @@ def train(epoch):
         sys.stdout.write('\r')
         sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%%'
                 %(epoch, num_epochs, batch_idx+1,
-                    (len(trainset)//batch_size)+1, loss.data[0], 100.*correct/total))
+                    (len(trainset)//batch_size)+1, loss.data, 100.*correct/total))
+                    #(len(trainset)//batch_size)+1, loss.data[0], 100.*correct/total))
         sys.stdout.flush()
-    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': 100*correct / total}
+    #diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': 100*correct / total}
+    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': 100*correct / total}
     with open(logfile, 'a') as lf:
         lf.write(str(diagnostics_to_write))
 
@@ -205,15 +217,18 @@ def test(epoch):
         outputs = net(inputs_value)
         loss = criterion(outputs, targets)
 
-        test_loss += loss.data[0]
+        #test_loss += loss.data[0]
+        test_loss += loss.data
         _, predicted = torch.max(outputs.data, 1)
         total += targets.size(0)
         correct += predicted.eq(targets.data).cpu().sum()
 
     # Save checkpoint when best model
     acc = 100.*correct/total
-    print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%" %(epoch, loss.data[0], acc))
-    test_diagnostics_to_write = {'Validation Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': acc}
+    #print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%" %(epoch, loss.data[0], acc))
+    print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%" %(epoch, loss.data, acc))
+    #test_diagnostics_to_write = {'Validation Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': acc}
+    test_diagnostics_to_write = {'Validation Epoch': epoch, 'Loss': loss.data, 'Accuracy': acc}
     with open(logfile, 'a') as lf:
         lf.write(str(test_diagnostics_to_write))
 

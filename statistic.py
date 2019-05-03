@@ -48,8 +48,8 @@ def kernel_density_estimation_single_Cluster(xs,result_path,img_name):
     from sklearn.datasets.samples_generator import make_blobs
     from mpl_toolkits.mplot3d import Axes3D
     # Extract x and y
-    x = xs[:, 0]
-    y = xs[:, 1]
+    x = xs[:, 0]  # only works for 2d
+    y = xs[:, 1]  # only works for 2d
     # Define the borders
     deltaX = (max(x) - min(x)) / 10
     deltaY = (max(y) - min(y)) / 10
@@ -79,7 +79,7 @@ def kernel_density_estimation_single_Cluster(xs,result_path,img_name):
     plt.clf()
 
 # compute kernal density within combined data from two cluster
-def kernel_density_estimation(xs,xt,result_path,img_name):
+def kernel_density_estimation(xs,xt,result_path,img_name):   # only for plotting
     import numpy as np
     import matplotlib.pyplot as plt
     import scipy.stats as st
@@ -172,14 +172,14 @@ def gromov_wasserstein_distance(data_path,num_labels,num_clusters,result_path):
 
     # with open(data_path + "/L-1/cluster_dict.json") as f:
     with open(data_path + "/L-1"+config.cluster_index_json_name) as f:
-        pos_index_dict = json.load(f)
+        pos_index_dict = json.load(f)   # cluster index dictionary, not according to label. cluster on the whole space
 
     # dict: dictionary of data which training and clustering within label
     dict = concatenate_data_from_dir(data_path, num_labels,num_clusters)
 
     for i in range(num_clusters):
         # Compute distance kernels, normalize them and then display
-        xs = dict[str(i)]
+        xs = dict[str(i)]    #FIXME: this is index or latent space?
         xt = z[pos_index_dict[str(i)]]
         n_samples = min(xs.shape[0], xt.shape[0])
         xs = xs[:n_samples]
@@ -222,9 +222,9 @@ def gromov_wasserstein_distance_TSNE(data_path,num_labels,num_clusters,result_pa
     import ot
     # d_t = load_dict(data_path+ config.statistic_name4d_t)
     # d_s = load_dict(data_path+ config.statistic_name4d_s)
-    d_t = np.load(data_path+ config.statistic_name4d_t)
+    d_t = np.load(data_path+ config.statistic_name4d_t)   # non-label based vae + vgmm+ t-sne(per-cluster)
 
-    d_s = np.load(data_path+ config.statistic_name4d_s)
+    d_s = np.load(data_path+ config.statistic_name4d_s)   # label based vae + vgmm + t-sne(per-cluster, after cluster is merged)
 
     for i in range(num_clusters):
         # Compute distance kernels, normalize them and then display
@@ -322,6 +322,7 @@ def kernel_density_estimation_on_latent_space(data_path,num_clusters):
                kernel_density_estimation(xs,xt,config.result_path,str(i)+str(j))
 
 # computer gromov wasserstein distance on latent space z
+# IMPORTANT: FIXME:
 def gromov_wasserstein_distance_latent_space(data_path,num_labels,num_clusters,result_path):
     import scipy as sp
     import matplotlib.pylab as pl
@@ -329,7 +330,7 @@ def gromov_wasserstein_distance_latent_space(data_path,num_labels,num_clusters,r
     # z = np.load(data_path+ "/L-1/z.npy")  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
     z = np.load(data_path+ "/L-1" + config.z_name)  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
     # index = np.load(data_path+"/global_index_cluster_data.npy")
-    index = np.load(data_path + config.global_index_name)
+    index = np.load(data_path + config.global_index_name)   # according to label, vae, vgmm, merge , cluster , per cluster-index(globally)
     d_t = z[index.item().get('0')]
     d_s = z[index.item().get('1')]
     # Compute distance kernels, normalize them and then display
@@ -374,16 +375,16 @@ if __name__ == '__main__':
     # gromov_wasserstein_distance_TSNE_test(config.data_path,config.num_labels,config.num_clusters,config.data_path)
     gromov_wasserstein_distance_latent_space(config.data_path,config.num_labels,config.num_clusters,config.data_path)
     #
-    # # code for density estimator
-    # b = np.load(config.data_path + "/TSNE_transformed_data_dict.npy")
-    #
-    # for i in range(5):
-    #    xs = b.item().get(str(i))
-    #    kernel_density_estimation_single_Cluster(xs,config.result_path,str(i))
-    #    for j in range(5):
-    #        if i!=j:
-    #            xt = b.item().get(str(j))
-    #            kernel_density_estimation(xs,xt,config.result_path,str(i)+str(j))
-    #            # density_estimation_GMM(xs,xt,config.result_path,str(i)+str(j))
+    # code for density estimator
+    b = np.load(config.data_path + "/TSNE_transformed_data_dict.npy")
+
+    for i in range(config.num_clusters):
+       xs = b.item().get(str(i))
+       kernel_density_estimation_single_Cluster(xs,config.result_path,str(i))
+       for j in range(config.num_clusters):
+           if i!=j:   # compare cluster $i$'s KDE with all other cluters, in pairwised way, to see if the estimated KDE surface changed
+               xt = b.item().get(str(j))
+               kernel_density_estimation(xs,xt,config.result_path,str(i)+str(j))  # merge two clusters data then do KDE
+               # density_estimation_GMM(xs,xt,config.result_path,str(i)+str(j))
 
     # kernel_density_estimation_on_latent_space(config.data_path,config.num_clusters)

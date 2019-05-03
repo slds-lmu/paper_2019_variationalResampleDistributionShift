@@ -36,3 +36,8 @@
 
 ## Paper
 https://www.overleaf.com/7877882767pnygnjtnntxp
+
+# 
+https://github.com/felix-laumann/Bayesian_CNN
+
+ 
