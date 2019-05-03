@@ -17,3 +17,15 @@ test_convnet:
 
 statisic: ${INPUT4STAT}  # depends on build(make coordinate for each instance) and label(assign cluster to each point)
 	 python statistic.py
+
+
+#compute wasserstein distance of vgmm cluster
+wasser_vgmm:
+	python statistic.py --method wd_vgmm
+
+#compute wasserstein distance of random-pick 100 sample
+wasser_cv:
+	python statistic.py --method wd_rand
+#kde plot
+kde:
+	python statistic.py --method kde
