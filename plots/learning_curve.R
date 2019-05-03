@@ -124,6 +124,14 @@ NonBayesalexnet_mnist_cv_df %>%
 ggsave("./output/NonBayesalexnet_mnist_cv_loss.png")
 ggsave("./output/NonBayesalexnet_mnist_cv_loss.pdf")
 
+# mean and std of accuracy at epoch 100 for the VGMM splits
+
+NonBayesalexnet_mnist_cv_df %>%
+  filter(epoch == 100, rand == "VGMM-CV") %>%
+  group_by(dataset) %>%
+  summarize(mean_acc = mean(accuracy),
+            std_acc = sqrt(var(accuracy)))
+
 
 #--- Bayesian AlexNet
 
@@ -163,3 +171,11 @@ Bayesalexnet_mnist_cv_df %>%
 
 ggsave("./output/Bayesalexnet_mnist_cv_loss.png")
 ggsave("./output/Bayesalexnet_mnist_cv_loss.pdf")
+
+# mean and std of accuracy at epoch 100 for the VGMM splits
+
+Bayesalexnet_mnist_cv_df %>%
+  filter(epoch == 100, rand == "VGMM-CV") %>%
+  group_by(dataset) %>%
+  summarize(mean_acc = mean(accuracy),
+            std_acc = sqrt(var(accuracy)))
