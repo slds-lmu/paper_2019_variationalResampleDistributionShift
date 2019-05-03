@@ -386,7 +386,7 @@ def gromov_wasserstein_distance_latent_space_cluster(data_path,num_labels,num_cl
         for j in range(num_clusters):
             xt = z[index.item().get(str(j))]
             # Compute distance kernels, normalize them and then display
-            n_samples = min(100, xs.shape[0], xt.shape[0])
+            n_samples = min(xs.shape[0], xt.shape[0])
             xs = xs[:n_samples]
             xt = xt[:n_samples]
             C1 = sp.spatial.distance.cdist(xs, xs)
@@ -441,7 +441,7 @@ def gromov_wasserstein_distance_latent_space_rand(data_path,num_labels,num_clust
         for j in range(num_clusters):
             xt = z[j*100:j*100+100]
             # Compute distance kernels, normalize them and then display
-            n_samples = min(100, xs.shape[0], xt.shape[0])
+            n_samples = min(xs.shape[0], xt.shape[0])
             xs = xs[:n_samples]
             xt = xt[:n_samples]
             C1 = sp.spatial.distance.cdist(xs, xs)
