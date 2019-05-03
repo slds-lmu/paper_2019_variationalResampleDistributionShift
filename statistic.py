@@ -380,9 +380,10 @@ def gromov_wasserstein_distance_latent_space_cluster(data_path,num_labels,num_cl
     # index = np.load(data_path+"/global_index_cluster_data.npy")
     index = np.load(data_path + config.global_index_name)   # according to label, vae, vgmm, merge , cluster , per cluster-index(globally)
     results = {}
+    mat = np.zeros((num_clusters,num_clusters))
     for i in range(num_clusters):
         xs = z[index.item().get(str(i))]
-        for j in range(i+1,num_clusters):
+        for j in range(num_clusters):
             xt = z[index.item().get(str(j))]
             # Compute distance kernels, normalize them and then display
             n_samples = min(100, xs.shape[0], xt.shape[0])
@@ -405,6 +406,7 @@ def gromov_wasserstein_distance_latent_space_cluster(data_path,num_labels,num_cl
             print('Gromov-Wasserstein distances between {}_{} clusters: {} '.format(i,j,str(log0['gw_dist'])) )
             print('Entropic Gromov-Wasserstein distances between {}_{} clusters: {}'.format(i,j,str(log['gw_dist'])) )
             results[str(i)+str(j)]={"GW":log0['gw_dist'],"EGW":log['gw_dist']}
+            mat[i,j] = log0['gw_dist']
             pl.figure(1, (10, 5))
             pl.subplot(1, 2, 1)
             pl.imshow(gw0, cmap='jet')
@@ -414,7 +416,8 @@ def gromov_wasserstein_distance_latent_space_cluster(data_path,num_labels,num_cl
             pl.imshow(gw, cmap='jet')
             pl.title('Entropic Gromov Wasserstein')
             pl.savefig(result_path + "/WD_TSNE{}_{}.jpg".format(i,j))
-    print(results)
+    # print(results)
+    print(mat)
     with open("wd_vgmm.txt", 'a') as lf:
         lf.write(str(results))
     return results
@@ -432,10 +435,11 @@ def gromov_wasserstein_distance_latent_space_rand(data_path,num_labels,num_clust
     # index = np.load(data_path + config.global_index_name)   # according to label, vae, vgmm, merge , cluster , per cluster-index(globally)
     np.random.shuffle(z)
     results = {}
+    mat = np.zeros((num_clusters,num_clusters))
     for i in range(num_clusters):
-        xs = z[i:i+100]
-        for j in range(i+1,num_clusters):
-            xt = z[j:j+100]
+        xs = z[i*100:i*100+100]
+        for j in range(num_clusters):
+            xt = z[j*100:j*100+100]
             # Compute distance kernels, normalize them and then display
             n_samples = min(100, xs.shape[0], xt.shape[0])
             xs = xs[:n_samples]
@@ -457,6 +461,7 @@ def gromov_wasserstein_distance_latent_space_rand(data_path,num_labels,num_clust
             print('Gromov-Wasserstein distances between {}_{} clusters: {} '.format(i,j,str(log0['gw_dist'])) )
             print('Entropic Gromov-Wasserstein distances between {}_{} clusters: {}'.format(i,j,str(log['gw_dist'])) )
             results[str(i)+str(j)]={"GW":log0['gw_dist'],"EGW":log['gw_dist']}
+            mat[i,j] = log0['gw_dist']
             pl.figure(1, (10, 5))
             pl.subplot(1, 2, 1)
             pl.imshow(gw0, cmap='jet')
@@ -466,7 +471,8 @@ def gromov_wasserstein_distance_latent_space_rand(data_path,num_labels,num_clust
             pl.imshow(gw, cmap='jet')
             pl.title('Entropic Gromov Wasserstein')
             pl.savefig(result_path + "/WD_TSNE{}_{}.jpg".format(i,j))
-    print(results)
+    # print(results)
+    print(mat)
     with open("wd_rand.txt", 'a') as lf:
         lf.write(str(results))
     return results
