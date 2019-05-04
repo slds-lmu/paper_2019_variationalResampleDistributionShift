@@ -37,6 +37,9 @@ wasser_cv_emd:
 kde:
 	python statistic.py --method kde
 
+# distribution of y:
+distribution_y:
+    python statistic.py -- method distribution_y
 test_wasser_vgmm:
 	python statistic.py --method wd_vgmm --debug True
 
