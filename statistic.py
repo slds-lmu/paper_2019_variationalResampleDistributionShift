@@ -425,6 +425,50 @@ def gromov_wasserstein_distance_latent_space_cluster(data_path,num_labels,num_cl
     return results
 
 
+def gromov_wasserstein_distance_latent_space_cluster_emd(data_path,num_labels,num_clusters,result_path,args):
+    import scipy as sp
+    import matplotlib.pylab as pl
+    import ot
+    # z = np.load(data_path+ "/L-1/z.npy")  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
+    z = np.load(data_path+ "/L-1" + config.z_name,allow_pickle=True)  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
+    # index = np.load(data_path+"/global_index_cluster_data.npy")
+    index = np.load(data_path + config.global_index_name,allow_pickle=True)   # according to label, vae, vgmm, merge , cluster , per cluster-index(globally)
+    results = {}
+    mat = np.zeros((num_clusters,num_clusters))
+    for i in range(num_clusters):
+        xs = z[index.item().get(str(i))]
+        for j in range(num_clusters):
+            xt = z[index.item().get(str(j))]
+            # Compute distance kernels, normalize them and then display
+            n_samples = min(xs.shape[0], xt.shape[0])
+            if args.debug == True:
+                n_samples = 100
+            xs = xs[:n_samples]
+            xt = xt[:n_samples]
+            M = sp.spatial.distance.cdist(xs, xt)
+            ds, dt = np.ones((len(xs),)) / len(xs), np.ones((len(xt),)) / len(xt)
+            M /= M.max()
+            g0, loss = ot.emd(ds,dt, M, log = True)
+            print('Gromov-Wasserstein distances between {}_{} clusters: {}--{} '.format(i,j,str(loss), str(np.sum(g0))) )
+            #results[str(i)+str(j)]={"GW":log0['gw_dist'],"EGW":log['gw_dist']}
+            results[str(i)+str(j)]= np.sum(g0)
+            mat[i,j] = np.sum(g0)
+            #pl.figure(1, (10, 5))
+            #pl.subplot(1, 2, 1)
+            #pl.imshow(gw0, cmap='jet')
+            #pl.title('Gromov Wasserstein')
+
+            #pl.subplot(1, 2, 2)
+            #pl.imshow(gw, cmap='jet')
+            #pl.title('Entropic Gromov Wasserstein')
+            #pl.savefig(result_path + "/WD_TSNE{}_{}.jpg".format(i,j))
+    # print(results)
+    print(mat)
+    with open("wd_vgmm.txt", 'a') as lf:
+        lf.write(str(results))
+    return results
+
+
 #
 # # computer gromov wasserstein distance on latent space z
 # def gromov_wasserstein_distance_latent_space_rand(data_path,num_labels,num_clusters,result_path):
