@@ -34,10 +34,9 @@
 ## parallel
 https://github.com/horovod/horovod#pytorch
 
-## Paper
-https://www.overleaf.com/7877882767pnygnjtnntxp
 
-# 
+
+#  Org
 https://github.com/felix-laumann/Bayesian_CNN
 
  
