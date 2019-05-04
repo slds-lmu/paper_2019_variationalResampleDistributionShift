@@ -23,9 +23,16 @@ statisic: ${INPUT4STAT}  # depends on build(make coordinate for each instance) a
 wasser_vgmm:
 	python statistic.py --method wd_vgmm
 
+wasser_vgmm_emd:
+	python statistic.py --method wd_vgmm_emd
+
 #compute wasserstein distance of random-pick 100 sample
 wasser_cv:
 	python statistic.py --method wd_rand
+
+wasser_cv_emd:
+	python statistic.py --method wd_rand_emd
+
 #kde plot
 kde:
 	python statistic.py --method kde

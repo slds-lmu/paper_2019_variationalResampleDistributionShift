@@ -451,8 +451,8 @@ def gromov_wasserstein_distance_latent_space_cluster_emd(data_path,num_labels,nu
             g0, loss = ot.emd(ds,dt, M, log = True)
             print('Gromov-Wasserstein distances between {}_{} clusters: {}--{} '.format(i,j,str(loss), str(np.sum(g0))) )
             #results[str(i)+str(j)]={"GW":log0['gw_dist'],"EGW":log['gw_dist']}
-            results[str(i)+str(j)]= np.sum(g0)
-            mat[i,j] = np.sum(g0)
+            results[str(i)+str(j)]= loss["cost"]
+            mat[i,j] = loss["cost"]
             #pl.figure(1, (10, 5))
             #pl.subplot(1, 2, 1)
             #pl.imshow(gw0, cmap='jet')
@@ -591,19 +591,84 @@ def gromov_wasserstein_distance_latent_space_rand(data_path,num_labels,num_clust
     return results
 
 
+
+def gromov_wasserstein_distance_latent_space_rand_emd(data_path,num_labels,num_clusters,result_path,args):
+    import scipy as sp
+    import matplotlib.pylab as pl
+    import ot
+    # z = np.load(data_path+ "/L-1/z.npy")  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
+    z = np.load(data_path+ "/L-1" + config.z_name,allow_pickle=True)  # -1 means no discrimation for labelsa, the same vae transform , orthogonal concept to whether cluster on this z space or use other mehtod to split into clusters
+    np.random.shuffle(z)
+    results = {}
+    mat = np.zeros((num_clusters,num_clusters))
+    from sklearn.model_selection import KFold
+    kf = KFold(n_splits=num_clusters)
+    i = 0
+    cluster_idx = {}
+    for train_eval_idx, test_idx in kf.split(z):
+        cluster_idx[str(i)] = test_idx
+        i = i +1
+
+    i = 0
+    print(z.shape)
+    for i in range(num_clusters):
+        xs = z[cluster_idx[str(i)]]
+        print(xs.shape)
+        for j in range(num_clusters):
+            xt = z[cluster_idx[str(j)]]
+            print(xt.shape)
+            # Compute distance kernels, normalize them and then display
+            n_samples = min(xs.shape[0], xt.shape[0])
+            if args.debug == True:
+                n_samples = 100
+            xs = xs[:n_samples]
+            xt = xt[:n_samples]
+            M = sp.spatial.distance.cdist(xt, xs)
+            M /= M.max()
+            ds, dt = np.ones((len(xs),)) / len(xs), np.ones((len(xt),)) / len(xt)
+            g0, loss = ot.emd(ds,dt, M, log = True)
+            print('Gromov-Wasserstein distances between {}_{} clusters: {}--{} '.format(i,j,str(loss), str(np.sum(g0))) )
+            #results[str(i)+str(j)]={"GW":log0['gw_dist'],"EGW":log['gw_dist']}
+            results[str(i)+str(j)]= loss["cost"]
+            mat[i,j] = loss["cost"]
+
+            #pl.figure(1, (10, 5))
+            #pl.subplot(1, 2, 1)
+            #pl.imshow(gw0, cmap='jet')
+            #pl.title('Gromov Wasserstein')
+            #pl.subplot(1, 2, 2)
+            #pl.imshow(gw, cmap='jet')
+            #pl.title('Entropic Gromov Wasserstein')
+            #pl.savefig(result_path + "/WD_TSNE{}_{}.jpg".format(i,j))
+    # print(results)
+    print(mat)
+    with open("wd_rand.txt", 'a') as lf:
+        lf.write(str(results))
+    return results
+
+
+
+
+
 if __name__ == '__main__':
     desc = "statistic"
     parser = argparse.ArgumentParser(description=desc)
 
-    parser.add_argument('--method',type=str,default='wd_vgmm', choices=['wd_vgmm', 'wd_rand', 'kde'],help="method of statistic ")
+    parser.add_argument('--method',type=str,default='wd_vgmm', choices=['wd_vgmm', 'wd_vgmm_emd', 'wd_rand', 'wd_rand_emd', 'kde'],help="method of statistic ")
     parser.add_argument('--debug',default=False,type=bool,help="debug mode has smaller data")
     args = parser.parse_args()
 
     if args.method =='wd_vgmm':
         gromov_wasserstein_distance_latent_space_cluster(config.data_path,config.num_labels,config.num_clusters,config.data_path,args)
+    elif args.method == 'wd_vgmm_emd':
+        gromov_wasserstein_distance_latent_space_cluster_emd(config.data_path,config.num_labels,config.num_clusters,config.data_path,args)
     elif args.method == 'wd_rand':
         gromov_wasserstein_distance_latent_space_rand(config.data_path, config.num_labels, config.num_clusters,
                                                       config.data_path,args)
+    elif args.method == 'wd_rand_emd':
+        gromov_wasserstein_distance_latent_space_rand_emd(config.data_path, config.num_labels, config.num_clusters,
+                                                      config.data_path,args)
+
     elif args.method == 'kde':
         # code for density estimator
         b = np.load(config.data_path + "/TSNE_transformed_data_dict.npy",allow_pickle=True)
