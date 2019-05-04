@@ -33,10 +33,14 @@
 
 ## parallel
 https://github.com/horovod/horovod#pytorch
+https://skorch.readthedocs.io/en/stable/user/parallelism.html
 
 
 
 #  Org
 https://github.com/felix-laumann/Bayesian_CNN
 
+# tips
+pip freeze
+https://medium.com/python-pandemonium/better-python-dependency-and-package-management-b5d8ea29dff1
  
