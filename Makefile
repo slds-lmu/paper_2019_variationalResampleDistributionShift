@@ -51,3 +51,7 @@ test_kde:
 	python statistic.py --method kde  --debug True
 
 ## for wasserstein: please run make wasser_vgmm_emd, make wasser_cv_emd
+
+# t-SNE plot
+t-SNE:
+    python visualization.py
