@@ -8,38 +8,21 @@ import utils_parent as utils_parent
 from sklearn.decomposition import PCA
 import argparse
 
-# def counting_label():
-#     # load data
-#     y = np.load('/Users/wangyu/Documents/LMU/Fashion_mnist/mycode/results/VAE_fashion-mnist_64_62/y.npy')
-#
-#     def load_dict(path):
-#         with open(path) as f:
-#             my_dict = json.load(f)
-#         return my_dict
-#
-#     # cluster_dict = load_dict('/Users/wangyu/Documents/LMU/Fashion_mnist/mycode/results/VAE_fashion-mnist_64_62/cluster_dict.json')
-#     cluster_dict = load_dict(
-#         '/Users/wangyu/Documents/LMU/Fashion_mnist/mycode/results/VAE_fashion-mnist_64_62/pos_index_cluster.json')
-#
-#     y_0 = y[cluster_dict['0']]
-#     y_0 = np.sum(y_0, axis=0)
-#
-#     y_1 = y[cluster_dict['1']]
-#     y_1 = np.sum(y_1, axis=0)
-#
-#     y_2 = y[cluster_dict['2']]
-#     y_2 = np.sum(y_2, axis=0)
-#
-#     y_3 = y[cluster_dict['3']]
-#     y_3 = np.sum(y_3, axis=0)
-#
-#     y_4 = y[cluster_dict['4']]
-#     y_4 = np.sum(y_4, axis=0)
-#     print(y_0)
-#     print(y_1)
-#     print(y_2)
-#     print(y_3)
-#     print(y_4)
+def counting_label(num_labels,num_clusters):
+    # load data
+    _,y = utils_parent.load_mnist(config.dataset_name)
+    global_index = np.load(config.data_path+config.global_index_name,allow_pickle=True)
+    results = {}
+    for i in range(num_clusters):
+        index = global_index.item().get(str(i))
+        temp_y = np.sum(y[index],axis=0)
+        sum = np.sum(temp_y)
+        temp_y = temp_y/sum
+        results[str(i)]= temp_y
+
+    with open("distribution_y.txt", 'a') as lf:
+        lf.write(str(results))
+    return results
 
 #compute kernal density within one cluster
 def kernel_density_estimation_single_Cluster(xs,result_path,img_name):
@@ -654,7 +637,7 @@ if __name__ == '__main__':
     desc = "statistic"
     parser = argparse.ArgumentParser(description=desc)
 
-    parser.add_argument('--method',type=str,default='wd_vgmm', choices=['wd_vgmm', 'wd_vgmm_emd', 'wd_rand', 'wd_rand_emd', 'kde'],help="method of statistic ")
+    parser.add_argument('--method',type=str,default='wd_vgmm', choices=['wd_vgmm', 'wd_vgmm_emd', 'wd_rand', 'wd_rand_emd', 'kde','distribution_y'],help="method of statistic ")
     parser.add_argument('--debug',default=False,type=bool,help="debug mode has smaller data")
     args = parser.parse_args()
 
@@ -683,7 +666,8 @@ if __name__ == '__main__':
                                               str(i) + str(j))  # merge two clusters data then do KDE
         density_estimation_GMM(xs, xt, config.result_path, str(i) + str(j))
 
-
+    elif args.method == "distribution_y":
+        counting_label(config.num_labels,config.num_clusters)
 
     # gromov_wasserstein_distance_TSNE(config.data_path,config.num_labels,config.num_clusters,config.data_path)
     # gromov_wasserstein_distance_TSNE_test(config.data_path,config.num_labels,config.num_clusters,config.data_path)
