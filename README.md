@@ -23,8 +23,7 @@
 ## command for main.py
 -- python main.py --cluster True : train model and cluster
 -- python main.py --labeled True --cluster True :train model based on splited data according to label and cluster
-## command for statistic.py
--- python statistic.py
+
   
 ## dependency
 - pot: conda install -c conda-forge pot (no need for anaconda, one could first install Cython, then pot with pip)
