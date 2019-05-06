@@ -66,6 +66,7 @@ def kernel_density_estimation_single_Cluster(xs,result_path,img_name):
 def kernel_density_estimation(xs,xt,result_path,img_name):   # only for plotting
     import numpy as np
     import matplotlib.pyplot as plt
+    plt.switch_backend('agg')   # FIXME: add this line if executed on server.
     import scipy.stats as st
     from sklearn.datasets.samples_generator import make_blobs
     from mpl_toolkits.mplot3d import Axes3D
@@ -111,6 +112,7 @@ def density_estimation_GMM(xs,xt,result_path,img_name):
     # xs, xt: 2D array like data
     import numpy as np
     import matplotlib.pyplot as plt
+    plt.switch_backend('agg')   # FIXME: add this line if executed on server.
     from sklearn import mixture
 
     n_samples = min(xs.shape[0], xt.shape[0])
@@ -203,6 +205,7 @@ def gromov_wasserstein_distance(data_path,num_labels,num_clusters,result_path):
 def gromov_wasserstein_distance_TSNE(data_path,num_labels,num_clusters,result_path):
     import scipy as sp
     import matplotlib.pylab as pl
+    pl.switch_backend('agg')   # FIXME: add this line if executed on server.
     import ot
     # d_t = load_dict(data_path+ config.statistic_name4d_t)
     # d_s = load_dict(data_path+ config.statistic_name4d_s)
@@ -250,6 +253,7 @@ def gromov_wasserstein_distance_TSNE(data_path,num_labels,num_clusters,result_pa
 def gromov_wasserstein_distance_TSNE_test(data_path,num_labels,num_clusters,result_path):
     import scipy as sp
     import matplotlib.pylab as pl
+    pl.switch_backend('agg')   # FIXME: add this line if executed on server.
     import ot
     d_t = np.load(data_path+ config.statistic_name4d_t)
     d_s = np.load(data_path+ config.statistic_name4d_s)
