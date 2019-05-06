@@ -7,3 +7,6 @@
 [submodule "Pytorch-Utils"]
 	path = Pytorch-Utils
 	url = https://github.com/alejandrodebus/Pytorch-Utils.git
+[submodule "paper_2019_distribution_shift_resample"]
+	path = paper_2019_distribution_shift_resample
+	url = git@github.com:compstat-lmu/paper_2019_distribution_shift_resample.git
