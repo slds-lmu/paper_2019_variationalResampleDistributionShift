@@ -13,6 +13,8 @@ import json
 import matplotlib.pyplot as plt
 # from utils import *
 import config
+# import data_generator
+# from data_generator import concatenate_data_from_dir
 
 def T_SNE_Plot(data_x,pos,num_clusters,result_path):
     from sklearn.manifold import TSNE
@@ -31,9 +33,9 @@ def T_SNE_Plot(data_x,pos,num_clusters,result_path):
         else:
             fashion_pca_tsne[str(i)] = TSNE().fit_transform(X)
         plt.scatter(fashion_pca_tsne[str(i)][:, 0], fashion_pca_tsne[str(i)][:, 1], color=color_dict[str(i)], alpha=0.1)
-        plt.savefig(result_path + "/TSNE" + str(i) + ".png")
+        plt.savefig(result_path + "/TSNE" + str(i) + ".pdf")
     plt.grid(True)
-    plt.savefig(result_path+"/TSNE.jpg")
+    plt.savefig(result_path+"/TSNE.pdf")
     # np.save(result_path+"/TSNE_transformed_data_dict.npy",fashion_pca_tsne)
     np.save(result_path + config.TSNE_data_name,fashion_pca_tsne)
 
@@ -51,9 +53,9 @@ def T_SNE_Plot_with_datadict(data_dict,num_clusters,result_path):
         else:
             fashion_pca_tsne[str(i)] = TSNE().fit_transform(X)
         plt.scatter(fashion_pca_tsne[str(i)][:, 0], fashion_pca_tsne[str(i)][:, 1], color=color_dict[str(i)], alpha=0.1)
-        plt.savefig(result_path + "/TSNE"+str(i)+".png")
+        plt.savefig(result_path + "/TSNE"+str(i)+".pdf")
     plt.grid(True)
-    plt.savefig(result_path+"/TSNE.jpg")
+    plt.savefig(result_path+"/TSNE.pdf")
     # np.save(result_path + "/TSNE_transformed_data_dict.npy", fashion_pca_tsne)
     np.save(result_path + config.TSNE_data_name, fashion_pca_tsne)
 
@@ -100,8 +102,41 @@ def visualization(log_path,data_path):
         # Saves a config file that TensorBoard will read during startup.
         projector.visualize_embeddings(tf.summary.FileWriter(LOG_DIR), config)
 
+def concatenate_data_from_dir(data_path,num_labels,num_clusters):
+    pos ={}
+    # pos[j]:cluster j
+    global_index = {}
+
+    for i in range(num_labels):
+        path = data_path + "/L" + str(i)
+        # z = np.load(path + "/z.npy")
+        z = np.load(path + config.z_name)
+        # y is the index dictionary with respect to global data
+        # y = np.load(path + "/y.npy")
+        y = np.load(path + config.y_name)
+        # cluster_predict = np.load(path + "/cluster_predict.npy")
+        cluster_predict = np.load(path + config.cluster_predict_npy_name)
+        if i == 0:
+            for j in range(num_clusters):
+                pos[str(j)] = z[np.where(cluster_predict == j)]
+                global_index[str(j)] = y[np.where(cluster_predict==j)]
+        else:
+            for j in range(num_clusters):
+                pos[str(j)] = np.concatenate((pos[str(j)],z[np.where(cluster_predict == j)]))
+                global_index[str(j)] = np.concatenate((global_index[str(j)],y[np.where(cluster_predict==j)]))
+    return pos,global_index
 if __name__ == '__main__':
     print("visualization")
     # log_path = "/project-tensorboard/VAE_10"
     # data_path = "/Users/wangyu/Documents/LMU/Fashion_mnist/mycode/results/VAE_fashion-mnist_64_10"
     # visualization(log_path,data_path)
+
+    # t-SNE plot for labeled data
+    data_dict, _ = concatenate_data_from_dir(data_path=config.data_path,
+                                                        num_labels=config.num_labels,
+                                                        num_clusters=config.num_clusters)
+    T_SNE_Plot_with_datadict(data_dict=data_dict, num_clusters=config.num_clusters,
+                             result_path=config.data_path)
+
+
+

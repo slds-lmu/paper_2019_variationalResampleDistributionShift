@@ -23,21 +23,24 @@
 ## command for main.py
 -- python main.py --cluster True : train model and cluster
 -- python main.py --labeled True --cluster True :train model based on splited data according to label and cluster
-## command for statistic.py
--- python statistic.py
+
   
 ## dependency
 - pot: conda install -c conda-forge pot (no need for anaconda, one could first install Cython, then pot with pip)
 
 ## statistic
-- conda install -c conda-forge pot
-- python statistic.py
-- before you run this command, you should previously run main.py and specifiy the data_path and result_path in config.py
+- before you run this command, you should previously run main.py
 
-## Paper
-https://www.overleaf.com/7877882767pnygnjtnntxp
+## parallel
+https://github.com/horovod/horovod#pytorch
+https://skorch.readthedocs.io/en/stable/user/parallelism.html
 
-# 
+
+
+#  Org
 https://github.com/felix-laumann/Bayesian_CNN
 
+# tips
+pip freeze
+https://medium.com/python-pandemonium/better-python-dependency-and-package-management-b5d8ea29dff1
  
