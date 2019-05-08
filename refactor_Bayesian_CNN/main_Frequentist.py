@@ -138,7 +138,7 @@ if (args.testOnly):
         total += targets.size(0)
         correct += predicted.eq(targets.data).cpu().sum()
 
-    acc = 100.*correct/total
+    acc = 100.*correct.to(dtype=torch.float)/float(total)
     print("| Test Result\tAcc@1: %.2f%%" %(acc))
 
     sys.exit(0)
@@ -195,11 +195,11 @@ def train(epoch):
         sys.stdout.write('\r')
         sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%%'
                 %(epoch, num_epochs, batch_idx+1,
-                    (len(trainset)//batch_size)+1, loss.data, 100.*correct/total))
-                    #(len(trainset)//batch_size)+1, loss.data[0], 100.*correct/total))
+                    (len(trainset)//batch_size)+1, loss.data, 100.*correct.to(dtype=torch.float)/float(total)))
+                    #(len(trainset)//batch_size)+1, loss.data[0], 100.*correct.to(dtype=torch.float)/float(total)))
         sys.stdout.flush()
-    #diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': 100*correct / total}
-    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': 100*correct / total}
+    #diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': 100*correct.to(dtype=torch.float) / float(total)}
+    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': 100*correct.to(dtype=torch.float) / float(total)}
     with open(logfile, 'a') as lf:
         lf.write(str(diagnostics_to_write))
 
@@ -224,7 +224,7 @@ def test(epoch):
         correct += predicted.eq(targets.data).cpu().sum()
 
     # Save checkpoint when best model
-    acc = 100.*correct/total
+    acc = 100.*correct.to(dtype=torch.float)/float(total)
     #print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%" %(epoch, loss.data[0], acc))
     print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%" %(epoch, loss.data, acc))
     #test_diagnostics_to_write = {'Validation Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': acc}
