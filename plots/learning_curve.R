@@ -55,15 +55,6 @@ parse_data <- function(base_filename, epochs = 30) {
                       "and rand = ", rand))
         }
 
-        # dirty hacks:
-        # Epoch 1 appears twice for the VGMM results for some reason.
-        if (rand == "VGMM-CV") {
-          ind1 <- which(cv_df$epoch == 1)
-          if (length(ind1) > 1) {
-            cv_df <- cv_df[ind1[length(ind1)]:nrow(cv_df), ]
-          }
-        }
-
         if ( !all(sort(cv_df$epoch) == 1:epochs )) {
           stop(paste0("Unexpected number of repeted epochs for CV #",
                       i, ", ", dataset, " set, ",
@@ -79,7 +70,112 @@ parse_data <- function(base_filename, epochs = 30) {
 }
 
 
+#--- Non-Bayesian 3conv3fc
+
+# parse the data
+
+NonBayes3conv3fc_mnist_cv_df <- parse_data("diagnostics_NonBayes3conv3fc_mnist_cv",
+                                          epochs = 100)
+table(complete.cases(NonBayes3conv3fc_mnist_cv_df))
+
+# plot accuracy
+
+NonBayes3conv3fc_mnist_cv_df$dataset <- factor(NonBayes3conv3fc_mnist_cv_df$dataset,
+                                              ordered = TRUE,
+                                              levels = c("Train", "Validation", "Test"))
+NonBayes3conv3fc_mnist_cv_df %>%
+  mutate(Fold = factor(cv)) %>%
+  ggplot(aes(epoch, accuracy, color = Fold)) +
+    geom_line() +
+    stat_summary(fun.y = mean, geom = "line", lwd = 0.7, aes(group = 1)) +
+    facet_grid(rand~dataset) +
+    theme_bw() +
+    xlab("Epoch") + ylab("Accuracy")
+  # + ggtitle("3conv3fc (non-Bayesian) on Fashion-MNIST")
+
+ggsave("./output/NonBayes3conv3fc_mnist_cv_accuracy.png",
+       width = 6.8, height = 3.3, units = "in")
+ggsave("./output/NonBayes3conv3fc_mnist_cv_accuracy.pdf",
+       width = 6.8, height = 3.3, units = "in")
+
+# plot loss
+
+NonBayes3conv3fc_mnist_cv_df %>%
+  mutate(Fold = factor(cv)) %>%
+  ggplot(aes(epoch, loss, color = Fold, linetype = Fold)) +
+    geom_line() +
+    stat_summary(fun.y = mean, geom = "line", lwd = 0.7, aes(group = 1)) +
+    facet_grid(rand~dataset) +
+    theme_bw() +
+    xlab("Epoch") + ylab("Loss")
+  #+ ggtitle("3conv3fc (non-Bayesian) on Fashion-MNIST")
+
+ggsave("./output/NonBayes3conv3fc_mnist_cv_loss.png",
+       width = 6.8, height = 3.3, units = "in")
+ggsave("./output/NonBayes3conv3fc_mnist_cv_loss.pdf",
+       width = 6.8, height = 3.3, units = "in")
+
+# mean and std of accuracy at epoch 100 for the VGMM splits
+
+NonBayes3conv3fc_mnist_cv_df %>%
+  filter(epoch == 100, rand == "VGMM-CV") %>%
+  group_by(dataset) %>%
+  summarize(mean_acc = mean(accuracy),
+            std_acc = sqrt(var(accuracy))) %>%
+  mutate_if(is.numeric, format, 1)
+
+
 #--- Bayesian 3conv3fc
+
+# parse the data
+
+Bayes3conv3fc_mnist_cv_df <- parse_data("diagnostics_Bayes3conv3fc_mnist_cv",
+                                        epochs = 100)
+table(complete.cases(Bayes3conv3fc_mnist_cv_df))
+
+# plot accuracy
+
+Bayes3conv3fc_mnist_cv_df$dataset <- factor(Bayes3conv3fc_mnist_cv_df$dataset,
+                                           ordered = TRUE,
+                                           levels = c("Train", "Validation", "Test"))
+Bayes3conv3fc_mnist_cv_df %>%
+  mutate(Fold = factor(cv)) %>%
+  ggplot(aes(epoch, accuracy, color = Fold)) +
+    geom_line() +
+    stat_summary(fun.y = mean, geom = "line", lwd = 0.7, aes(group = 1)) +
+    facet_grid(rand~dataset) +
+    theme_bw() + xlab("Epoch") + ylab("Accuracy")
+  #+ ggtitle("Bayesian 3conv3fc on Fashion-MNIST")
+
+ggsave("./output/Bayes3conv3fc_mnist_cv_accuracy.png",
+       width = 6.8, height = 3.3, units = "in")
+ggsave("./output/Bayes3conv3fc_mnist_cv_accuracy.pdf",
+       width = 6.8, height = 3.3, units = "in")
+
+# plot loss
+
+Bayes3conv3fc_mnist_cv_df %>%
+  mutate(Fold = factor(cv)) %>%
+  ggplot(aes(epoch, loss, color = Fold, shape = Fold)) +
+    geom_line() +
+    stat_summary(fun.y = mean, geom = "line", lwd = 0.7, aes(group = 1)) +
+    facet_grid(rand~dataset) +
+    theme_bw() + xlab("Epoch") + ylab("Loss")
+  #+ ggtitle("Bayesian 3conv3fc on Fashion-MNIST")
+
+ggsave("./output/Bayes3conv3fc_mnist_cv_loss.png",
+       width = 6.8, height = 3.3, units = "in")
+ggsave("./output/Bayes3conv3fc_mnist_cv_loss.pdf",
+       width = 6.8, height = 3.3, units = "in")
+
+# mean and std of accuracy at epoch 100 for the VGMM splits
+
+Bayes3conv3fc_mnist_cv_df %>%
+  filter(epoch == 100, rand == "VGMM-CV") %>%
+  group_by(dataset) %>%
+  summarize(mean_acc = mean(accuracy),
+            std_acc = sqrt(var(accuracy))) %>%
+  mutate_if(is.numeric, format, 1)
 
 # TODO: this needs new data
 
@@ -106,8 +202,10 @@ NonBayesalexnet_mnist_cv_df %>%
     xlab("Epoch") + ylab("Accuracy")
   # + ggtitle("AlexNet (non-Bayesian) on Fashion-MNIST")
 
-ggsave("./output/NonBayesalexnet_mnist_cv_accuracy.png")
-ggsave("./output/NonBayesalexnet_mnist_cv_accuracy.pdf")
+ggsave("./output/NonBayesalexnet_mnist_cv_accuracy.png",
+       width = 6.8, height = 3.3, units = "in")
+ggsave("./output/NonBayesalexnet_mnist_cv_accuracy.pdf",
+       width = 6.8, height = 3.3, units = "in")
 
 # plot loss
 
@@ -121,8 +219,10 @@ NonBayesalexnet_mnist_cv_df %>%
     xlab("Epoch") + ylab("Loss")
   #+ ggtitle("AlexNet (non-Bayesian) on Fashion-MNIST")
 
-ggsave("./output/NonBayesalexnet_mnist_cv_loss.png")
-ggsave("./output/NonBayesalexnet_mnist_cv_loss.pdf")
+ggsave("./output/NonBayesalexnet_mnist_cv_loss.png",
+       width = 6.8, height = 3.3, units = "in")
+ggsave("./output/NonBayesalexnet_mnist_cv_loss.pdf",
+       width = 6.8, height = 3.3, units = "in")
 
 # mean and std of accuracy at epoch 100 for the VGMM splits
 
@@ -130,7 +230,8 @@ NonBayesalexnet_mnist_cv_df %>%
   filter(epoch == 100, rand == "VGMM-CV") %>%
   group_by(dataset) %>%
   summarize(mean_acc = mean(accuracy),
-            std_acc = sqrt(var(accuracy)))
+            std_acc = sqrt(var(accuracy))) %>%
+  mutate_if(is.numeric, format, 1)
 
 
 #--- Bayesian AlexNet
@@ -155,8 +256,10 @@ Bayesalexnet_mnist_cv_df %>%
     theme_bw() + xlab("Epoch") + ylab("Accuracy")
   #+ ggtitle("Bayesian AlexNet on Fashion-MNIST")
 
-ggsave("./output/Bayesalexnet_mnist_cv_accuracy.png")
-ggsave("./output/Bayesalexnet_mnist_cv_accuracy.pdf")
+ggsave("./output/Bayesalexnet_mnist_cv_accuracy.png",
+       width = 6.8, height = 3.3, units = "in")
+ggsave("./output/Bayesalexnet_mnist_cv_accuracy.pdf",
+       width = 6.8, height = 3.3, units = "in")
 
 # plot loss
 
@@ -169,8 +272,10 @@ Bayesalexnet_mnist_cv_df %>%
     theme_bw() + xlab("Epoch") + ylab("Loss")
   #+ ggtitle("Bayesian AlexNet on Fashion-MNIST")
 
-ggsave("./output/Bayesalexnet_mnist_cv_loss.png")
-ggsave("./output/Bayesalexnet_mnist_cv_loss.pdf")
+ggsave("./output/Bayesalexnet_mnist_cv_loss.png",
+       width = 6.8, height = 3.3, units = "in")
+ggsave("./output/Bayesalexnet_mnist_cv_loss.pdf",
+       width = 6.8, height = 3.3, units = "in")
 
 # mean and std of accuracy at epoch 100 for the VGMM splits
 
@@ -178,7 +283,8 @@ Bayesalexnet_mnist_cv_df %>%
   filter(epoch == 100, rand == "VGMM-CV") %>%
   group_by(dataset) %>%
   summarize(mean_acc = mean(accuracy),
-            std_acc = sqrt(var(accuracy)))
+            std_acc = sqrt(var(accuracy))) %>%
+  mutate_if(is.numeric, format, 1)
 
 
 #--- Non-Bayesian LeNet
@@ -204,8 +310,10 @@ NonBayeslenet_mnist_cv_df %>%
     xlab("Epoch") + ylab("Accuracy")
   # + ggtitle("lenet (non-Bayesian) on Fashion-MNIST")
 
-ggsave("./output/NonBayeslenet_mnist_cv_accuracy.png")
-ggsave("./output/NonBayeslenet_mnist_cv_accuracy.pdf")
+ggsave("./output/NonBayeslenet_mnist_cv_accuracy.png",
+       width = 6.8, height = 3.3, units = "in")
+ggsave("./output/NonBayeslenet_mnist_cv_accuracy.pdf",
+       width = 6.8, height = 3.3, units = "in")
 
 # plot loss
 
@@ -219,8 +327,10 @@ NonBayeslenet_mnist_cv_df %>%
     xlab("Epoch") + ylab("Loss")
   #+ ggtitle("lenet (non-Bayesian) on Fashion-MNIST")
 
-ggsave("./output/NonBayeslenet_mnist_cv_loss.png")
-ggsave("./output/NonBayeslenet_mnist_cv_loss.pdf")
+ggsave("./output/NonBayeslenet_mnist_cv_loss.png",
+       width = 6.8, height = 3.3, units = "in")
+ggsave("./output/NonBayeslenet_mnist_cv_loss.pdf",
+       width = 6.8, height = 3.3, units = "in")
 
 # mean and std of accuracy at epoch 100 for the VGMM splits
 
@@ -228,7 +338,8 @@ NonBayeslenet_mnist_cv_df %>%
   filter(epoch == 100, rand == "VGMM-CV") %>%
   group_by(dataset) %>%
   summarize(mean_acc = mean(accuracy),
-            std_acc = sqrt(var(accuracy)))
+            std_acc = sqrt(var(accuracy))) %>%
+  mutate_if(is.numeric, format, 1)
 
 
 #--- Bayesian lenet
@@ -253,8 +364,10 @@ Bayeslenet_mnist_cv_df %>%
     theme_bw() + xlab("Epoch") + ylab("Accuracy")
   #+ ggtitle("Bayesian lenet on Fashion-MNIST")
 
-ggsave("./output/Bayeslenet_mnist_cv_accuracy.png")
-ggsave("./output/Bayeslenet_mnist_cv_accuracy.pdf")
+ggsave("./output/Bayeslenet_mnist_cv_accuracy.png",
+       width = 6.8, height = 3.3, units = "in")
+ggsave("./output/Bayeslenet_mnist_cv_accuracy.pdf",
+       width = 6.8, height = 3.3, units = "in")
 
 # plot loss
 
@@ -267,8 +380,10 @@ Bayeslenet_mnist_cv_df %>%
     theme_bw() + xlab("Epoch") + ylab("Loss")
   #+ ggtitle("Bayesian lenet on Fashion-MNIST")
 
-ggsave("./output/Bayeslenet_mnist_cv_loss.png")
-ggsave("./output/Bayeslenet_mnist_cv_loss.pdf")
+ggsave("./output/Bayeslenet_mnist_cv_loss.png",
+       width = 6.8, height = 3.3, units = "in")
+ggsave("./output/Bayeslenet_mnist_cv_loss.pdf",
+       width = 6.8, height = 3.3, units = "in")
 
 # mean and std of accuracy at epoch 100 for the VGMM splits
 
@@ -276,4 +391,5 @@ Bayeslenet_mnist_cv_df %>%
   filter(epoch == 100, rand == "VGMM-CV") %>%
   group_by(dataset) %>%
   summarize(mean_acc = mean(accuracy),
-            std_acc = sqrt(var(accuracy)))
+            std_acc = sqrt(var(accuracy))) %>%
+  mutate_if(is.numeric, format, 1)
