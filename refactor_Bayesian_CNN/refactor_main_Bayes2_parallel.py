@@ -111,10 +111,10 @@ def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use
             '| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%%' % (epoch, num_epochs, batch_idx + 1,
                                                                              (len(trainset) // batch_size) + 1,
                                                                              loss.data, (
-                                                                                         100 * correct / total) / args.num_samples))
+                                                                                         100 * correct.to(dtype=torch.float) / float(total)) / args.num_samples))
         sys.stdout.flush()
 
-    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': (100 * correct / total) / args.num_samples}
+    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': (100 * correct.to(dtype=torch.float) / float(total)) / args.num_samples}
     with open(logfile, 'a') as lf:
         lf.write(str(diagnostics_to_write))
     return diagnostics_to_write
@@ -163,7 +163,7 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
     epistemic = np.mean(p_hat ** 2, axis=0) - np.mean(p_hat, axis=0) ** 2
     aleatoric = np.mean(p_hat * (1 - p_hat), axis=0)
 
-    acc = (100 * correct / total) / args.num_samples
+    acc = (100 * correct.to(dtype=torch.float) / float(total)) / args.num_samples
     print('\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%' % (epoch, loss.data, acc))
     test_diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': acc}
 

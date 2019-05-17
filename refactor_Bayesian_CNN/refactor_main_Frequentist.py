@@ -78,7 +78,7 @@ def getNetwork(args,inputs,outputs):
 #         total += targets.size(0)
 #         correct += predicted.eq(targets.data).cpu().sum()
 #
-#     acc = 100.*correct/total
+#     acc = 100.*correct.to(dtype=torch.float)/float(total)
 #     print("| Test Result\tAcc@1: %.2f%%" %(acc))
 #
 #     sys.exit(0)
@@ -119,9 +119,9 @@ def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use
         sys.stdout.write('\r')
         sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%%'
                 %(epoch, num_epochs, batch_idx+1,
-                    (len(trainset)//batch_size)+1, loss.data, (100. * correct / total) / args.num_samples))
+                    (len(trainset)//batch_size)+1, loss.data, (100. * correct.to(dtype=torch.float) / float(total)) / args.num_samples))
         sys.stdout.flush()
-    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': (100. * correct / total) / args.num_samples}
+    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': (100. * correct.to(dtype=torch.float) / float(total)) / args.num_samples}
     with open(logfile, 'a') as lf:
         lf.write(str(diagnostics_to_write))
     return diagnostics_to_write
@@ -154,8 +154,8 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
         correct += predicted.eq(y.data).cpu().sum()
 
     # Save checkpoint when best model
-    # acc = 100.*correct/total
-    acc = (100 * correct / total) / args.num_samples
+    # acc = 100.*correct.to(dtype=torch.float)/float(total)
+    acc = (100 * correct.to(dtype=torch.float) / float(total)) / args.num_samples
     print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%" %(epoch, loss.data, acc))
     test_diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': acc}
     with open(logfile, 'a') as lf:
