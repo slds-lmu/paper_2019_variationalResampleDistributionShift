@@ -1,1 +1,0 @@
-{'Accuracy': tensor(10), 'Loss': tensor(2.7165, device='cuda:0'), 'Validation Epoch': 1}
