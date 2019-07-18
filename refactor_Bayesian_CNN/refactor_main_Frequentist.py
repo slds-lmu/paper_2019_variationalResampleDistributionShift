@@ -95,8 +95,10 @@ def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use
 
     print('\n=> Training Epoch #%d, LR=%.4f' %(epoch, cf.learning_rate(args.lr, epoch)))
     for batch_idx, (inputs_value, targets) in enumerate(trainloader):
-        x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
-        y = targets.repeat(args.num_samples)
+        #x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
+        #y = targets.repeat(args.num_samples)
+        x = inputs_value
+        y = targets
         if use_cuda:
             x, y = x.cuda(), y.cuda()  # GPU settings
             # inputs_value, targets = inputs_value.cuda(), targets.cuda() # GPU settings

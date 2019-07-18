@@ -60,7 +60,7 @@ from data_generator import concatenate_data_from_dir
 #
 class VGMMDataset(Dataset):
     """Dataset after VGMM clustering"""
-    def __init__(self, pattern = "/global_index_cluster_data.npy", root_dir = '../results/VAE_fashion-mnist_64_62', transform=None, list_idx = [0], dsname = "fashion-mnist", num_labels = 10, num_cluster = 5,cluster = True,index=[]):
+    def __init__(self, pattern = "/global_index_cluster_data.npy", root_dir = '../results/VAE_fashion-mnist_64_62', transform=None, list_idx = [0], dsname = "fashion-mnist", num_labels = 10, num_cluster = 5,cluster = True, index=[]):
         """
         Args:
             pattern (string): Path to the npy file.
