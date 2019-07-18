@@ -75,7 +75,7 @@ class CVDataset(Dataset):
         return self.subset.__len__()
 
     def __getitem__(self, idx):
-        return self.__getitem__(idx)
+        return self.subset.__getitem__(idx)
 
 class VGMMDataset(Dataset):
     """Dataset after VGMM clustering"""
