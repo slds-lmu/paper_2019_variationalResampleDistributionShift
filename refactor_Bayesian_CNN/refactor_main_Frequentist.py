@@ -87,7 +87,18 @@ def getNetwork(args,inputs,outputs):
 
 # Training
 def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,criterion,logfile):
-    net.train()
+    """
+    This is a javadoc style.
+    @param epoch: the current epoch to be run on top of existing net global variable
+    @param trainset: Dataset for training
+    @param inputs: the number of channels of input data, RGB for example
+    @param net: global variable initilized outside of this function
+    @param num_epochs: total number of epochs
+    @param criterion: loss function
+    @return: log for current epoch in the form of a python dictionary
+    @note: number of iterations are (len(trainset)//batch_size), this is decided by trainloader
+    """
+    net.train()  # set net to be in training mode
     train_loss = 0
     correct = 0
     total = 0
@@ -95,7 +106,7 @@ def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use
 
     print('\n=> Training Epoch #%d, LR=%.4f' %(epoch, cf.learning_rate(args.lr, epoch)))
     for batch_idx, (inputs_value, targets) in enumerate(trainloader):
-        #x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
+        #x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)   # no need to repeat samples in non-Bayesian setting
         #y = targets.repeat(args.num_samples)
         x = inputs_value
         y = targets
@@ -129,6 +140,14 @@ def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use
     return diagnostics_to_write
 
 def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resize,criterion,logfile,file_name):
+    """
+    This is a javadoc style.
+    @param *: look at doc for train()
+    @param file_name:  the network archname or "test", which indicate not to checkpoint the model at test mode(but the performance is still returned), but checkpoint the model at validation mode
+    @return: log for testing for current epoch in the form of a python dictionary
+    @note: number of iterations are (len(trainset)//batch_size), this is decided by trainloader
+    """
+
     global best_acc
     best_acc = 0
     net.eval()
@@ -185,6 +204,9 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
 
 
 def prepare_data(args,train_eval_list,test_list,resize):
+    """
+    this is for vgmm-cv
+    """
     # Data Uplaod
     print('\n[Phase 1] : Data Preparation')
 
@@ -263,6 +285,10 @@ def prepare_data(args,train_eval_list,test_list,resize):
 
 
 def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
+    """
+    @param train_eval_list: the global index for training(80%)&validation(20%), from the merged dataset of the original train-test split, created by KFold from outside
+    @param test_list: the global index for testing, from the merged dataset of the original train-test split, created by KFold from outside
+    """
     # Data Uplaod
     print('\n[Phase 1] : Data Preparation')
     transform_train = transforms.Compose([
