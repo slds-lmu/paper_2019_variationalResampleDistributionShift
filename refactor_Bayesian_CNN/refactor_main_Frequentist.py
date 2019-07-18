@@ -305,7 +305,7 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
         transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
     ])
 
-    if (args.dataset == 'mnist'):
+    if (args.dataset == 'fashion-mnist'):
         print("| Preparing fashion MNIST dataset for random cv...")
         sys.stdout.write("| ")
         if args.debug == True:
