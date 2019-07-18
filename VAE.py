@@ -70,6 +70,7 @@ class VAE(object):
         with tf.variable_scope("encoder", reuse=reuse):
 
             net = lrelu(conv2d(x, 64, 4, 4, 2, 2, name='en_conv1'))
+            # bn means  batch normalization
             net = lrelu(bn(conv2d(net, 128, 4, 4, 2, 2, name='en_conv2'), is_training=is_training, scope='en_bn2'))
             net = tf.reshape(net, [self.batch_size, -1])
             net = lrelu(bn(linear(net, 1024, scope='en_fc3'), is_training=is_training, scope='en_bn3'))
@@ -94,8 +95,9 @@ class VAE(object):
             net = tf.nn.relu(
                 bn(deconv2d(net, [self.batch_size, 14, 14, 64], 4, 4, 2, 2, name='de_dc3'), is_training=is_training,
                    scope='de_bn3'))
-
+            # value, filter, output_shape, strides,
             out = tf.nn.sigmoid(deconv2d(net, [self.batch_size, 28, 28, 1], 4, 4, 2, 2, name='de_dc4'))
+            # Computes sigmoid of x element-wise
             return out
 
     def build_model(self):
