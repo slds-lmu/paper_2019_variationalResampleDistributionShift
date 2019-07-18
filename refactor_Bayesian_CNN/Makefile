@@ -23,8 +23,8 @@ frand:  # frequenst
 fvgmm:  # frequenst
 	python refactor_main_Frequentist.py --cv_type "vgmm" --net_type "3conv3fc"  # default --debug False
 
-f_org_3conv3fc:  # frequenst
-	python main_Frequentist.py --net_type "3conv3fc"  # original
+#f_org_3conv3fc:  # frequenst for cifar-100
+#	python main_Frequentist.py --net_type "3conv3fc"  # original
 
 
 ###############
@@ -81,7 +81,7 @@ fvgmm_lenet:  # frequenst
 	python refactor_main_Frequentist.py --cv_type "vgmm" --net_type "lenet"  # default --debug False
 
 
-
+# original train-test split
 fixed-frequenst-alex:
 	python main_Frequentist.py --dataset fashion-mnist --net_type "alexnet"
 

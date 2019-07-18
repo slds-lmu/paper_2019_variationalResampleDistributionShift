@@ -7,8 +7,11 @@ import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
 import Frequentist_config as cf
 
+from torch.utils.data.sampler import SubsetRandomSampler
+
 import torchvision
 import torchvision.transforms as transforms
+from torch.utils.data.dataset import ConcatDataset
 
 import os
 import sys
@@ -29,7 +32,7 @@ parser.add_argument('--net_type', default='alexnet', type=str, help='model')
 parser.add_argument('--depth', default=28, type=int, help='depth of model')
 parser.add_argument('--widen_factor', default=10, type=int, help='width of model')
 parser.add_argument('--dropout', default=0.3, type=float, help='dropout_rate')
-parser.add_argument('--dataset', default='cifar100', type=str, help='dataset = [mnist/cifar10/cifar100/fashionmnist/stl10]')
+parser.add_argument('--dataset', default='fashion-mnist', type=str, help='dataset = [mnist/cifar10/cifar100/fashion-mnist/stl10]')
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
 parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
 args = parser.parse_args()
@@ -83,15 +86,33 @@ elif(args.dataset == 'mnist'):
 elif(args.dataset == 'fashion-mnist'):
     print("| Preparing fashion-MNIST dataset...")
     sys.stdout.write("| ")
-    trainset = torchvision.datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform_train)
-    testset = torchvision.datasets.FashionMNIST(root='./data', train=False, download=False, transform=transform_test)
+    trainset_temp = torchvision.datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform_train)
+    testset_temp = torchvision.datasets.FashionMNIST(root='./data', train=False, download=False, transform=transform_test)
+    cd = ConcatDataset((trainset_temp, testset_temp))
     num_classes = 10
     inputs = 1
 
 
+def _make_dataloaders(total_set, train_size, valid_size, batch_size):
+    # Split training into train and validation
+    print("the length of total_set is "+ str(len(total_set)))
+    indices = torch.randperm(len(total_set))
+    train_indices = indices[:len(indices)-valid_size][:train_size or None]
+    valid_indices = indices[len(indices)-valid_size:]
+    print(train_indices)
+    print(valid_indices)
 
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
-testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
+    train_loader = torch.utils.data.DataLoader(total_set, pin_memory=True, batch_size=batch_size,
+                                               sampler=SubsetRandomSampler(train_indices))
+    valid_loader = torch.utils.data.DataLoader(total_set, pin_memory=True, batch_size=batch_size,
+                                                   sampler=SubsetRandomSampler(valid_indices))
+    return train_loader, valid_loader
+
+#trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
+#testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
+trainsetsize = 44800
+testsetsize = 25200
+trainloader, testloader = _make_dataloaders(cd, trainsetsize, testsetsize, batch_size)
 
 
 # Return network & file name
@@ -196,9 +217,8 @@ def train(epoch):
         sys.stdout.write('\r')
         sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%%'
                 %(epoch, num_epochs, batch_idx+1,
-                    (len(trainset)//batch_size)+1, loss.data, 100.*correct.to(dtype=torch.float)/float(total)))
+                    (trainsetsize//batch_size)+1, loss.data, 100.*correct.to(dtype=torch.float)/float(total)))
                     #(len(trainset)//batch_size)+1, loss.data[0], 100.*correct.to(dtype=torch.float)/float(total)))
-        sys.stdout.write(str(batch_size))
         sys.stdout.flush()
     #diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': 100*correct.to(dtype=torch.float) / float(total)}
     diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': 100*correct.to(dtype=torch.float) / float(total)}

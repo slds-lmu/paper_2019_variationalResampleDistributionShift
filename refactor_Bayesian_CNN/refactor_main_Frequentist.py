@@ -87,7 +87,18 @@ def getNetwork(args,inputs,outputs):
 
 # Training
 def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use_cuda,criterion,logfile):
-    net.train()
+    """
+    This is a javadoc style.
+    @param epoch: the current epoch to be run on top of existing net global variable
+    @param trainset: Dataset for training
+    @param inputs: the number of channels of input data, RGB for example
+    @param net: global variable initilized outside of this function
+    @param num_epochs: total number of epochs
+    @param criterion: loss function
+    @return: log for current epoch in the form of a python dictionary
+    @note: number of iterations are (len(trainset)//batch_size), this is decided by trainloader
+    """
+    net.train()  # set net to be in training mode
     train_loss = 0
     correct = 0
     total = 0
@@ -95,8 +106,10 @@ def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use
 
     print('\n=> Training Epoch #%d, LR=%.4f' %(epoch, cf.learning_rate(args.lr, epoch)))
     for batch_idx, (inputs_value, targets) in enumerate(trainloader):
-        x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
-        y = targets.repeat(args.num_samples)
+        #x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)   # no need to repeat samples in non-Bayesian setting
+        #y = targets.repeat(args.num_samples)
+        x = inputs_value
+        y = targets
         if use_cuda:
             x, y = x.cuda(), y.cuda()  # GPU settings
             # inputs_value, targets = inputs_value.cuda(), targets.cuda() # GPU settings
@@ -119,14 +132,22 @@ def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use
         sys.stdout.write('\r')
         sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%%'
                 %(epoch, num_epochs, batch_idx+1,
-                    (len(trainset)//batch_size)+1, loss.data, (100. * correct.to(dtype=torch.float) / float(total)) / args.num_samples))
+                    (len(trainset)//batch_size)+1, loss.data, (100. * correct.to(dtype=torch.float) / float(total))))
         sys.stdout.flush()
-    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': (100. * correct.to(dtype=torch.float) / float(total)) / args.num_samples}
+    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': (100. * correct.to(dtype=torch.float) / float(total))}
     with open(logfile, 'a') as lf:
         lf.write(str(diagnostics_to_write))
     return diagnostics_to_write
 
 def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resize,criterion,logfile,file_name):
+    """
+    This is a javadoc style.
+    @param *: look at doc for train()
+    @param file_name:  the network archname or "test", which indicate not to checkpoint the model at test mode(but the performance is still returned), but checkpoint the model at validation mode
+    @return: log for testing for current epoch in the form of a python dictionary
+    @note: number of iterations are (len(trainset)//batch_size), this is decided by trainloader
+    """
+
     global best_acc
     best_acc = 0
     net.eval()
@@ -135,8 +156,10 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
     total = 0
     for batch_idx, (inputs_value, targets) in enumerate(testloader):
         # x = inputs_value.repeat(args.num_samples, 1, 1, 1)
-        x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
-        y = targets.repeat(args.num_samples)
+        #x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
+        #y = targets.repeat(args.num_samples)
+        x = inputs_value
+        y = targets
         if use_cuda:
             x, y = x.cuda(), y.cuda()
             # inputs_value, targets = inputs_value.cuda(), targets.cuda()
@@ -155,7 +178,7 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
 
     # Save checkpoint when best model
     # acc = 100.*correct.to(dtype=torch.float)/float(total)
-    acc = (100 * correct.to(dtype=torch.float) / float(total)) / args.num_samples
+    acc = (100 * correct.to(dtype=torch.float) / float(total))
     print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%" %(epoch, loss.data, acc))
     test_diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': acc}
     with open(logfile, 'a') as lf:
@@ -183,6 +206,9 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
 
 
 def prepare_data(args,train_eval_list,test_list,resize):
+    """
+    this is for vgmm-cv
+    """
     # Data Uplaod
     print('\n[Phase 1] : Data Preparation')
 
@@ -261,6 +287,10 @@ def prepare_data(args,train_eval_list,test_list,resize):
 
 
 def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
+    """
+    @param train_eval_list: the global index for training(80%)&validation(20%), from the merged dataset of the original train-test split, created by KFold from outside
+    @param test_list: the global index for testing, from the merged dataset of the original train-test split, created by KFold from outside
+    """
     # Data Uplaod
     print('\n[Phase 1] : Data Preparation')
     transform_train = transforms.Compose([
@@ -275,7 +305,7 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
         transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
     ])
 
-    if (args.dataset == 'mnist'):
+    if (args.dataset == 'fashion-mnist'):
         print("| Preparing fashion MNIST dataset for random cv...")
         sys.stdout.write("| ")
         if args.debug == True:
@@ -328,7 +358,8 @@ def cross_validation(num_labels,num_cluster,args):
     X, y = utils_parent.load_mnist('fashion-mnist')
     kf = KFold(n_splits=num_cluster)
     i = 0
-    for train_eval_idx, test_idx in kf.split(X, y):
+    for train_eval_idx, test_idx in kf.split(X, y):  #iterator
+        #breakpoint()  iter = kf.split(X,y); for xx in iter: print(xx);  it seems that KFold.split works
         cv_idx = i
         i = i +1
         trainset, evalset, testset, inputs, outputs = prepare_data_for_normal_cv(args, train_eval_idx, test_idx, resize)
@@ -344,7 +375,8 @@ def cross_validation(num_labels,num_cluster,args):
         trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
         evalloader = torch.utils.data.DataLoader(evalset, batch_size=batch_size, shuffle=False, num_workers=4)
         testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
-
+        print('\n\n| Training size = ' + str(len(trainset)))
+        print('\n\n| batch size = ' + str(batch_size))
         # Model
         print('\n[Phase 2] : Model setup')
         if args.resume:
@@ -505,13 +537,13 @@ if __name__ == '__main__':
     parser.add_argument('--depth', default=28, type=int, help='depth of model')
     parser.add_argument('--widen_factor', default=10, type=int, help='width of model')
     parser.add_argument('--dropout', default=0.3, type=float, help='dropout_rate')
-    parser.add_argument('--dataset', default='mnist', type=str,
+    parser.add_argument('--dataset', default='fashion-mnist', type=str,
                         help='dataset = [mnist/cifar10/cifar100/fashionmnist/stl10]')
     parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
     parser.add_argument('--cv_type', '-v', default='vgmm', type=str, help='cv_type=[rand/vgmm]')
     parser.add_argument('--debug', default=False, type=bool, help="debug mode has smaller data")
-    parser.add_argument('--num_samples', default=10, type=int, help='Number of samples')
+    #parser.add_argument('--num_samples', default=10, type=int, help='Number of samples')
     parser.add_argument('--cv_idx',default=0,type=int,help='index of cv')
     args = parser.parse_args()
 
