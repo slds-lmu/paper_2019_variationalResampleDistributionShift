@@ -356,7 +356,7 @@ def cross_validation(num_labels,num_cluster,args):
     start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
     results = {}
     X, y = utils_parent.load_mnist('fashion-mnist')
-    kf = KFold(n_splits=num_cluster)
+    kf = KFold(n_splits=num_cluster, shuffle = True)
     i = 0
     for train_eval_idx, test_idx in kf.split(X, y):  #iterator
         #breakpoint()  iter = kf.split(X,y); for xx in iter: print(xx);  it seems that KFold.split works
