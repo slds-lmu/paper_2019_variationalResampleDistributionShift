@@ -35,7 +35,8 @@ parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode wit
 args = parser.parse_args()
 
 # Hyper Parameter settings
-use_cuda = torch.cuda.is_available()
+#use_cuda = torch.cuda.is_available()
+use_cuda = cf.use_cuda()
 best_acc = 0
 resize=32
 start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
@@ -197,6 +198,7 @@ def train(epoch):
                 %(epoch, num_epochs, batch_idx+1,
                     (len(trainset)//batch_size)+1, loss.data, 100.*correct.to(dtype=torch.float)/float(total)))
                     #(len(trainset)//batch_size)+1, loss.data[0], 100.*correct.to(dtype=torch.float)/float(total)))
+        sys.stdout.write(str(batch_size))
         sys.stdout.flush()
     #diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': 100*correct.to(dtype=torch.float) / float(total)}
     diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': 100*correct.to(dtype=torch.float) / float(total)}

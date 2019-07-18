@@ -358,7 +358,8 @@ def cross_validation(num_labels,num_cluster,args):
     X, y = utils_parent.load_mnist('fashion-mnist')
     kf = KFold(n_splits=num_cluster)
     i = 0
-    for train_eval_idx, test_idx in kf.split(X, y):
+    for train_eval_idx, test_idx in kf.split(X, y):  #iterator
+        #breakpoint()  iter = kf.split(X,y); for xx in iter: print(xx);  it seems that KFold.split works
         cv_idx = i
         i = i +1
         trainset, evalset, testset, inputs, outputs = prepare_data_for_normal_cv(args, train_eval_idx, test_idx, resize)
@@ -374,7 +375,8 @@ def cross_validation(num_labels,num_cluster,args):
         trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
         evalloader = torch.utils.data.DataLoader(evalset, batch_size=batch_size, shuffle=False, num_workers=4)
         testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
-
+        print('\n\n| Training size = ' + str(len(trainset)))
+        print('\n\n| batch size = ' + str(batch_size))
         # Model
         print('\n[Phase 2] : Model setup')
         if args.resume:
