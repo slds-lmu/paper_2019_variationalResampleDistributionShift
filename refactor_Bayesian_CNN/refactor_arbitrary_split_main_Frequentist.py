@@ -95,9 +95,12 @@ elif(args.dataset == 'fashion-mnist'):
 
 def _make_dataloaders(total_set, train_size, valid_size, batch_size):
     # Split training into train and validation
+    print("the length of total_set is "+ str(len(total_set)))
     indices = torch.randperm(len(total_set))
     train_indices = indices[:len(indices)-valid_size][:train_size or None]
     valid_indices = indices[len(indices)-valid_size:]
+    print(train_indices)
+    print(valid_indices)
 
     train_loader = torch.utils.data.DataLoader(total_set, pin_memory=True, batch_size=batch_size,
                                                sampler=SubsetRandomSampler(train_indices))
