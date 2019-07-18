@@ -132,9 +132,9 @@ def train(epoch,trainset,inputs,net,batch_size,trainloader,resize,num_epochs,use
         sys.stdout.write('\r')
         sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%%'
                 %(epoch, num_epochs, batch_idx+1,
-                    (len(trainset)//batch_size)+1, loss.data, (100. * correct.to(dtype=torch.float) / float(total)) / args.num_samples))
+                    (len(trainset)//batch_size)+1, loss.data, (100. * correct.to(dtype=torch.float) / float(total))))
         sys.stdout.flush()
-    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': (100. * correct.to(dtype=torch.float) / float(total)) / args.num_samples}
+    diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': (100. * correct.to(dtype=torch.float) / float(total))}
     with open(logfile, 'a') as lf:
         lf.write(str(diagnostics_to_write))
     return diagnostics_to_write
@@ -156,8 +156,10 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
     total = 0
     for batch_idx, (inputs_value, targets) in enumerate(testloader):
         # x = inputs_value.repeat(args.num_samples, 1, 1, 1)
-        x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
-        y = targets.repeat(args.num_samples)
+        #x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
+        #y = targets.repeat(args.num_samples)
+        x = inputs_value
+        y = targets
         if use_cuda:
             x, y = x.cuda(), y.cuda()
             # inputs_value, targets = inputs_value.cuda(), targets.cuda()
@@ -176,7 +178,7 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
 
     # Save checkpoint when best model
     # acc = 100.*correct.to(dtype=torch.float)/float(total)
-    acc = (100 * correct.to(dtype=torch.float) / float(total)) / args.num_samples
+    acc = (100 * correct.to(dtype=torch.float) / float(total))
     print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%" %(epoch, loss.data, acc))
     test_diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': acc}
     with open(logfile, 'a') as lf:
@@ -539,7 +541,7 @@ if __name__ == '__main__':
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
     parser.add_argument('--cv_type', '-v', default='vgmm', type=str, help='cv_type=[rand/vgmm]')
     parser.add_argument('--debug', default=False, type=bool, help="debug mode has smaller data")
-    parser.add_argument('--num_samples', default=10, type=int, help='Number of samples')
+    #parser.add_argument('--num_samples', default=10, type=int, help='Number of samples')
     parser.add_argument('--cv_idx',default=0,type=int,help='index of cv')
     args = parser.parse_args()
 
