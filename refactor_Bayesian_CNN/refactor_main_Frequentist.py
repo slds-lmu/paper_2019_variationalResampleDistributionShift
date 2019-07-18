@@ -330,20 +330,31 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
             testset, _ = torch.utils.data.random_split(testset, [small_size, drop_size])
             outputs = 10
             inputs = 1
+        #else:  old code using  VGMMDATASET
+        #    train_eval_set = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
+        #                                                        root_dir="../" + config_parent.data_path,
+        #                                                        index=train_eval_list, transform=transform_train,
+        #                                                        cluster=False)
+            # split train_eval_set into trainset and evalset
+        #    train_size = int(0.8 * len(train_eval_set))
+        #    eval_size = len(train_eval_set) - train_size
+        #    trainset, evalset = torch.utils.data.random_split(train_eval_set, [train_size, eval_size])
+        #    testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
+        #                                                 root_dir="../" + config_parent.data_path, index=test_list,
+        #                                                 transform=transform_test, cluster=False)
+        #    outputs = 10
+        #    inputs = 1
         else:
-            train_eval_set = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                                root_dir="../" + config_parent.data_path,
-                                                                index=train_eval_list, transform=transform_train,
-                                                                cluster=False)
+            train_eval_set = refactor_dataset_class.CVDataset(index=train_eval_list, transform=transform_train)
             # split train_eval_set into trainset and evalset
             train_size = int(0.8 * len(train_eval_set))
             eval_size = len(train_eval_set) - train_size
             trainset, evalset = torch.utils.data.random_split(train_eval_set, [train_size, eval_size])
-            testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                         root_dir="../" + config_parent.data_path, index=test_list,
-                                                         transform=transform_test, cluster=False)
+            testset = refactor_dataset_class.CV(index=test_list, transform=transform_test)
             outputs = 10
             inputs = 1
+
+
 
     return trainset, evalset, testset, inputs,outputs
 

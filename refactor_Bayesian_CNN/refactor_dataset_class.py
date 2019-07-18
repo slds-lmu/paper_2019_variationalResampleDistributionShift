@@ -58,6 +58,20 @@ from data_generator import concatenate_data_from_dir
 #X[1,]
 #X[1].shape
 #
+class CVDataset(Dataset):
+    def __init__(self, indices, transform=None):
+        trainset_temp = torchvision.datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform_train)
+        testset_temp = torchvision.datasets.FashionMNIST(root='./data', train=False, download=False, transform=transform_test)
+        cd = ConcatDataset((trainset_temp, testset_temp))
+        #trainloader, testloader = _make_dataloaders(cd, trainsetsize, testsetsize, batch_size)
+        self.subset = torch.utils.data.Subset(cd, indices)
+
+    def __len__(self):
+        return self.subset.__len__()
+
+    def __getitem__(self, idx):
+        return self.__getitem__(idx)
+
 class VGMMDataset(Dataset):
     """Dataset after VGMM clustering"""
     def __init__(self, pattern = "/global_index_cluster_data.npy", root_dir = '../results/VAE_fashion-mnist_64_62', transform=None, list_idx = [0], dsname = "fashion-mnist", num_labels = 10, num_cluster = 5,cluster = True, index=[]):
@@ -97,7 +111,6 @@ class VGMMDataset(Dataset):
         else:
             self.all_inds = index
             self.samples = {"x": X[index], "y": y[index]}
-
 
 
     def __len__(self):
