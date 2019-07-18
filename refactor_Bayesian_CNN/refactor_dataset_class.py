@@ -4,10 +4,15 @@ from torch.utils.data import Dataset, DataLoader
 import tensorflow as tf
 import numpy as np
 import os, sys
+import torchvision
+import torch
 os.getcwd()
 import os.path
 print(os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
+
+from torch.utils.data.dataset import ConcatDataset
+
 
 
 from inspect import getsourcefile
@@ -60,8 +65,8 @@ from data_generator import concatenate_data_from_dir
 #
 class CVDataset(Dataset):
     def __init__(self, indices, transform=None):
-        trainset_temp = torchvision.datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform_train)
-        testset_temp = torchvision.datasets.FashionMNIST(root='./data', train=False, download=False, transform=transform_test)
+        trainset_temp = torchvision.datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform)
+        testset_temp = torchvision.datasets.FashionMNIST(root='./data', train=False, download=False, transform=transform)
         cd = ConcatDataset((trainset_temp, testset_temp))
         #trainloader, testloader = _make_dataloaders(cd, trainsetsize, testsetsize, batch_size)
         self.subset = torch.utils.data.Subset(cd, indices)

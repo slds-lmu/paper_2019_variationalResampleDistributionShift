@@ -345,12 +345,12 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
         #    outputs = 10
         #    inputs = 1
         else:
-            train_eval_set = refactor_dataset_class.CVDataset(index=train_eval_list, transform=transform_train)
+            train_eval_set = refactor_dataset_class.CVDataset(indices=train_eval_list, transform=transform_train)
             # split train_eval_set into trainset and evalset
             train_size = int(0.8 * len(train_eval_set))
             eval_size = len(train_eval_set) - train_size
             trainset, evalset = torch.utils.data.random_split(train_eval_set, [train_size, eval_size])
-            testset = refactor_dataset_class.CV(index=test_list, transform=transform_test)
+            testset = refactor_dataset_class.CVDataset(indices=test_list, transform=transform_test)
             outputs = 10
             inputs = 1
 
