@@ -110,8 +110,8 @@ def _make_dataloaders(total_set, train_size, valid_size, batch_size):
 
 #trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
 #testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
-trainsetsize = 40000
-testsetsize = 30000
+trainsetsize = 44800
+testsetsize = 25200
 trainloader, testloader = _make_dataloaders(cd, trainsetsize, testsetsize, batch_size)
 
 
