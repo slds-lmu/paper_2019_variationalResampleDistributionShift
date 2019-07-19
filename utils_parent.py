@@ -52,7 +52,12 @@ def load_mnist(dataset_name):
     y = np.concatenate((trY, teY), axis=0).astype(np.int)
     yy = np.zeros((len(y), 10))
     yy[np.arange(len(y)), y] = 1
-    return X, yy
+    seed = 547
+    np.random.seed(seed)
+    np.random.shuffle(X)
+    np.random.seed(seed)
+    np.random.shuffle(yy)
+    return X/255., yy
 
 
 def load_mnist_old(dataset_name):
