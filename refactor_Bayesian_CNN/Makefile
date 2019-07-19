@@ -1,14 +1,15 @@
+# rules: [b/f]bayesian-frequentist-[vgmm/rand]random cv or vgmm-vae-cv-[archname]
 ################
 ### 3conv3fc ###
 ################
 
-debugvgmm:
+bdebugvgmm:
 	python refactor_main_Bayes2.py --cv_type "vgmm" --debug True --net_type "3conv3fc"
-debugrand:
+bdebugrand:
 	python refactor_main_Bayes2.py --cv_type "rand" --debug True --net_type "3conv3fc"
-vgmm:
+bvgmm:
 	python refactor_main_Bayes2.py --cv_type "vgmm" --net_type "3conv3fc" # default debug False
-rand:
+brand:
 	python refactor_main_Bayes2.py --cv_type "rand" --net_type "3conv3fc" # default --debug False
 
 fdebugrand:  # frequenst
@@ -31,13 +32,13 @@ fvgmm:  # frequenst
 ### AlexNet ###
 ###############
 
-debugrand_alexnet:
+bdebugrand_alexnet:
 	python refactor_main_Bayes2.py --cv_type "rand" --debug True --net_type "alexnet"
 
-vgmm_alexnet:
+bvgmm_alexnet:
 	python refactor_main_Bayes2.py --cv_type "vgmm" --net_type "alexnet" # default debug False
 
-rand_alexnet:
+brand_alexnet:
 	python refactor_main_Bayes2.py --cv_type "rand" --net_type "alexnet" # default --debug False
 
 fdebugrand_alexnet:  # frequenst
@@ -56,16 +57,16 @@ fvgmm_alexnet:  # frequenst
 ### LeNet ###
 #############
 
-debugvgmm_lenet:
+bdebugvgmm_lenet:
 	python refactor_main_Bayes2.py --cv_type "vgmm" --debug True --net_type "lenet"
 
-debugrand_lenet:
+bdebugrand_lenet:
 	python refactor_main_Bayes2.py --cv_type "rand" --debug True --net_type "lenet"
 
-vgmm_lenet:
+bvgmm_lenet:
 	python refactor_main_Bayes2.py --cv_type "vgmm" --net_type "lenet" # default debug False
 
-rand_lenet:
+brand_lenet:
 	python refactor_main_Bayes2.py --cv_type "rand" --net_type "lenet" # default --debug False
 
 fdebugrand_lenet:  # frequenst
