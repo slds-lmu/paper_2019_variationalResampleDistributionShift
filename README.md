@@ -19,8 +19,8 @@ https://medium.com/python-pandemonium/better-python-dependency-and-package-manag
 
 ### Preparation
 - clone a new repository and go to the root directory
-- make build (30mins for the first run on fujitsu-celcius) # equivalent to python main.py --cluster True (train vae on all data and cluster)
-- make label (1 hours on fujitsu-celcius) # equivalent to python main.py --labeled True --cluster True (train vae according to label and cluster each label, then merge)
+- make build (30mins for the first run on fujitsu-celcius) # equivalent to python main.py --cluster True (train vae on all data and cluster), results could be stored in results/VAE_fashion-mnist_64_62/L-1 for example
+- make label (1 hours on fujitsu-celcius) # equivalent to python main.py --labeled True --cluster True (train vae according to label and cluster each label, then merge), results could be stored in results/VAE_fashion-mnist_64_62/L0 unutil results/VAE_fashion-mnist_64_62/L9 for example
 - results for the two steps are stored in results/VAE_fashion-mnist_64_62 for example, where 62 is the latent space dimension
 of VAE (see configuration file named config.py), while data is stored in /data/FashionMNIST for example
 ### Evaluate Neural Network
