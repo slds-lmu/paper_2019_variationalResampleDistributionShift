@@ -168,23 +168,23 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
     with open(logfile, 'a') as lf:
         lf.write(str(test_diagnostics_to_write))
 
-    # if file_name != "test":
-    #     # don't store model when test
-    #     if acc > best_acc:
-    #         print('| Saving Best model...\t\t\tTop1 = %.2f%%' % (acc))
-    #         state = {
-    #             'net': net if use_cuda else net,
-    #             'acc': acc,
-    #             'epoch': epoch,
-    #         }
-    #         if not os.path.isdir('checkpoint'):
-    #             os.mkdir('checkpoint')
-    #         save_point = './checkpoint/' + args.dataset + os.sep
-    #         if not os.path.isdir(save_point):
-    #             os.mkdir(save_point)
-    #         # torch.save(state, save_point + file_name + '.t7')
-    #         torch.save(state, save_point + file_name + args.cv_type + str( + '.t7')
-    #         best_acc = acc
+    if file_name != "test":
+        # don't store model when test
+        if acc > best_acc:
+            print('| Saving Best model...\t\t\tTop1 = %.2f%%' % (acc))
+            state = {
+                'net': net if use_cuda else net,
+                'acc': acc,
+                'epoch': epoch,
+            }
+            if not os.path.isdir('checkpoint'):
+                os.mkdir('checkpoint')
+            save_point = './checkpoint/' + args.dataset + os.sep
+            if not os.path.isdir(save_point):
+                os.mkdir(save_point)
+            # torch.save(state, save_point + file_name + '.t7')
+            torch.save(state, save_point + file_name + args.cv_type + str(cv_idx) + '.t7')
+            best_acc = acc
     return test_diagnostics_to_write
 
 
@@ -221,8 +221,8 @@ def prepare_data(args,train_eval_list,test_list,resize):
         outputs = 100
         inputs = 3
 
-    elif (args.dataset == 'mnist'):
-        print("| Preparing MNIST dataset...")
+    elif (args.dataset == 'fashion-mnist'):
+        print("| Preparing Fashion-MNIST dataset...")
         sys.stdout.write("| ")
         if args.debug ==True:
             train_eval_set = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
@@ -278,14 +278,11 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
         transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
     ])
 
-    if (args.dataset == 'mnist'):
-        print("| Preparing fashion MNIST dataset for random cv...")
+    if (args.dataset == 'fashion-mnist'):
+        print("| Preparing fashion Fashion-MNIST dataset for random cv...")
         sys.stdout.write("| ")
         if args.debug == True:
-            train_eval_set = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                                root_dir="../" + config_parent.data_path,
-                                                                index=train_eval_list, transform=transform_train,
-                                                                cluster=False)
+            train_eval_set = refactor_dataset_class.CVDataset(indices=train_eval_list, transform=transform_train)
             # only get subset of original dataset
             small_size = int(0.01*len(train_eval_set))
             drop_size = len(train_eval_set)-small_size
@@ -295,26 +292,23 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
             train_size = int(0.8 * len(train_eval_set))
             eval_size = len(train_eval_set) - train_size
             trainset, evalset = torch.utils.data.random_split(train_eval_set, [train_size, eval_size])
-            testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                         root_dir="../" + config_parent.data_path, index=test_list,
-                                                         transform=transform_test, cluster=False)
+            #testset = refactor_dataset_class.CVDataset(pattern=config_parent.global_index_name,
+            #                                             root_dir="../" + config_parent.data_path, index=test_list,
+            #                                             transform=transform_test, cluster=False)
+
+            testset = refactor_dataset_class.CVDataset(indices=test_list, transform=transform_test)
             small_size = int(0.01 * len(testset))
             drop_size = len(testset) - small_size
             testset, _ = torch.utils.data.random_split(testset, [small_size, drop_size])
             outputs = 10
             inputs = 1
         else:
-            train_eval_set = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                                root_dir="../" + config_parent.data_path,
-                                                                index=train_eval_list, transform=transform_train,
-                                                                cluster=False)
+            train_eval_set = refactor_dataset_class.CVDataset(indices=train_eval_list, transform=transform_train)
             # split train_eval_set into trainset and evalset
             train_size = int(0.8 * len(train_eval_set))
             eval_size = len(train_eval_set) - train_size
             trainset, evalset = torch.utils.data.random_split(train_eval_set, [train_size, eval_size])
-            testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                         root_dir="../" + config_parent.data_path, index=test_list,
-                                                         transform=transform_test, cluster=False)
+            testset = refactor_dataset_class.CVDataset(indices=test_list, transform=transform_test)
             outputs = 10
             inputs = 1
 
@@ -531,7 +525,8 @@ if __name__ == '__main__':
     parser.add_argument('--p_logvar_init', default=0, type=int, help='p_logvar_init')
     parser.add_argument('--q_logvar_init', default=-10, type=int, help='q_logvar_init')
     parser.add_argument('--weight_decay', default=0.0005, type=float, help='weight_decay')
-    parser.add_argument('--dataset', default='mnist', type=str, help='dataset = [mnist/cifar10/cifar100]')
+    parser.add_argument('--dataset', default='fashion-mnist', type=str,
+                        help='dataset = [mnist/cifar10/cifar100]')
     parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
     parser.add_argument('--cv_type', '-v', default = 'vgmm', type=str, help='cv_type=[rand/vgmm]')
