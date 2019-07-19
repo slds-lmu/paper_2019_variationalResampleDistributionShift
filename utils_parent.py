@@ -39,9 +39,17 @@ def maybe_download(SOURCE_URL,DATA_DIRECTORY,filename):
 
 def load_mnist(dataset_name):
     trainset_temp = torchvision.datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform)
+    trX = trainset_temp.data
+    trY = trainset_temp.targets
     testset_temp = torchvision.datasets.FashionMNIST(root='./data', train=False, download=False, transform=transform)
+    teX = testset_temp.data
+    teY = testset_temp.targets
     cd = ConcatDataset((trainset_temp, testset_temp))
-    return cd.data, cd.targets
+    #return cd.data, cd.targets
+    X = np.concatenate((trX, teX), axis=0)
+    y = np.concatenate((trY, teY), axis=0).astype(np.int)
+    return X, y
+
 
 def load_mnist_old(dataset_name):
     data_dir = os.path.join("./data", dataset_name)
