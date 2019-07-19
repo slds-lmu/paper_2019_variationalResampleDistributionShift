@@ -9,6 +9,10 @@ bdebugrand:
 	python refactor_main_Bayes2.py --cv_type "rand" --debug True --net_type "3conv3fc"
 bvgmm:
 	python refactor_main_Bayes2.py --cv_type "vgmm" --net_type "3conv3fc" # default debug False
+
+bvgmm_conv3fc_para:
+	python refactor_main_Bayes2_parallel2.py --cv_type "vgmm" --net_type "3conv3fc"
+
 brand:
 	python refactor_main_Bayes2.py --cv_type "rand" --net_type "3conv3fc" # default --debug False
 
