@@ -13,6 +13,8 @@ sys.path.append(os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
 
 from torch.utils.data.dataset import ConcatDataset
 
+import numpy as np
+
 
 
 from inspect import getsourcefile
@@ -79,7 +81,7 @@ class CVDataset(Dataset):
 
 class VGMMDataset(Dataset):
     """Dataset after VGMM clustering"""
-    def __init__(self, pattern = "/global_index_cluster_data.npy", root_dir = '../results/VAE_fashion-mnist_64_62', transform=None, list_idx = [0], dsname = "fashion-mnist", num_labels = 10, num_cluster = 5,cluster = True, index=[]):
+    def __init__(self, pattern = "/global_index_cluster_data.npy", root_dir = '../results/VAE_fashion-mnist_64_62', transform=None, list_idx = [0], dsname = "fashion-mnist", num_labels = 10, num_cluster = 5):
         """
         Args:
             pattern (string): Path to the npy file.
@@ -87,35 +89,41 @@ class VGMMDataset(Dataset):
             transform (callable, optional): Optional transform to be applied
                 on a sample.
             list_idx (list): the list of indexes of the cluster to choose as trainset or testset
+            for example
+            trainset = VGMMDataset(list_idx = [0,1, 2, 3])
+            testset = VGMMDataset(list_idx = [4])
+            dsname: currently dsname is fashion-mnist, but not used at all
         """
         X, y = utils_parent.load_mnist(dsname)
         y = y.argmax(axis=1)
         self.root_dir = root_dir
         self.pattern = pattern
         self.transform = transform
-        if cluster ==True:
-
-            if not tf.gfile.Exists(self.root_dir + self.pattern):
-                _, self.global_index = concatenate_data_from_dir(self.root_dir, num_labels=num_labels,
-                                                                 num_clusters=num_cluster)
-            else:
-                self.global_index = np.load(self.root_dir + pattern, allow_pickle=True)
-            self.list_idx = list_idx
-            all_inds = []
-            print(list_idx)
-            for index in self.list_idx:
-                to_append = self.global_index.item().get(str(index))
-                all_inds = np.append(all_inds, to_append)
-                print(all_inds.shape)
-            self.all_inds = all_inds.tolist()
-            # self.all_inds = map(round, self.all_inds)
-            if self.all_inds is not None:
-                self.all_inds = [round(a) for a in self.all_inds]
-                self.samples = {"x": X.take(self.all_inds, axis=0), "y": y.take(self.all_inds, axis=0)}
-
+        #if cluster ==True:
+        if not tf.gfile.Exists(self.root_dir + self.pattern):
+            _, self.global_index = concatenate_data_from_dir(self.root_dir, num_labels=num_labels,
+                                                                num_clusters=num_cluster)
         else:
-            self.all_inds = index
-            self.samples = {"x": X[index], "y": y[index]}
+            self.global_index = np.load(self.root_dir + pattern, allow_pickle=True)
+        self.list_idx = list_idx
+        all_inds = []
+        print('cluster index list:' + str(list_idx))
+        for index in self.list_idx:
+            to_append = self.global_index.item().get(str(index))   # self.global_index is a dictionary of {'0': [15352, 2152,21, 25,...], '1':[1121, 1252, 3195,...]}
+            print('\n size of cluster:' + str(np.shape(to_append)) + '\n')
+            all_inds = np.append(all_inds, to_append)
+            print(all_inds.shape)
+        self.all_inds = all_inds.tolist()
+        # self.all_inds = map(round, self.all_inds)
+        if self.all_inds is not None:
+            self.all_inds = [round(a) for a in self.all_inds]
+            self.samples = {"x": X.take(self.all_inds, axis=0), "y": y.take(self.all_inds, axis=0)}
+            print('\n size of dataset:' + str(np.shape(self.all_inds)) + '\n')
+            #breakpoint()
+
+        #else:
+        #    self.all_inds = index
+        #    self.samples = {"x": X[index], "y": y[index]}
 
 
     def __len__(self):
