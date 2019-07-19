@@ -22,10 +22,14 @@ https://medium.com/python-pandemonium/better-python-dependency-and-package-manag
 - make label (1 hours on fujitsu-celcius)
 
 ### Evaluate Neural Network
+- change directory to refactor_Bayesian_CNN
 - make rand frand|vgmm|fvgmm_alexnet
 
 ### statistic
 - before you run this command, you should previously run make build and make label
+- change directory to root folder
+- make wasser_cv_emd : compute wasserstein distance for random cross validation
+- make wasser_vgmm_emd: compute wasserstein distance for vgmm-vae cross validation
 
 
 
