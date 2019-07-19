@@ -74,6 +74,7 @@ in root folder and refactor_Bayesian_CNN, files start with config stores global 
 ### parallel
 - https://github.com/horovod/horovod#pytorch
 - https://skorch.readthedocs.io/en/stable/user/parallelism.html
+- https://towardsdatascience.com/speed-up-your-algorithms-part-1-pytorch-56d8a4ae7051  **share_memory**
 
 #### to avoid no space on device problem when run parallel in pytorch
 - The problem was resolved by setting the following env variable in our Dockerfile: ENV JOBLIB_TEMP_FOLDER=/tmp.
