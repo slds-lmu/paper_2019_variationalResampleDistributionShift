@@ -37,6 +37,9 @@ https://medium.com/python-pandemonium/better-python-dependency-and-package-manag
 
 ## Guide to the code
 
+### Configuration
+in root folder and refactor_Bayesian_CNN, files start with config stores global configuration parameters.
+
 ### arguments for main.py
   python main.py
   --cluster <True,False (default)>
