@@ -48,7 +48,9 @@ def load_mnist(dataset_name):
     #return cd.data, cd.targets
     X = np.concatenate((trX, teX), axis=0)
     y = np.concatenate((trY, teY), axis=0).astype(np.int)
-    return X, y
+    yy = np.zeros((len(y), 10))
+    yy[np.arange(len(y)), y] = 1
+    return X, yy
 
 
 def load_mnist_old(dataset_name):
