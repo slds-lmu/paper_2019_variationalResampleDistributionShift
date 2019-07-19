@@ -33,7 +33,8 @@ https://medium.com/python-pandemonium/better-python-dependency-and-package-manag
 - make t-SNE: generate t-SNE plot for all data divided by vgmm-vae
 - make distribution_y: plot the histogram of class distribution
 
-
+### Plotting
+- go to  /plots and use the R code to generate the beautiful ggplot
 
 
 
