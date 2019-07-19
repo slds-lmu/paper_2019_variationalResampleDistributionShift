@@ -281,10 +281,7 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
         print("| Preparing fashion Fashion-MNIST dataset for random cv...")
         sys.stdout.write("| ")
         if args.debug == True:
-            train_eval_set = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                                root_dir="../" + config_parent.data_path,
-                                                                index=train_eval_list, transform=transform_train,
-                                                                cluster=False)
+            train_eval_set = refactor_dataset_class.CVDataset(indices=train_eval_list, transform=transform_train)
             # only get subset of original dataset
             small_size = int(0.01*len(train_eval_set))
             drop_size = len(train_eval_set)-small_size
@@ -294,9 +291,11 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
             train_size = int(0.8 * len(train_eval_set))
             eval_size = len(train_eval_set) - train_size
             trainset, evalset = torch.utils.data.random_split(train_eval_set, [train_size, eval_size])
-            testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                         root_dir="../" + config_parent.data_path, index=test_list,
-                                                         transform=transform_test, cluster=False)
+            #testset = refactor_dataset_class.CVDataset(pattern=config_parent.global_index_name,
+            #                                             root_dir="../" + config_parent.data_path, index=test_list,
+            #                                             transform=transform_test, cluster=False)
+
+            testset = refactor_dataset_class.CVDataset(indices=test_list, transform=transform_test)
             small_size = int(0.01 * len(testset))
             drop_size = len(testset) - small_size
             testset, _ = torch.utils.data.random_split(testset, [small_size, drop_size])
