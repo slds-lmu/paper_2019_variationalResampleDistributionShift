@@ -77,6 +77,8 @@ in root folder and refactor_Bayesian_CNN, files start with config stores global 
 - https://towardsdatascience.com/speed-up-your-algorithms-part-1-pytorch-56d8a4ae7051  **share_memory**
 - https://pytorch.org/tutorials/beginner/blitz/data_parallel_tutorial.html
 - https://medium.com/@iliakarmanov/multi-gpu-rosetta-stone-d4fa96162986
+- https://github.com/pytorch/examples/blob/master/mnist_hogwild/main.py
+- https://pytorch.org/docs/stable/notes/multiprocessing.html
 
 #### to avoid no space on device problem when run parallel in pytorch
 - The problem was resolved by setting the following env variable in our Dockerfile: ENV JOBLIB_TEMP_FOLDER=/tmp.
