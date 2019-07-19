@@ -183,7 +183,7 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
             if not os.path.isdir(save_point):
                 os.mkdir(save_point)
             # torch.save(state, save_point + file_name + '.t7')
-            torch.save(state, save_point + file_name + args.cv_type + str(cv_idx) + '.t7')
+            #torch.save(state, save_point + file_name + args.cv_type + str(cv_idx) + '.t7')
             best_acc = acc
     return test_diagnostics_to_write
 
