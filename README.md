@@ -72,6 +72,16 @@ in root folder and refactor_Bayesian_CNN, files start with config stores global 
 - https://sacred.readthedocs.io/en/latest/apidoc.html  decorator for reproducible experiment
 
 ### parallel
-https://github.com/horovod/horovod#pytorch
-https://skorch.readthedocs.io/en/stable/user/parallelism.html
+- https://github.com/horovod/horovod#pytorch
+- https://skorch.readthedocs.io/en/stable/user/parallelism.html
+
+#### to avoid no space on device problem when run parallel in pytorch
+- The problem was resolved by setting the following env variable in our Dockerfile: ENV JOBLIB_TEMP_FOLDER=/tmp.
+- https://stackoverflow.com/questions/44664900/oserror-errno-28-no-space-left-on-device-docker-but-i-have-space
+- docker run --shm-size=512m <image-name>
+- docker system prune -af
+- https://stackoverflow.com/questions/40115043/no-space-left-on-device-error-while-fitting-sklearn-model 
+- It seems, that your are running out of shared memory (/dev/shm when you run df -h). Try setting JOBLIB_TEMP_FOLDER environment variable to something different: e.g., to /tmp. 
+
+%env JOBLIB_TEMP_FOLDER=/tmp
 
