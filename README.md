@@ -30,6 +30,7 @@ https://medium.com/python-pandemonium/better-python-dependency-and-package-manag
 - change directory to root folder
 - make wasser_cv_emd : compute wasserstein distance for random cross validation
 - make wasser_vgmm_emd: compute wasserstein distance for vgmm-vae cross validation
+- make t-SNE: generate t-SNE plot for all data divided by vgmm-vae
 
 
 
