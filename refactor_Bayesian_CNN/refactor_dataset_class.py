@@ -118,7 +118,6 @@ class VGMMDataset(Dataset):
         testset_temp = torchvision.datasets.FashionMNIST(root='./data', train=False, download=False, transform=transform)
         cd = ConcatDataset((trainset_temp, testset_temp))
         self.subset = torch.utils.data.Subset(cd, self.all_inds)
-        breakpoint()
 
     def __len__(self):
         return self.subset.__len__()
