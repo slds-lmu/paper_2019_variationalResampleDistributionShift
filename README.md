@@ -1,6 +1,7 @@
 # Variational Gaussian Mixture model Cross Validation resampling of Bayesian and Frequest Neural Networks
-
-Bayesian CNN and Frequenst ones are adapted from the following project
+- VAE code is adapted from this project
+https://github.com/hwalsuklee/tensorflow-generative-model-collections.git
+- Bayesian CNN and Frequenst ones are adapted from the following project
 https://github.com/felix-laumann/Bayesian_CNN
 
 ## Dependencies
@@ -20,7 +21,8 @@ https://medium.com/python-pandemonium/better-python-dependency-and-package-manag
 - clone a new repository and go to the root directory
 - make build (30mins for the first run on fujitsu-celcius) # equivalent to python main.py --cluster True (train vae on all data and cluster)
 - make label (1 hours on fujitsu-celcius) # equivalent to python main.py --labeled True --cluster True (train vae according to label and cluster each label, then merge)
-
+- results for the two steps are stored in results/VAE_fashion-mnist_64_62 for example, where 62 is the latent space dimension
+of VAE (see configuration file named config.py), while data is stored in /data/FashionMNIST for example
 ### Evaluate Neural Network
 - change directory to refactor_Bayesian_CNN
 - make rand frand|vgmm|fvgmm_alexnet
@@ -30,7 +32,7 @@ https://medium.com/python-pandemonium/better-python-dependency-and-package-manag
 - change directory to root folder
 - make wasser_cv_emd : compute wasserstein distance for random cross validation
 - make wasser_vgmm_emd: compute wasserstein distance for vgmm-vae cross validation
-- make t-SNE: generate t-SNE plot for all data divided by vgmm-vae
+- make t-SNE: generate t-SNE plot for all data divided by vgmm-vae  (results could be stored in /results/VAE_fashion-mnist_64_62 for example)
 - make distribution_y: plot the histogram of class distribution
 
 ### Plotting
@@ -49,6 +51,7 @@ in root folder and refactor_Bayesian_CNN, files start with config stores global 
   --dataset <'mnist', 'fashion-mnist' (default)>
   --z_dim <1-inf,62(default)>
   --labeled <True,False (default)>
+
 
 ## Misc Resources
 
