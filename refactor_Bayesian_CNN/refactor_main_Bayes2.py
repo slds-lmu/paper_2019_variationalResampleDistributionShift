@@ -220,8 +220,8 @@ def prepare_data(args,train_eval_list,test_list,resize):
         outputs = 100
         inputs = 3
 
-    elif (args.dataset == 'mnist'):
-        print("| Preparing MNIST dataset...")
+    elif (args.dataset == 'fashion-mnist'):
+        print("| Preparing Fashion-MNIST dataset...")
         sys.stdout.write("| ")
         if args.debug ==True:
             train_eval_set = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
@@ -277,8 +277,8 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
         transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
     ])
 
-    if (args.dataset == 'mnist'):
-        print("| Preparing fashion MNIST dataset for random cv...")
+    if (args.dataset == 'fashion-mnist'):
+        print("| Preparing fashion Fashion-MNIST dataset for random cv...")
         sys.stdout.write("| ")
         if args.debug == True:
             train_eval_set = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
@@ -510,7 +510,8 @@ if __name__ == '__main__':
     parser.add_argument('--p_logvar_init', default=0, type=int, help='p_logvar_init')
     parser.add_argument('--q_logvar_init', default=-10, type=int, help='q_logvar_init')
     parser.add_argument('--weight_decay', default=0.0005, type=float, help='weight_decay')
-    parser.add_argument('--dataset', default='mnist', type=str, help='dataset = [mnist/cifar10/cifar100]')
+    parser.add_argument('--dataset', default='fashion-mnist', type=str,
+                        help='dataset = [mnist/cifar10/cifar100]')
     parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
     parser.add_argument('--cv_type', '-v', default = 'vgmm', type=str, help='cv_type=[rand/vgmm]')

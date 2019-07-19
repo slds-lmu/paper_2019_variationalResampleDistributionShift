@@ -241,8 +241,8 @@ def prepare_data(args,train_eval_list,test_list,resize):
         outputs = 100
         inputs = 3
 
-    elif (args.dataset == 'mnist'):
-        print("| Preparing MNIST dataset...")
+    elif (args.dataset == 'fashion-mnist'):
+        print("| Preparing Fashion-MNIST dataset...")
         sys.stdout.write("| ")
         # trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
         # testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
@@ -306,7 +306,7 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
     ])
 
     if (args.dataset == 'fashion-mnist'):
-        print("| Preparing fashion MNIST dataset for random cv...")
+        print("| Preparing fashion Fashion-MNIST dataset for random cv...")
         sys.stdout.write("| ")
         if args.debug == True:
             train_eval_set = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
