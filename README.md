@@ -33,7 +33,7 @@ of VAE (see configuration file named config.py), while data is stored in /data/F
 - make wasser_cv_emd : compute wasserstein distance for random cross validation
 - make wasser_vgmm_emd: compute wasserstein distance for vgmm-vae cross validation
 - make t-SNE: generate t-SNE plot for all data divided by vgmm-vae  (results could be stored in /results/VAE_fashion-mnist_64_62 for example)
-- make distribution_y: plot the histogram of class distribution
+- make distribution_y: plot the histogram of class distribution for each cluster, result is store in distribution_y.txt
 
 ### Plotting
 - go to  /plots and use the R code to generate the beautiful ggplot
