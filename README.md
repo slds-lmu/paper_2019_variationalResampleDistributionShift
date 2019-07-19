@@ -1,4 +1,21 @@
-# paper_2019_rfms_representation
+# Variational Gaussian Mixture model Cross Validation resampling of Bayesian and Frequest Neural Networks
+
+## Dependencies
+- pip install Cython
+- pip install pot
+- if you have conda, install pot with:  conda install -c conda-forge pot
+- pip install -r requirements.txt
+ 
+## How to run or reproduce experiment
+
+### Preparation
+- clone a new repository and go to the root directory
+- make build (30mins for the first run on fujitsu-celcius)
+- make label (1 hours on fujitsu-celcius)
+### Evaluate Neural Network
+- make rand frand|vgmm|fvgmm_alexnet
+
+
 ## Semi-supervised vae
 - https://pyro.ai/examples/ss-vae.html
 - https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wasserstein_distance.html
@@ -25,8 +42,6 @@
 -- python main.py --labeled True --cluster True :train model based on splited data according to label and cluster
 
   
-## dependency
-- pot: conda install -c conda-forge pot (no need for anaconda, one could first install Cython, then pot with pip)
 
 ## statistic
 - before you run this command, you should previously run main.py
