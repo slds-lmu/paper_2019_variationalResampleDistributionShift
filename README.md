@@ -18,8 +18,8 @@ https://medium.com/python-pandemonium/better-python-dependency-and-package-manag
 
 ### Preparation
 - clone a new repository and go to the root directory
-- make build (30mins for the first run on fujitsu-celcius)
-- make label (1 hours on fujitsu-celcius)
+- make build (30mins for the first run on fujitsu-celcius) # equivalent to python main.py --cluster True (train vae on all data and cluster)
+- make label (1 hours on fujitsu-celcius) # equivalent to python main.py --labeled True --cluster True (train vae according to label and cluster each label, then merge)
 
 ### Evaluate Neural Network
 - change directory to refactor_Bayesian_CNN
@@ -42,16 +42,12 @@ https://medium.com/python-pandemonium/better-python-dependency-and-package-manag
 ### Configuration
 in root folder and refactor_Bayesian_CNN, files start with config stores global configuration parameters.
 
-### arguments for main.py
+### arguments for main.py in project root
   python main.py
   --cluster <True,False (default)>
   --dataset <'mnist', 'fashion-mnist' (default)>
   --z_dim <1-inf,62(default)>
   --labeled <True,False (default)>
-
-### command for main.py
-- python main.py --cluster True : train model and cluster
-- python main.py --labeled True --cluster True :train model based on splited data according to label and cluster
 
 ## Misc Resources
 
