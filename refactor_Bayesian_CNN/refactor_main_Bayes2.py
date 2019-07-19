@@ -303,17 +303,12 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
             outputs = 10
             inputs = 1
         else:
-            train_eval_set = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                                root_dir="../" + config_parent.data_path,
-                                                                index=train_eval_list, transform=transform_train,
-                                                                cluster=False)
+            train_eval_set = refactor_dataset_class.CVDataset(indices=train_eval_list, transform=transform_train)
             # split train_eval_set into trainset and evalset
             train_size = int(0.8 * len(train_eval_set))
             eval_size = len(train_eval_set) - train_size
             trainset, evalset = torch.utils.data.random_split(train_eval_set, [train_size, eval_size])
-            testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                         root_dir="../" + config_parent.data_path, index=test_list,
-                                                         transform=transform_test, cluster=False)
+            testset = refactor_dataset_class.CVDataset(indices=test_list, transform=transform_test)
             outputs = 10
             inputs = 1
 
@@ -326,9 +321,10 @@ def cross_validation(num_labels,num_cluster,args):
     start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
     results = {}
     X, y = utils_parent.load_mnist('fashion-mnist')
-    kf = KFold(n_splits=num_cluster)
+    kf = KFold(n_splits=num_cluster, shuffle = True)
     i = 0
-    for train_eval_idx, test_idx in kf.split(X, y):
+    for train_eval_idx, test_idx in kf.split(X, y):  #iterator
+        #breakpoint()  iter = kf.split(X,y); for xx in iter: print(xx);  it seems that KFold.split works
         cv_idx = i
         i = i +1
         trainset, evalset, testset, inputs, outputs = prepare_data_for_normal_cv(args, train_eval_idx, test_idx, resize)
