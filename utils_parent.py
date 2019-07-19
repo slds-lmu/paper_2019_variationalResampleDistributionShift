@@ -19,7 +19,9 @@ import tensorflow.contrib.slim as slim
 from six.moves import urllib
 import config
 
-
+import torch
+from torch.utils.data.dataset import ConcatDataset
+import torchvision
 
 # Download MNIST data if there is no data in dir
 # borrowed from https://github.com/hwalsuklee/tensorflow-mnist-VAE.git
@@ -36,6 +38,12 @@ def maybe_download(SOURCE_URL,DATA_DIRECTORY,filename):
 
 
 def load_mnist(dataset_name):
+    trainset_temp = torchvision.datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform)
+    testset_temp = torchvision.datasets.FashionMNIST(root='./data', train=False, download=False, transform=transform)
+    cd = ConcatDataset((trainset_temp, testset_temp))
+    return cd.data, cd.targets
+
+def load_mnist_old(dataset_name):
     data_dir = os.path.join("./data", dataset_name)
 
     def extract_data(filename, num_data, head_size, data_size):
