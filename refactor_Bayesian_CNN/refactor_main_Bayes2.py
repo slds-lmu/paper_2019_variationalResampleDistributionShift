@@ -220,8 +220,8 @@ def prepare_data(args,train_eval_list,test_list,resize):
         outputs = 100
         inputs = 3
 
-    elif (args.dataset == 'mnist'):
-        print("| Preparing MNIST dataset...")
+    elif (args.dataset == 'fashion-mnist'):
+        print("| Preparing Fashion-MNIST dataset...")
         sys.stdout.write("| ")
         if args.debug ==True:
             train_eval_set = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
@@ -277,14 +277,11 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
         transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
     ])
 
-    if (args.dataset == 'mnist'):
-        print("| Preparing fashion MNIST dataset for random cv...")
+    if (args.dataset == 'fashion-mnist'):
+        print("| Preparing fashion Fashion-MNIST dataset for random cv...")
         sys.stdout.write("| ")
         if args.debug == True:
-            train_eval_set = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                                root_dir="../" + config_parent.data_path,
-                                                                index=train_eval_list, transform=transform_train,
-                                                                cluster=False)
+            train_eval_set = refactor_dataset_class.CVDataset(indices=train_eval_list, transform=transform_train)
             # only get subset of original dataset
             small_size = int(0.01*len(train_eval_set))
             drop_size = len(train_eval_set)-small_size
@@ -294,26 +291,23 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
             train_size = int(0.8 * len(train_eval_set))
             eval_size = len(train_eval_set) - train_size
             trainset, evalset = torch.utils.data.random_split(train_eval_set, [train_size, eval_size])
-            testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                         root_dir="../" + config_parent.data_path, index=test_list,
-                                                         transform=transform_test, cluster=False)
+            #testset = refactor_dataset_class.CVDataset(pattern=config_parent.global_index_name,
+            #                                             root_dir="../" + config_parent.data_path, index=test_list,
+            #                                             transform=transform_test, cluster=False)
+
+            testset = refactor_dataset_class.CVDataset(indices=test_list, transform=transform_test)
             small_size = int(0.01 * len(testset))
             drop_size = len(testset) - small_size
             testset, _ = torch.utils.data.random_split(testset, [small_size, drop_size])
             outputs = 10
             inputs = 1
         else:
-            train_eval_set = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                                root_dir="../" + config_parent.data_path,
-                                                                index=train_eval_list, transform=transform_train,
-                                                                cluster=False)
+            train_eval_set = refactor_dataset_class.CVDataset(indices=train_eval_list, transform=transform_train)
             # split train_eval_set into trainset and evalset
             train_size = int(0.8 * len(train_eval_set))
             eval_size = len(train_eval_set) - train_size
             trainset, evalset = torch.utils.data.random_split(train_eval_set, [train_size, eval_size])
-            testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                         root_dir="../" + config_parent.data_path, index=test_list,
-                                                         transform=transform_test, cluster=False)
+            testset = refactor_dataset_class.CVDataset(indices=test_list, transform=transform_test)
             outputs = 10
             inputs = 1
 
@@ -326,9 +320,10 @@ def cross_validation(num_labels,num_cluster,args):
     start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
     results = {}
     X, y = utils_parent.load_mnist('fashion-mnist')
-    kf = KFold(n_splits=num_cluster)
+    kf = KFold(n_splits=num_cluster, shuffle = True)
     i = 0
-    for train_eval_idx, test_idx in kf.split(X, y):
+    for train_eval_idx, test_idx in kf.split(X, y):  #iterator
+        #breakpoint()  iter = kf.split(X,y); for xx in iter: print(xx);  it seems that KFold.split works
         cv_idx = i
         i = i +1
         trainset, evalset, testset, inputs, outputs = prepare_data_for_normal_cv(args, train_eval_idx, test_idx, resize)
@@ -510,7 +505,8 @@ if __name__ == '__main__':
     parser.add_argument('--p_logvar_init', default=0, type=int, help='p_logvar_init')
     parser.add_argument('--q_logvar_init', default=-10, type=int, help='q_logvar_init')
     parser.add_argument('--weight_decay', default=0.0005, type=float, help='weight_decay')
-    parser.add_argument('--dataset', default='mnist', type=str, help='dataset = [mnist/cifar10/cifar100]')
+    parser.add_argument('--dataset', default='fashion-mnist', type=str,
+                        help='dataset = [mnist/cifar10/cifar100]')
     parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
     parser.add_argument('--cv_type', '-v', default = 'vgmm', type=str, help='cv_type=[rand/vgmm]')

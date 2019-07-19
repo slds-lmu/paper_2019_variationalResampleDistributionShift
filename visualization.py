@@ -11,6 +11,7 @@ import utils_parent as utils_parent
 import json
 # import matplotlib as plt
 import matplotlib.pyplot as plt
+plt.switch_backend('agg')
 # from utils import *
 import config
 # import data_generator

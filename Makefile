@@ -39,7 +39,7 @@ kde:
 
 # distribution of y:
 distribution_y:
-    python statistic.py -- method distribution_y
+	python statistic.py --method distribution_y
 test_wasser_vgmm:
 	python statistic.py --method wd_vgmm --debug True
 
@@ -54,4 +54,4 @@ test_kde:
 
 # t-SNE plot
 t-SNE:
-    python visualization.py
+	python visualization.py
