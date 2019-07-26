@@ -17,7 +17,8 @@ class VGMM(object):
     def cluster(self,X_train):
 
         dpgmm = mixture.BayesianGaussianMixture(n_components=5,
-                                                covariance_type='full').fit(X_train)
+                                                covariance_type='full',
+                                                max_iter=400).fit(X_train)
         while dpgmm.converged_  ==False:
 
             max_iter = dpgmm.n_iter_ *2
