@@ -37,7 +37,7 @@ def maybe_download(SOURCE_URL,DATA_DIRECTORY,filename):
     return filepath
 
 
-def load_mnist(dataset_name):
+def load_mnist(dataset_name, shuffle=True, seed=547):
     trainset_temp = torchvision.datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform)
     trX = trainset_temp.data
     trX = trX.reshape((60000, 28, 28, 1))
@@ -52,11 +52,11 @@ def load_mnist(dataset_name):
     y = np.concatenate((trY, teY), axis=0).astype(np.int)
     yy = np.zeros((len(y), 10))
     yy[np.arange(len(y)), y] = 1
-    seed = 547
-    np.random.seed(seed)
-    np.random.shuffle(X)
-    np.random.seed(seed)
-    np.random.shuffle(yy)
+    if shuffle:
+        np.random.seed(seed)
+        np.random.shuffle(X)
+        np.random.seed(seed)
+        np.random.shuffle(yy)
     return X/255., yy
 
 

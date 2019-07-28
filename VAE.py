@@ -24,6 +24,7 @@ class VAE(object):
         self.batch_size = batch_size
         self.label = label
         self.config_manager = config_manager
+        self.num_labels = num_labels
 
         if dataset_name == 'mnist' or dataset_name == 'fashion-mnist':
             # parameters
@@ -306,6 +307,18 @@ class VAE(object):
         # sample from Gaussian distribution
         # get batch data
         # return r are only (69952,62) from original dataset which are 70000, 50 datapoints
+        #
+        # Reload the data without shuffling before mapping it to z space
+        if self.label != -1:
+            X, y = utils_parent.load_mnist(self.dataset_name, shuffle=False)
+            d = split_data_according_to_label(X, y, self.num_labels)
+            self.data_X = X[d[str(self.label)]]
+            # y represent the index with label i
+            self.data_y = d[str(self.label)]
+        else:
+            self.data_X, self.data_y = utils_parent.load_mnist(self.dataset_name,
+                                                               shuffle=False)
+
         batch_images = self.data_X[0:self.batch_size]
         r = self.sess.run(self.mu, feed_dict={self.inputs: batch_images})
         for idx in range(1, self.num_batches):     # from the beginning to the end of the dataset, each time do batchsize, conform to the net tensor definiation
