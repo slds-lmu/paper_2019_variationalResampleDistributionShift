@@ -312,17 +312,17 @@ class VAE(object):
         if self.label != -1:
             X, y = utils_parent.load_mnist(self.dataset_name, shuffle=False)
             d = split_data_according_to_label(X, y, self.num_labels)
-            self.data_X = X[d[str(self.label)]]
+            noshuffle_data_X = X[d[str(self.label)]]
             # y represent the index with label i
-            self.data_y = d[str(self.label)]
+            noshuffle_data_y = d[str(self.label)]
         else:
-            self.data_X, self.data_y = utils_parent.load_mnist(self.dataset_name,
+            noshuffle_data_X, noshuffle_data_y = utils_parent.load_mnist(self.dataset_name,
                                                                shuffle=False)
 
-        batch_images = self.data_X[0:self.batch_size]
+        batch_images = noshuffle_data_X[0:self.batch_size]
         r = self.sess.run(self.mu, feed_dict={self.inputs: batch_images})
         for idx in range(1, self.num_batches):     # from the beginning to the end of the dataset, each time do batchsize, conform to the net tensor definiation
-            batch_images = self.data_X[idx * self.batch_size:(idx + 1) * self.batch_size]
+            batch_images = noshuffle_data_X[idx * self.batch_size:(idx + 1) * self.batch_size]
             z = self.sess.run(self.mu, feed_dict={self.inputs: batch_images})
             r = tf.concat([r, z], 0)
-        return r
+        return r, noshuffle_data_y

@@ -5,10 +5,13 @@
 
 bdebugvgmm:
 	python refactor_main_Bayes2.py --cv_type "vgmm" --debug True --net_type "3conv3fc"
+
 bdebugrand:
 	python refactor_main_Bayes2.py --cv_type "rand" --debug True --net_type "3conv3fc"
+
 bvgmm:
 	python refactor_main_Bayes2.py --cv_type "vgmm" --net_type "3conv3fc" # default debug False
+
 brand:
 	python refactor_main_Bayes2.py --cv_type "rand" --net_type "3conv3fc" # default --debug False
 
@@ -82,7 +85,10 @@ fvgmm_lenet:  # frequenst
 	python refactor_main_Frequentist.py --cv_type "vgmm" --net_type "lenet"  # default --debug False
 
 
-# original train-test split
+#################################
+### original train-test split ###
+#################################
+
 fixed-frequenst-alex:
 	python main_Frequentist.py --dataset fashion-mnist --net_type "alexnet"
 
@@ -94,3 +100,9 @@ fixed-frequenst-lenet:
 
 fixed-bayesian-lenet:
 	python main_Bayes.py --dataset fashion-mnist --net_type "lenet"
+
+fixed-frequenst-3conv3fc:
+	python main_Frequentist.py --dataset fashion-mnist --net_type "3conv3fc"
+
+fixed-bayesian-3conv3fc:
+	python main_Bayes.py --dataset fashion-mnist --net_type "3conv3fc"

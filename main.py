@@ -109,13 +109,13 @@ def main():
 
                     # save the transformed latent space into result dir
                     # filepath = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
-                    z = vae.transform()
+                    z, noshuffle_data_y = vae.transform()
                     z = z.eval()
                     filepath = config_m.get_data_path_for_each_label(i) + config_m.z_name
                     if not tf.gfile.Exists(filepath):
                         np.save(filepath, z)
                         # filepath = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
-                        np.save(config_m.get_data_path_for_each_label(i)+ config_m.y_name, vae.data_y)
+                        np.save(config_m.get_data_path_for_each_label(i)+ config_m.y_name, noshuffle_data_y)
 
 
 
@@ -170,10 +170,10 @@ def main():
                 # filepath = config_m.get_data_path_for_each_label(-1)+"/z.npy"
                 filepath = config_m.get_data_path_for_each_label(-1)+ config_m.z_name
                 if not tf.gfile.Exists(filepath):
-                    z = vae.transform()
+                    z, noshuffle_data_y = vae.transform()
                     z = z.eval()
                     np.save(filepath, z)
-                    np.save(config_m.get_data_path_for_each_label(-1)+ config_m.y_name, vae.data_y)
+                    np.save(config_m.get_data_path_for_each_label(-1)+ config_m.y_name, noshuffle_data_y)
 
 
                 if args.cluster:
