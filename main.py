@@ -6,6 +6,7 @@ import tensorflow as tf
 
 ## from this project
 import utils_parent as utils_parent
+import data_generator as data_generator
 from VAE import VAE
 from VGMM import VGMM
 from ACGAN import ACGAN
@@ -183,7 +184,7 @@ def main():
                     # filepath = config_m.get_data_path_for_each_label(-1) + "/cluster_dict.json"
                     filepath = config_m.get_data_path_for_each_label(-1) + config_m.cluster_index_json_name
                     if not tf.gfile.Exists(filepath):
-                        cluster_for_each_label(config_m.get_data_path_for_each_label(-1),num_labels=config_m.num_labels,num_clusters=config_m.num_clusters)
+                        data_generator.cluster_for_each_label(config_m.get_data_path_for_each_label(-1),num_labels=config_m.num_labels,num_clusters=config_m.num_clusters)
                 # result_path = args.result_dir + "/" + vae.super_model_dir()
                 # write_path_to_config(config_m.get_data_path())
                 config_m.write_config_file()

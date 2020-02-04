@@ -1,15 +1,14 @@
-# Variational Gaussian Mixture model Cross Validation resampling of Bayesian and Frequest Neural Networks
+# Variational Gaussian Mixture Model Cross Validation Resampling of Bayesian and Frequest Neural Networks
 - VAE code is adapted from this project
 https://github.com/hwalsuklee/tensorflow-generative-model-collections.git
-- Bayesian CNN and Frequenst ones are adapted from the following project
+- Bayesian CNN and Frequenst ones are adapted from the following projects
 https://github.com/felix-laumann/Bayesian_CNN
 https://github.com/kumar-shridhar/PyTorch-BayesianCNN
 
 ## Dependencies
+- pip install -r requirements_cpu.txt
 - pip install Cython
-- pip install pot
-- if you have conda, install pot with:  conda install -c conda-forge pot
-- pip install -r requirements.txt
+- pip install pot, if you have conda, install pot with:  conda install -c conda-forge pot
 
 ### Tips on generating dependencies file
 pip freeze
@@ -24,11 +23,12 @@ https://medium.com/python-pandemonium/better-python-dependency-and-package-manag
 - make label (1 hours on fujitsu-celcius) # equivalent to python main.py --labeled True --cluster True (train vae according to label and cluster each label, then merge), results could be stored in results/VAE_fashion-mnist_64_62/L0 unutil results/VAE_fashion-mnist_64_62/L9 for example
 - results for the two steps are stored in results/VAE_fashion-mnist_64_62 for example, where 62 is the latent space dimension
 of VAE (see configuration file named config.py), while data is stored in /data/FashionMNIST for example
-### Evaluate Neural Network
+
+### Evaluate different Neural Network Prediction Performance on the artificial sub-domains
 - change directory to refactor_Bayesian_CNN
 - make rand frand|vgmm|fvgmm_alexnet
 
-### statistic
+### Statistics and Visualization
 - before you run this command, you should previously run make build and make label
 - change directory to root folder
 - make wasser_cv_emd : compute wasserstein distance for random cross validation
@@ -36,15 +36,25 @@ of VAE (see configuration file named config.py), while data is stored in /data/F
 - make t-SNE: generate t-SNE plot for all data divided by vgmm-vae  (results could be stored in /results/VAE_fashion-mnist_64_62 for example)
 - make distribution_y: plot the histogram of class distribution for each cluster, result is store in distribution_y.txt
 
-### Plotting
+### Reproduce Plotting in the paper
 - go to  /plots and use the R code to generate the beautiful ggplot
 
 
 
-## Guide to the code
+## Guide to the code and folder structure
 
 ### Configuration
 in root folder and refactor_Bayesian_CNN, files start with config stores global configuration parameters.
+
+### Intermediate files
+- in folder results, for example, one possible folder name can be VAE-fashion-mnist-64-10 where 64 is
+the batch size and 10 is the length of the latent dimension, inside which L0 to L9 stores the
+results for each class label and L-1(not label-wise) stores the global embedding for all classes instances
+- in folder checkpoint/VAE-fashion-mnist-64-10/L-1, VAE will store results for global embeding for all classes, delete this folder if you want to rerun experiment
+- config.py is a volatile file, which is written by configure manager's write_config_file() method
+  in the main resample process (in main.py) after calculation is finished, the volatile file config.py is further read by
+  route of statistics and neural network classification
+- utils_parent.py is used in neural network classificaiton for getting data and misc things
 
 ### arguments for main.py in project root
   python main.py
