@@ -3,6 +3,7 @@
 https://github.com/hwalsuklee/tensorflow-generative-model-collections.git
 - Bayesian CNN and Frequenst ones are adapted from the following project
 https://github.com/felix-laumann/Bayesian_CNN
+https://github.com/kumar-shridhar/PyTorch-BayesianCNN
 
 ## Dependencies
 - pip install Cython
@@ -15,7 +16,7 @@ pip freeze
 https://medium.com/python-pandemonium/better-python-dependency-and-package-management-b5d8ea29dff1
 
  
-## How to run or reproduce experiment
+## How to run or reproduce the experiment
 
 ### Preparation
 - clone a new repository and go to the root directory
@@ -71,7 +72,7 @@ in root folder and refactor_Bayesian_CNN, files start with config stores global 
 - https://snakemake.readthedocs.io/en/stable/
 - https://sacred.readthedocs.io/en/latest/apidoc.html  decorator for reproducible experiment
 
-### parallel
+### parallel job in python
 - https://github.com/horovod/horovod#pytorch
 - https://skorch.readthedocs.io/en/stable/user/parallelism.html
 - https://towardsdatascience.com/speed-up-your-algorithms-part-1-pytorch-56d8a4ae7051  **share_memory**
