@@ -1,19 +1,21 @@
-import os
-
-## VAE Variants
-from VAE import VAE
-import utils_parent as utils_parent
-import tensorflow as tf
+#import os
+## standard
 import argparse
+import numpy as np
+import tensorflow as tf
+
+## from this project
+import utils_parent as utils_parent
+from VAE import VAE
 from VGMM import VGMM
 from ACGAN import ACGAN
-import numpy as np
 from data_generator import *
 from visualization import *
 from config_manager import config_manager
+
 """parsing and configuration"""
 def parse_args():
-    desc = "Tensorflow implementation of GAN collections"
+    desc = "Tensorflow implementation of embedding"
     parser = argparse.ArgumentParser(description=desc)
 
     parser.add_argument('--dataset', type=str, default='fashion-mnist', choices=['mnist', 'fashion-mnist', 'celebA'],
@@ -70,9 +72,9 @@ def main():
       exit()
     config_m = config_manager(args)
 
-    if args.model_name == "VAE":
+    if args.model_name == "VAE":   # choose between VAE or ACGAN for the latent mapping
         if args.labeled:
-            # train model on data splited according to label
+            # train model on data splited according to label, alternative is to train VAE on all classes to get a common latent representation for visualization and calculation of wasserstein distance
             # declare global z and index dictionary to store the result of resampling
 
             # declare instance for VAE for each label
@@ -137,7 +139,7 @@ def main():
             T_SNE_Plot_with_datadict(data_dict=data_dict,num_clusters=config_m.num_clusters,result_path=config_m.get_data_path())
             # write_path_to_config(config_m.get_data_path())
             config_m.write_config_file()
-        else:
+        else:   # without label, built up a common latent representation of all instances from all classes
             # declare instance for VAE
             with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
                 vae = None

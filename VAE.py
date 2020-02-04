@@ -11,6 +11,8 @@ import utils_parent as utils_parent
 import prior_factory as prior
 from data_generator import split_data_according_to_label
 from config_manager import config_manager
+
+epsilon4stddev = 1e-6
 class VAE(object):
     model_name = "VAE"     # name for checkpoint
 
@@ -81,7 +83,7 @@ class VAE(object):
             mean = gaussian_params[:, :self.z_dim]
             # The standard deviation must be positive. Parametrize with a softplus and
             # add a small epsilon for numerical stability
-            stddev = 1e-6 + tf.nn.softplus(gaussian_params[:, self.z_dim:])
+            stddev = epsilon4stddev + tf.nn.softplus(gaussian_params[:, self.z_dim:])
 
         return mean, stddev
 
