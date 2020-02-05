@@ -4,15 +4,15 @@ import os
 import time
 import tensorflow as tf
 import numpy as np
-
 from ops import *
-# from utils import *
+
+# from this project
 import utils_parent as utils_parent
 import prior_factory as prior
 from data_generator import split_data_according_to_label
 from config_manager import config_manager
-
 epsilon4stddev = 1e-6
+
 class VAE(object):
     model_name = "VAE"     # name for checkpoint
 
@@ -29,6 +29,7 @@ class VAE(object):
         self.num_labels = num_labels
 
         if dataset_name == 'mnist' or dataset_name == 'fashion-mnist':
+            self.dataset_name = "FashionMNIST"
             # parameters
             self.input_height = 28
             self.input_width = 28
@@ -48,7 +49,7 @@ class VAE(object):
             # load mnist
             # if flag labeled is true, train data is the subset of data(Mnist) which has same label
             if label != -1:
-                X,y=utils_parent.load_mnist(self.dataset_name)
+                X,y=utils_parent.load_torchvision_data2np(self.dataset_name,)
                 # dict[i] represent data index with label i
                 dict = split_data_according_to_label(X,y,num_labels)
                 # extract data with label i from global training data
@@ -57,7 +58,7 @@ class VAE(object):
                 self.data_y = dict[str(label)]
                 # self.data_y = y[dict[str(label)]]
             else:
-                self.data_X, self.data_y = utils_parent.load_mnist(self.dataset_name)
+                self.data_X, self.data_y = utils_parent.load_torchvision_data2np(self.dataset_name)
 
             # get number of batches for a single epoch
             self.num_batches = len(self.data_X) // self.batch_size
@@ -111,9 +112,11 @@ class VAE(object):
         """ Graph Input """
         # images
         self.inputs = tf.placeholder(tf.float32, [bs] + image_dims, name='real_images')
+        # [bs, height, width, channel]
 
         # noises
         self.z = tf.placeholder(tf.float32, [bs, self.z_dim], name='z')
+        # [bs, z_dim]
 
         """ Loss Function """
         # encoding

@@ -23,18 +23,34 @@ import torch
 from torch.utils.data.dataset import ConcatDataset
 import torchvision
 
-# Download MNIST data if there is no data in dir
-# borrowed from https://github.com/hwalsuklee/tensorflow-mnist-VAE.git
-def maybe_download(SOURCE_URL,DATA_DIRECTORY,filename):
-    if not tf.gfile.Exists(DATA_DIRECTORY):
-        tf.gfile.MakeDirs(DATA_DIRECTORY)
-    filepath = os.path.join(DATA_DIRECTORY, filename)
-    if not tf.gfile.Exists(filepath):
-        filepath, _ = urllib.request.urlretrieve(SOURCE_URL + filename, filepath)
-        with tf.gfile.GFile(filepath) as f:
-            size = f.size()
-        print('Successfully downloaded', filename, size, 'bytes.')
-    return filepath
+def load_torchvision_data2np(dataset_name = "CIFAR10", num_classes = 10, shuffle=True, seed=547):
+    tv_method = getattr(torchvision.datasets, dataset_name)
+    # train = True
+    # function transform is defined in this module as a hook to torchvision
+    trainset_temp = tv_method(root='./data', train=True, download=True, transform=transform)
+    trX = trainset_temp.data
+    if(trX.shape[-1] != 1): trX = trX.unsqueeze(-1)
+    trY = trainset_temp.targets
+    # train = False
+    testset_temp = tv_method(root='./data', train=False, download=False, transform=transform)
+    teX = testset_temp.data
+    if(teX.shape[-1] != 1): teX = teX.unsqueeze(-1)
+    teY = testset_temp.targets
+    # torch
+    cd = ConcatDataset((trainset_temp, testset_temp))
+    #return cd.data, cd.targets
+    X = np.concatenate((trX, teX), axis=0)
+    y = np.concatenate((trY, teY), axis=0).astype(np.int)
+    yy = np.zeros((len(y), num_classes))
+    yy[np.arange(len(y)), y] = 1
+    if shuffle:
+        np.random.seed(seed)
+        np.random.shuffle(X)
+        np.random.seed(seed)
+        np.random.shuffle(yy)
+    return X/255., yy
+
+
 
 
 def load_mnist(dataset_name, shuffle=True, seed=547):
@@ -60,6 +76,20 @@ def load_mnist(dataset_name, shuffle=True, seed=547):
     return X/255., yy
 
 
+# Download MNIST data if there is no data in dir
+# borrowed from https://github.com/hwalsuklee/tensorflow-mnist-VAE.git
+def maybe_download(SOURCE_URL,DATA_DIRECTORY,filename):
+    if not tf.gfile.Exists(DATA_DIRECTORY):
+        tf.gfile.MakeDirs(DATA_DIRECTORY)
+    filepath = os.path.join(DATA_DIRECTORY, filename)
+    if not tf.gfile.Exists(filepath):
+        filepath, _ = urllib.request.urlretrieve(SOURCE_URL + filename, filepath)
+        with tf.gfile.GFile(filepath) as f:
+            size = f.size()
+        print('Successfully downloaded', filename, size, 'bytes.')
+    return filepath
+
+# Mnist
 def load_mnist_old(dataset_name):
     data_dir = os.path.join("./data", dataset_name)
 
