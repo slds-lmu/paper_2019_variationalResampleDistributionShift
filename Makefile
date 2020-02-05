@@ -5,21 +5,22 @@ build:
 
 label:
 	 python main.py --labeled True --cluster True     # use different vae to each label, then cluster according to each label
+
 convnet: 
 	python convnet.py --epoch 10    # compare of cv and rfms
 
+
 # Test on a laptop, use all available options (cluster for example) to check if every function works
 test:  # only run 1 epoch to see if the code works 
-	python main.py --epoch 1 --z_dim 10 --cluster True --num_clusters 3
+	python main.py --dataset "fashion-mnist" --epoch 1 --z_dim 10 --cluster True --num_clusters 3
 test_label:
-	python main.py --labeled True --epoch 1 --z_dim 10 --cluster True --num_clusters 3
+	python main.py --dataset "fashion-mnist" --labeled True --epoch 1 --z_dim 10 --cluster True --num_clusters 3
 test_convnet:
 	python convnet.py
 
-
+# Statistic
 statisic: ${INPUT4STAT}  # depends on build(make coordinate for each instance) and label(assign cluster to each point)
 	 python statistic.py
-
 
 #compute wasserstein distance of vgmm cluster
 wasser_vgmm:

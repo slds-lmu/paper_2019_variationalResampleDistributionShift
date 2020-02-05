@@ -1,5 +1,4 @@
 import numpy as np
-# from utils import *
 import utils_parent as utils_parent
 from VGMM import VGMM
 from visualization import T_SNE_Plot
@@ -27,47 +26,40 @@ def concatenate_index_array(d,num_labels,num_clusters):
 
     return pos # pos[j]: represent cluster j with multi-label
 
-
-
-
-def concatenate_data_from_dir(data_path,num_labels,num_clusters):
-    pos ={}
+def concatenate_data_from_dir(data_path, num_labels, num_clusters):
+    pos = {}
     # pos[j]:cluster j
     global_index = {}
 
     for i in range(num_labels):
         path = data_path + "/L" + str(i)
-        # z = np.load(path + "/z.npy")
-        z = np.load(path + config.z_name)
+        z = np.load(path + config.z_name)  # z = np.load(path + "/z.npy")
         # y is the index dictionary with respect to global data
-        # y = np.load(path + "/y.npy")
-        y = np.load(path + config.y_name)
+        y = np.load(path + config.y_name)  # y = np.load(path + "/y.npy")
         # cluster_predict = np.load(path + "/cluster_predict.npy")
         cluster_predict = np.load(path + config.cluster_predict_npy_name)
         if i == 0:
             for j in range(num_clusters):
                 pos[str(j)] = z[np.where(cluster_predict == j)]
-                global_index[str(j)] = y[np.where(cluster_predict==j)]
+                global_index[str(j)] = y[np.where(cluster_predict == j)]
         else:
             for j in range(num_clusters):
                 pos[str(j)] = np.concatenate((pos[str(j)],z[np.where(cluster_predict == j)]))
                 global_index[str(j)] = np.concatenate((global_index[str(j)],y[np.where(cluster_predict==j)]))
-    return pos,global_index
+    return pos, global_index
 
 
-def generate_metadata(m,dict,num_clusters):
+def generate_metadata(m, mdict, num_clusters):
     for i in range(num_clusters):
-        d = dict[str(i)]
+        d = mdict[str(i)]
         m[d] = i
     return m
 
 
 def cluster_for_each_label(data_path,num_labels,num_clusters):
-    # z = np.load(data_path+"/z.npy")
-    z = np.load(data_path + config.z_name)
+    z = np.load(data_path + config.z_name) # z = np.load(data_path+"/z.npy")
     # global ground truth
-    # y = np.load(data_path+"/y.npy")[:z.shape[0]]
-    y = np.load(data_path + config.y_name)[:z.shape[0]]
+    y = np.load(data_path + config.y_name)[:z.shape[0]]  # y = np.load(data_path+"/y.npy")[:z.shape[0]]
     d_label = split_data_according_to_label(z,y,num_labels)
     # cluster data of each label
     vgmm = VGMM()
@@ -92,30 +84,26 @@ def cluster_for_each_label(data_path,num_labels,num_clusters):
     m = np.zeros(y.shape)
     m = generate_metadata(m,pos_index_cluster,num_clusters=num_clusters)
     # vgmm.save_predict(data_path+"/cluster_predict.tsv",m)
-    vgmm.save_predict(data_path + config.cluster_predict_tsv_name,m)
+    vgmm.save_predict(data_path + config.cluster_predict_tsv_name, m)
     print(z.shape)
     T_SNE_Plot(z,pos_index_cluster,num_clusters,data_path)
 
-def global_cluster(result_path,z):
+def global_cluster(result_path, z):
     # cluster latent space using VGMM
     print("global_cluster-vgmm")
     vgmm = VGMM()
-    dict, X_prediction_vgmm = vgmm.cluster(z)
-
+    mdict, X_prediction_vgmm = vgmm.cluster(z)
     # save the result of clustering
-    # path = result_path + "/" + "cluster_dict.json"
-    path = result_path + config.cluster_index_json_name
-    vgmm.save_dict(path, dict)
-    # path = result_path + "/" + "cluster_predict.tsv"
-    path = result_path + config.cluster_predict_tsv_name
+    path = result_path + config.cluster_index_json_name  # path = result_path + "/" + "cluster_dict.json"
+    vgmm.save_dict(path, mdict)
+    path = result_path + config.cluster_predict_tsv_name # path = result_path + "/" + "cluster_predict.tsv"
     vgmm.save_predict(path, X_prediction_vgmm)
-    # path = result_path + "/" + "cluster_predict.npy"
-    path = result_path + config.cluster_predict_npy_name
+    path = result_path + config.cluster_predict_npy_name # path = result_path + "/" + "cluster_predict.npy"
     np.save(path,X_prediction_vgmm)
 
 
-def main():
-    print("data_generator")
+#def main():
+    #print("data_generator")
     # load embedded data
     # data_path = "/Users/wangyu/Documents/LMU/Fashion_mnist/mycode/results/VAE_fashion-mnist_64_10"
     # # global transformed latent variable
@@ -150,6 +138,6 @@ def main():
 
     # T_SNE plot the result of clustering
     # T_SNE_Plot(z,pos_index_cluster)
-if __name__ == '__main__':
-    main()
+#if __name__ == '__main__':
+#    main()
 

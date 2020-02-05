@@ -1,4 +1,3 @@
-#import os
 ## standard
 import argparse
 import numpy as np
@@ -32,12 +31,12 @@ def parse_args():
                         help='Directory name to save training logs')
 
     # arguments specified for model
-    parser.add_argument('--labeled',type=bool,default=False,help="whether train on specific labeled data")
-    parser.add_argument('--cluster',type=bool,default=False,help="whether cluster using latent space")
-    parser.add_argument('--num_labels',type=int,default=10,help="number of labels")
-    parser.add_argument('--model_name',type=str,default='VAE',help="the name of model to be trained")
-    parser.add_argument('--plot',type=bool,default=True,help="visualise the result of cluster")
-    parser.add_argument('--num_clusters',type=int,default=5,help="number of clusters")
+    parser.add_argument('--labeled', type=bool,default=False,help="whether train on specific labeled data")
+    parser.add_argument('--cluster', type=bool,default=False,help="whether cluster using latent space")
+    parser.add_argument('--num_labels', type=int, default=10, help="number of labels")
+    parser.add_argument('--model_name', type=str, default='VAE', help="the name of model to be trained")
+    parser.add_argument('--plot', type=bool, default=True, help="visualise the result of cluster")
+    parser.add_argument('--num_clusters', type=int, default=5, help="number of clusters")
     return check_args(parser.parse_args())
 
 """checking arguments"""
@@ -79,7 +78,9 @@ def main():
             # declare global z and index dictionary to store the result of resampling
 
             # declare instance for VAE for each label
-            for i in range(args.num_labels):
+            i = -1
+            while i < (args.num_labels):
+                i = i+1
                 # reset the graph
                 tf.reset_default_graph()
                 # open session
@@ -92,8 +93,8 @@ def main():
                               dataset_name=args.dataset,
                               checkpoint_dir=args.checkpoint_dir,
                               result_dir=args.result_dir,
-                              log_dir=args.log_dir,
-                              label=i,
+                              log_dir=args.log_dir, 
+                              label=i,  # the difference with respect to non-label sensitive
                               config_manager=config_m
                               )
                     # build graph
@@ -110,11 +111,13 @@ def main():
                     vae.visualize_results(args.epoch - 1)
                     print(" [*] Testing finished!")
 
+                    ####
                     # save the transformed latent space into result dir
-                    # filepath = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
                     z, noshuffle_data_y = vae.transform()
                     z = z.eval()
-                    filepath = config_m.get_data_path_for_each_label(i) + config_m.z_name
+                    ####
+
+                    filepath = config_m.get_data_path_for_each_label(i) + config_m.z_name # filepath = args.result_dir + "/" + vae.model_dir + "/" + "z.npy"
                     if not tf.gfile.Exists(filepath):
                         np.save(filepath, z)
                         # filepath = args.result_dir + "/" + vae.model_dir + "/" + "y.npy"
@@ -124,20 +127,15 @@ def main():
 
 
                     if args.cluster:
-                        # cluster latent space using VGMM
-                        # result_path = args.result_dir + "/" + vae.model_dir
-                        # cluster the transformed latent space, and store the dictionary and prediction into result_path
-
-                        global_cluster(config_m.get_data_path_for_each_label(i),z)
-
-            print(" [*] Training and Testing for all label finished!")
+                        # cluster latent space using VGMM: cluster the transformed latent space, and store the dictionary and prediction into result_path
+                        global_cluster(config_m.get_data_path_for_each_label(i), z)
+            # After for loop is finished
+            print(" [*] Embeding Learning Training and Testing for all label finished!")
             # concatenate clustered data into one dict after clustering
-            # result_path = args.result_dir + "/" + vae.super_model_dir()
-            data_dict,global_index = concatenate_data_from_dir(data_path=config_m.get_data_path(),num_labels=config_m.num_labels,num_clusters=config_m.num_clusters)
+            data_dict, global_index = concatenate_data_from_dir(data_path=config_m.get_data_path(), num_labels=config_m.num_labels, num_clusters=config_m.num_clusters)
             # save global index for cluster data
-            # np.save(config_m.get_data_path()+"/global_index_cluster_data.npy",global_index,allow_pickle=True)
             np.save(config_m.get_data_path()+ config_m.global_index_name, global_index,allow_pickle=True)
-            T_SNE_Plot_with_datadict(data_dict=data_dict,num_clusters=config_m.num_clusters,result_path=config_m.get_data_path())
+            T_SNE_Plot_with_datadict(data_dict=data_dict,num_clusters=config_m.num_clusters, result_path=config_m.get_data_path())
             # write_path_to_config(config_m.get_data_path())
             config_m.write_config_file()
         else:   # without label, built up a common latent representation of all instances from all classes
@@ -180,15 +178,15 @@ def main():
 
 
                 if args.cluster:
-                    # result_path = args.result_dir + "/" + vae.model_dir
-                    # filepath = config_m.get_data_path_for_each_label(-1) + "/cluster_dict.json"
-                    filepath = config_m.get_data_path_for_each_label(-1) + config_m.cluster_index_json_name
+                    filepath = config_m.get_data_path_for_each_label(-1) + config_m.cluster_index_json_name  # "/cluster_dict.json"
                     if not tf.gfile.Exists(filepath):
                         data_generator.cluster_for_each_label(config_m.get_data_path_for_each_label(-1),num_labels=config_m.num_labels,num_clusters=config_m.num_clusters)
+                # result_path = args.result_dir + "/" + vae.model_dir
                 # result_path = args.result_dir + "/" + vae.super_model_dir()
                 # write_path_to_config(config_m.get_data_path())
                 config_m.write_config_file()
-    elif args.model_name =="ACGAN":
+    # not yet used
+    elif args.model_name == "ACGAN":
         # declare instance for ACGANG
         with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
             acgan = None
