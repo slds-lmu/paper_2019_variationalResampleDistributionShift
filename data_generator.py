@@ -98,7 +98,7 @@ def cluster_for_each_label(data_path,num_labels,num_clusters):
 
 def global_cluster(result_path,z):
     # cluster latent space using VGMM
-    print("cluster-vgmm")
+    print("global_cluster-vgmm")
     vgmm = VGMM()
     dict, X_prediction_vgmm = vgmm.cluster(z)
 

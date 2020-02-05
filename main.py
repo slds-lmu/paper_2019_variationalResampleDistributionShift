@@ -19,7 +19,7 @@ def parse_args():
     desc = "Tensorflow implementation of embedding"
     parser = argparse.ArgumentParser(description=desc)
 
-    parser.add_argument('--dataset', type=str, default='fashion-mnist', choices=['mnist', 'fashion-mnist', 'celebA'],
+    parser.add_argument('--dataset', type=str, default='cifar10', choices=['mnist', 'fashion-mnist', 'cifar10', 'celebA'],
                         help='The name of dataset')
     parser.add_argument('--epoch', type=int, default=20, help='The number of epochs to run')
     parser.add_argument('--batch_size', type=int, default=64, help='The size of batch')

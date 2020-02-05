@@ -16,7 +16,7 @@ epsilon4stddev = 1e-6
 class VAE(object):
     model_name = "VAE"     # name for checkpoint
 
-    def __init__(self, sess, epoch, batch_size, z_dim, dataset_name, checkpoint_dir, result_dir, log_dir, label = -1, num_labels=10,config_manager=None):
+    def __init__(self, sess, epoch, batch_size, z_dim, dataset_name, checkpoint_dir, result_dir, log_dir, label = -1, num_labels=10, config_manager=None):
         self.sess = sess
         self.dataset_name = dataset_name
         self.checkpoint_dir = checkpoint_dir
@@ -28,44 +28,43 @@ class VAE(object):
         self.config_manager = config_manager
         self.num_labels = num_labels
 
-        if dataset_name == 'mnist' or dataset_name == 'fashion-mnist':
-            self.dataset_name = "FashionMNIST"
-            # parameters
-            self.input_height = 28
-            self.input_width = 28
-            self.output_height = 28
-            self.output_width = 28
+        if dataset_name == 'fashion-mnist': self.dataset_name = "FashionMNIST"
+        elif dataset_name =='cifar10': self.dataset_name = "CIFAR10"
+        #    raise NotImplementedError
+        #else: raise NotImplementedError
 
-            self.z_dim = z_dim         # dimension of noise-vector
-            self.c_dim = 1
+        # train
+        self.learning_rate = 0.0002
+        self.beta1 = 0.5
 
-            # train
-            self.learning_rate = 0.0002
-            self.beta1 = 0.5
+        # test
+        self.sample_num = 64  # number of generated images to be saved
 
-            # test
-            self.sample_num = 64  # number of generated images to be saved
+        # load mnist
+        # if flag labeled is true, train data is the subset of data(Mnist) which has same label
+        if label != -1:
+            X,y=utils_parent.load_torchvision_data2np(self.dataset_name,)
+            # dict[i] represent data index with label i
+            dict = split_data_according_to_label(X,y,num_labels)
+            # extract data with label i from global training data
+            self.data_X = X[dict[str(label)]]
+            # y represent the index with label i
+            self.data_y = dict[str(label)]
+            # self.data_y = y[dict[str(label)]]
+        else:
+            self.data_X, self.data_y = utils_parent.load_torchvision_data2np(self.dataset_name)
 
-            # load mnist
-            # if flag labeled is true, train data is the subset of data(Mnist) which has same label
-            if label != -1:
-                X,y=utils_parent.load_torchvision_data2np(self.dataset_name,)
-                # dict[i] represent data index with label i
-                dict = split_data_according_to_label(X,y,num_labels)
-                # extract data with label i from global training data
-                self.data_X = X[dict[str(label)]]
-                # y represent the index with label i
-                self.data_y = dict[str(label)]
-                # self.data_y = y[dict[str(label)]]
-            else:
-                self.data_X, self.data_y = utils_parent.load_torchvision_data2np(self.dataset_name)
+        # get number of batches for a single epoch
+        self.num_batches = len(self.data_X) // self.batch_size
 
-            # get number of batches for a single epoch
-            self.num_batches = len(self.data_X) // self.batch_size
-        elif dataset_name =='imagenet':
+        # tensor order and dim
+        self.input_height = self.data_X.shape[1]
+        self.input_width = self.data_X.shape[2]
+        self.output_height = self.input_height
+        self.output_width = self.input_width
 
-            raise NotImplementedError
-        else: raise NotImplementedError
+        self.z_dim = z_dim         # dimension of noise-vector
+        self.c_dim = self.data_X.shape[3]
 
     # Gaussian Encoder
     def encoder(self, x, is_training=True, reuse=False):
@@ -94,13 +93,14 @@ class VAE(object):
         # Architecture : FC1024_BR-FC7x7x128_BR-(64)4dc2s_BR-(1)4dc2s_S
         with tf.variable_scope("decoder", reuse=reuse):
             net = tf.nn.relu(bn(linear(z, 1024, scope='de_fc1'), is_training=is_training, scope='de_bn1'))
-            net = tf.nn.relu(bn(linear(net, 128 * 7 * 7, scope='de_fc2'), is_training=is_training, scope='de_bn2'))
-            net = tf.reshape(net, [self.batch_size, 7, 7, 128])
+            net = tf.nn.relu(bn(linear(net, 128 * int(self.input_height/4) * int(self.input_height/4), scope='de_fc2'), is_training=is_training, scope='de_bn2'))
+            net = tf.reshape(net, [self.batch_size, int(self.input_height/4), int(self.input_height/4), 128])
             net = tf.nn.relu(
-                bn(deconv2d(net, [self.batch_size, 14, 14, 64], 4, 4, 2, 2, name='de_dc3'), is_training=is_training,
+                bn(deconv2d(net, [self.batch_size, int(self.input_height/2), int(self.input_width/2), 64], 4, 4, 2, 2, name='de_dc3'), is_training=is_training,
                    scope='de_bn3'))
+            # kernel height 4, kernel width 4, stride height 4, stride width 4
             # value, filter, output_shape, strides,
-            out = tf.nn.sigmoid(deconv2d(net, [self.batch_size, 28, 28, 1], 4, 4, 2, 2, name='de_dc4'))
+            out = tf.nn.sigmoid(deconv2d(net, [self.batch_size, self.input_height, self.input_width, 1], 4, 4, 2, 2, name='de_dc4'))  # heigh is shape[1] so comes first
             # Computes sigmoid of x element-wise
             return out
 
@@ -315,18 +315,18 @@ class VAE(object):
         #
         # Reload the data without shuffling before mapping it to z space
         if self.label != -1:
-            X, y = utils_parent.load_mnist(self.dataset_name, shuffle=False)
+            X, y = utils_parent.load_torchvision_data2np(self.dataset_name, shuffle=False)
             d = split_data_according_to_label(X, y, self.num_labels)
             noshuffle_data_X = X[d[str(self.label)]]
             # y represent the index with label i
             noshuffle_data_y = d[str(self.label)]
         else:
-            noshuffle_data_X, noshuffle_data_y = utils_parent.load_mnist(self.dataset_name,
+            noshuffle_data_X, noshuffle_data_y = utils_parent.load_torchvision_data2np(self.dataset_name,
                                                                shuffle=False)
 
         batch_images = noshuffle_data_X[0:self.batch_size]
         r = self.sess.run(self.mu, feed_dict={self.inputs: batch_images})
-        for idx in range(1, self.num_batches):     # from the beginning to the end of the dataset, each time do batchsize, conform to the net tensor definiation
+        for idx in range(1, self.num_batches):     # from the beginning to the end of the dataset, each time do batchsize, conform to the net tensor definition
             batch_images = noshuffle_data_X[idx * self.batch_size:(idx + 1) * self.batch_size]
             z = self.sess.run(self.mu, feed_dict={self.inputs: batch_images})
             r = tf.concat([r, z], 0)

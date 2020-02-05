@@ -23,18 +23,19 @@ import torch
 from torch.utils.data.dataset import ConcatDataset
 import torchvision
 
-def load_torchvision_data2np(dataset_name = "CIFAR10", num_classes = 10, shuffle=True, seed=547):
+def load_torchvision_data2np(dataset_name = "CIFAR10", num_classes = 10, shuffle=True, seed=547, allowed_input_channels = [1, 3]):
+
     tv_method = getattr(torchvision.datasets, dataset_name)
     # train = True
     # function transform is defined in this module as a hook to torchvision
     trainset_temp = tv_method(root='./data', train=True, download=True, transform=transform)
     trX = trainset_temp.data
-    if(trX.shape[-1] != 1): trX = trX.unsqueeze(-1)
+    if(trX.shape[-1] != allowed_input_channels[0] and trX.shape[-1] != allowed_input_channels[1]): trX = trX.unsqueeze(-1)
     trY = trainset_temp.targets
     # train = False
     testset_temp = tv_method(root='./data', train=False, download=False, transform=transform)
     teX = testset_temp.data
-    if(teX.shape[-1] != 1): teX = teX.unsqueeze(-1)
+    if(teX.shape[-1] != allowed_input_channels[0] and trX.shape[-1] != allowed_input_channels[1]): teX = teX.unsqueeze(-1)
     teY = testset_temp.targets
     # torch
     cd = ConcatDataset((trainset_temp, testset_temp))

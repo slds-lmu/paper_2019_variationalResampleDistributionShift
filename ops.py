@@ -2,7 +2,7 @@
 Most codes from https://github.com/carpedm20/DCGAN-tensorflow
 """
 import math
-import numpy as np 
+import numpy as np
 import tensorflow as tf
 
 from tensorflow.python.framework import ops
