@@ -6,7 +6,7 @@ import config
 import utils_parent as utils_parent
 import argparse
 from sklearn.model_selection import KFold
-from data_generator import concatenate_data_from_dir
+from data_manipulator import concatenate_data_from_dir
 from sklearn.model_selection import train_test_split
 
 import numpy as np

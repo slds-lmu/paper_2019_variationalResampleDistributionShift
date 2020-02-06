@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 plt.switch_backend('agg')
 # from utils import *
 import config
-# import data_generator
-# from data_generator import concatenate_data_from_dir
+# import data_manipulator
+# from data_manipulator import concatenate_data_from_dir
 
 def T_SNE_Plot(data_x,pos,num_clusters,result_path):
     from sklearn.manifold import TSNE

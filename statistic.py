@@ -1,7 +1,7 @@
 #import seaborn as sns
 import numpy as np
 import json
-from  data_generator import concatenate_data_from_dir
+from  data_manipulator import concatenate_data_from_dir
 import config as config
 # from utils import *
 import utils_parent as utils_parent

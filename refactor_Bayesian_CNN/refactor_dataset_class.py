@@ -31,7 +31,7 @@ sys.path.insert(0, parent_dir)
 import utils_parent
 
 # FIXME: the problem is the folder above has the same module named utils
-from data_generator import concatenate_data_from_dir
+from data_manipulator import concatenate_data_from_dir
 #sys.path.pop(0)  # remove parent folder from search path
 #os.path.realpath(__file__)
 #sys.path.append(os.path.dirname(os.path.dirname()))

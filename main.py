@@ -5,10 +5,10 @@ import tensorflow as tf
 
 ## from this project
 import utils_parent
-import data_generator
+import data_manipulator
 from VAE import VAE
 from ACGAN import ACGAN
-from data_generator import *
+from data_manipulator import *
 from visualization import *
 from config_manager import config_manager
 
@@ -72,7 +72,7 @@ def main():
     config_m = config_manager(args)
     if args.model_name == "VAE":   # choose between VAE or ACGAN for the latent mapping
         if not args.labeled: i = -1 # train VAE on all classes to get a common latent representation for visualization and calculation of wasserstein distance
-        else: i = 0 # train model on data splited according to label, starting with index 0, declare instance for VAE for each label 
+        else: i = 0 # train model on data splited according to label, starting with index 0, declare instance for VAE for each label
         while i < (args.num_labels):
             # reset the graph
             tf.reset_default_graph()
@@ -105,7 +105,7 @@ def main():
                 print(" [*] Fake Image saved!")
 
                 # save the transformed latent space into result dir
-                filepath = config_m.get_data_path_for_each_label(i) + config_m.z_name 
+                filepath = config_m.get_data_path_for_each_label(i) + config_m.z_name
 
                 if (not tf.gfile.Exists(filepath)) or args.labeled:
                     z, noshuffle_data_y = vae.transform()
@@ -124,7 +124,7 @@ def main():
                         print(" [*] VAE training without label, run cluster for each label now")
                         filepath = config_m.get_data_path_for_each_label(-1) + config_m.cluster_index_json_name  # "/cluster_dict.json"
                         if not tf.gfile.Exists(filepath):
-                            data_generator.cluster_common_embeding_labelwise(config_m.get_data_path_for_each_label(-1), num_labels=config_m.num_labels, num_clusters=config_m.num_clusters)
+                            data_manipulator.cluster_common_embeding_labelwise(config_m.get_data_path_for_each_label(-1), num_labels=config_m.num_labels, num_clusters=config_m.num_clusters)
                         print(" [*] after VAE training without label information, cluster by each label and merge finished and saved!")
                     else:  # data comes in, divided by label
                         cluster_save2disk_label(config_m.get_data_path_for_each_label(i), z, config_m.num_clusters)  # if data already comes by label, then run VGMM directly

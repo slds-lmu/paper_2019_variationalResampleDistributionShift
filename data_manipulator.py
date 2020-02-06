@@ -98,7 +98,7 @@ def cluster_common_embeding_labelwise(data_path, num_labels, num_clusters):
 
 
 #def main():
-    #print("data_generator")
+    #print("data_manipulator")
     # load embedded data
     # data_path = "/Users/wangyu/Documents/LMU/Fashion_mnist/mycode/results/VAE_fashion-mnist_64_10"
     # # global transformed latent variable
