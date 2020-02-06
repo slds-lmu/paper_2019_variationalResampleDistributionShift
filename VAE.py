@@ -43,9 +43,9 @@ class VAE(object):
         # load mnist
         # if flag labeled is true, train data is the subset of data(Mnist) which has same label
         if label != -1:
-            X,y=utils_parent.load_torchvision_data2np(self.dataset_name,)
+            X, y = utils_parent.load_torchvision_data2np(self.dataset_name,)
             # dict[i] represent data index with label i
-            dict = split_data_according_to_label(X,y,num_labels)
+            dict = split_data_according_to_label(X, y, num_labels)
             # extract data with label i from global training data
             self.data_X = X[dict[str(label)]]
             # y represent the index with label i

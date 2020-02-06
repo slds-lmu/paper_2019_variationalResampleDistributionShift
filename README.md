@@ -47,7 +47,7 @@ in root folder and folder 'refactor_Bayesian_CNN', files start with config store
     - make build 
     - for fashion-mnist, it takes 30mins on a fujitsu-celcius workstation
     - equivalently you could do  'python main.py --cluster True'
-    - cluster here won't be used since the cluster will most probably correspond to different classes
+    - cluster directly here won't be used since the cluster will most probably correspond to different classes, so we cluster with respect to each class label and merge them
 
 - learn an embedding with respect to each class label and merge randomly
     - make label 

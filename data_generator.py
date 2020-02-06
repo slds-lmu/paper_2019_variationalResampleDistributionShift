@@ -5,11 +5,11 @@ from visualization import T_SNE_Plot
 import json
 import config
 
-def split_data_according_to_label(z,y,num_labels):
+def split_data_according_to_label(z, y, num_labels):
     d = {}
     for i in range(num_labels):
         # d[i]: represent the index of data with label i
-        d[str(i)] = np.where(y[:,i]==1)[0]
+        d[str(i)] = np.where(y[:, i] == 1)[0]
     return d
 
 
@@ -99,7 +99,7 @@ def global_cluster(result_path, z):
     path = result_path + config.cluster_predict_tsv_name # path = result_path + "/" + "cluster_predict.tsv"
     vgmm.save_predict(path, X_prediction_vgmm)
     path = result_path + config.cluster_predict_npy_name # path = result_path + "/" + "cluster_predict.npy"
-    np.save(path,X_prediction_vgmm)
+    np.save(path, X_prediction_vgmm)
 
 
 #def main():
