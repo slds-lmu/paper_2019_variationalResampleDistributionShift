@@ -28,7 +28,7 @@ in root folder and folder 'refactor_Bayesian_CNN', files start with config store
 #### arguments for main.py in project root
   python main.py
   --cluster <True,False (default)>
-  --dataset <'mnist', 'fashion-mnist' (default)>
+  --dataset <'cifar10', 'mnist', 'fashion-mnist' (default)>
   --z_dim <1-inf,62(default)>
   --labeled <True,False (default)>
 
@@ -47,6 +47,7 @@ in root folder and folder 'refactor_Bayesian_CNN', files start with config store
     - make build 
     - for fashion-mnist, it takes 30mins on a fujitsu-celcius workstation
     - equivalently you could do  'python main.py --cluster True'
+    - cluster here won't be used since the cluster will most probably correspond to different classes
 
 - learn an embedding with respect to each class label and merge randomly
     - make label 

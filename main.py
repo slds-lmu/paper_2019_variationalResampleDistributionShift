@@ -78,9 +78,8 @@ def main():
             # declare global z and index dictionary to store the result of resampling
 
             # declare instance for VAE for each label
-            i = -1
+            i = 0
             while i < (args.num_labels):
-                i = i+1
                 # reset the graph
                 tf.reset_default_graph()
                 # open session
@@ -129,6 +128,7 @@ def main():
                     if args.cluster:
                         # cluster latent space using VGMM: cluster the transformed latent space, and store the dictionary and prediction into result_path
                         global_cluster(config_m.get_data_path_for_each_label(i), z)
+                i = i+1
             # After for loop is finished
             print(" [*] Embeding Learning Training and Testing for all label finished!")
             # concatenate clustered data into one dict after clustering

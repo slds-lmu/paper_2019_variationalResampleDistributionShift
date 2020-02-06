@@ -1,4 +1,11 @@
 INPUT4STAT = ./results/VAE_fashion-mnist_64_62/L-1/TSNE_transformed_data_dict.npy
+#python main.py
+#--cluster <True,False (default)>
+#--dataset <'cifar10', 'mnist', 'fashion-mnist' (default)>
+#--z_dim <1-inf,62(default)>
+#--labeled <True,False (default)>
+#
+
 build:
 	python main.py --cluster True  # the same vae to map all the data, then use vgmm. This is useful to calculate the wasserstein distance
 
