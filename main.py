@@ -6,10 +6,9 @@ import tensorflow as tf
 ## from this project
 import utils_parent
 import data_manipulator
+import visualization
 from VAE import VAE
 from ACGAN import ACGAN
-from data_manipulator import *
-from visualization import *
 from config_manager import config_manager
 
 ## parsing and configuration
@@ -63,8 +62,7 @@ def check_args(args):
 
     return args
 
-"""main"""
-def main():
+def embed_cluster():
     # parse arguments
     args = parse_args()
     if args is None:
@@ -127,7 +125,7 @@ def main():
                             data_manipulator.cluster_common_embeding_labelwise(config_m.get_data_path_for_each_label(-1), num_labels=config_m.num_labels, num_clusters=config_m.num_clusters)
                         print(" [*] after VAE training without label information, cluster by each label and merge finished and saved!")
                     else:  # data comes in, divided by label
-                        cluster_save2disk_label(config_m.get_data_path_for_each_label(i), z, config_m.num_clusters)  # if data already comes by label, then run VGMM directly
+                        data_manipulator.cluster_save2disk_label(config_m.get_data_path_for_each_label(i), z, config_m.num_clusters)  # if data already comes by label, then run VGMM directly
                         print("vgmm cluster on label", i, "finished")
             if not args.labeled:
                 i = args.num_labels  # while
@@ -137,10 +135,11 @@ def main():
         if args.labeled:  # merge the clusters from each label
             print(" [*] merging clusters from each label....")
             # concatenate clustered data into one dict after clustering
-            data_dict, global_index = concatenate_data_from_dir(data_path=config_m.get_data_path(), num_labels=config_m.num_labels, num_clusters=config_m.num_clusters)
+            data_dict, global_index = data_manipulator.concatenate_data_from_dir(data_path=config_m.get_data_path(), num_labels=config_m.num_labels, num_clusters=config_m.num_clusters)
+            # global_index is the final result of this routine
             # save global index for cluster data
             np.save(config_m.get_data_path()+ config_m.global_index_name, global_index, allow_pickle=True)
-            T_SNE_Plot_with_datadict(data_dict=data_dict, num_clusters=config_m.num_clusters, result_path=config_m.get_data_path())
+            visualization.T_SNE_Plot_with_datadict(data_dict=data_dict, num_clusters=config_m.num_clusters, result_path=config_m.get_data_path())
         config_m.write_config_file()
         print("* volatile configuration file written")
     # not yet used
@@ -175,4 +174,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    embed_cluster()

@@ -1,6 +1,3 @@
-"""
-Most codes from https://github.com/carpedm20/DCGAN-tensorflow
-"""
 from __future__ import division
 import math
 import random
@@ -52,8 +49,9 @@ def load_torchvision_data2np(dataset_name = "CIFAR10", num_classes = 10, shuffle
     return X/255., yy
 
 
-
-
+"""
+Most codes from https://github.com/carpedm20/DCGAN-tensorflow
+"""
 def load_mnist(dataset_name, shuffle=True, seed=547):
     trainset_temp = torchvision.datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform)
     trX = trainset_temp.data

@@ -6,7 +6,6 @@ import json
 import config
 
 def cluster_save2disk_label(result_path, z, num_clusters):
-    # cluster latent space using VGMM
     print("cluster given z data from arguments")
     vgmm = VGMM(num_clusters)
     mdict, X_prediction_vgmm = vgmm.cluster(z)
@@ -95,44 +94,3 @@ def cluster_common_embeding_labelwise(data_path, num_labels, num_clusters):
     vgmm.save_predict(data_path + config.cluster_predict_tsv_name, m)
     print(z.shape)
     T_SNE_Plot(z, pos_index_cluster, num_clusters, data_path)
-
-
-#def main():
-    #print("data_manipulator")
-    # load embedded data
-    # data_path = "/Users/wangyu/Documents/LMU/Fashion_mnist/mycode/results/VAE_fashion-mnist_64_10"
-    # # global transformed latent variable
-    # z = np.load(data_path+"/z.npy")
-    # # global ground truth
-    # y = np.load(data_path+"/y.npy")[:z.shape[0]]
-    # # dictionary of index split according to label
-    # d_label = split_data_according_to_label(z,y,10)
-    #
-    # # cluster data of each label
-    # vgmm = VGMM()
-    # pos = {}
-    # for i in range(10):
-    #     # extract data of label i
-    #     data = z[d_label[str(i)]]
-    #     # extract global index of data with label i
-    #     data_pos = d_label[str(i)]
-    #     _,data_pred = vgmm.cluster(data)
-    #     for j in range(5):
-    #         # store the index of cluster j into dictionary ij, i represent label i , cluster j
-    #         pos[str(i) + str(j)] = data_pos[np.where(data_pred == j)[0]]
-    #
-    # # concatenate index array
-    # # pos_index_cluster[i]: index of data which belongs to cluster i
-    # pos_index_cluster = concatenate_index_array(pos,num_labels=10,num_clusters=5)
-    # vgmm.save_dict(data_path+"/pos_index_cluster.json",pos_index_cluster)
-    #
-    # #generate metadata for visualization
-    # m = np.zeros(y.shape)
-    # m = generate_metadata(m,pos_index_cluster)
-    # vgmm.save_predict(data_path+"/pos_index_cluster_predict.tsv",m)
-
-    # T_SNE plot the result of clustering
-    # T_SNE_Plot(z,pos_index_cluster)
-#if __name__ == '__main__':
-#    main()
-

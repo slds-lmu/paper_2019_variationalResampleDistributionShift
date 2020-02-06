@@ -54,6 +54,8 @@ in root folder and folder 'refactor_Bayesian_CNN', files start with config store
     - for fashion-mnist, it takes 1 hours on fujitsu-celcius workstation
     - equivalently you could do 'python main.py --labeled True --cluster True' 
 
+- The result of the main routine (embed_cluster)  generate a file which stores the global index, which is a dictionary with key corresponding to cluster index, while value corresponding to the absolute index of the original data
+
 #### Intermediate files
 - in folder 'results', for example, one possible folder name can be VAE-fashion-mnist-64-10 where 64 is
 the batch size and 10 is the length of the latent dimension, inside which L0 to L9 stores the

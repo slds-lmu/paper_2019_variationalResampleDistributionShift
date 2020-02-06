@@ -83,5 +83,4 @@ class config_manager(object):
         file.write('\n')
         file.write("y_name='{}'".format(self.y_name))
         file.write('\n')
-
         file.close()
