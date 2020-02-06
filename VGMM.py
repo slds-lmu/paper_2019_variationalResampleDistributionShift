@@ -13,25 +13,24 @@ color_iter = itertools.cycle(['navy', 'c', 'cornflowerblue', 'gold',
                               'darkorange'])
 
 class VGMM(object):
+    def __init__(self, n_cluster):
+        self.n_cluster = n_cluster
 
-    def cluster(self,X_train):
-
-        dpgmm = mixture.BayesianGaussianMixture(n_components=5,
-                                                covariance_type='full',
+    def cluster(self, X_train):
+        dpgmm = mixture.BayesianGaussianMixture(n_components=self.n_cluster, covariance_type='full',
                                                 max_iter=400).fit(X_train)
-        while dpgmm.converged_  ==False:
-
-            max_iter = dpgmm.n_iter_ *2
+        while dpgmm.converged_== False:
+            max_iter = dpgmm.n_iter_ * 2
             print("increase the number of iteration to {} to converge".format(max_iter))
-            dpgmm = mixture.BayesianGaussianMixture(n_components=5, covariance_type='full',max_iter=max_iter).fit(X_train)
+            dpgmm = mixture.BayesianGaussianMixture(n_components=self.n_cluster, covariance_type='full',max_iter=max_iter).fit(X_train)
         X_prediction_vgmm = dpgmm.predict(X_train)
         dict = {}
-        for i in range(5):
+        for i in range(self.n_cluster):
             # dict[i] istore the index of data belongs to cluster i
             dict[str(i)] = np.where(X_prediction_vgmm == i)[0].tolist()
-        return dict,X_prediction_vgmm
+        return dict, X_prediction_vgmm
 
-    def save_dict(self,path,dict):
+    def save_dict(self, path, dict):
         with open(path, 'w') as f:
             json.dump(dict, f)
 

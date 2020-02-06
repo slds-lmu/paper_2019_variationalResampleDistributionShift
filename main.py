@@ -124,10 +124,10 @@ def main():
                         print(" [*] VAE training without label, run cluster for each label now")
                         filepath = config_m.get_data_path_for_each_label(-1) + config_m.cluster_index_json_name  # "/cluster_dict.json"
                         if not tf.gfile.Exists(filepath):
-                            data_generator.cluster_for_each_label(config_m.get_data_path_for_each_label(-1), num_labels=config_m.num_labels, num_clusters=config_m.num_clusters)
+                            data_generator.cluster_common_embeding_labelwise(config_m.get_data_path_for_each_label(-1), num_labels=config_m.num_labels, num_clusters=config_m.num_clusters)
                         print(" [*] after VAE training without label information, cluster by each label and merge finished and saved!")
                     else:  # data comes in, divided by label
-                        global_cluster(config_m.get_data_path_for_each_label(i), z)  # if data already comes by label, then run VGMM directly
+                        cluster_save2disk_label(config_m.get_data_path_for_each_label(i), z, config_m.num_clusters)  # if data already comes by label, then run VGMM directly
                         print("vgmm cluster on label", i, "finished")
             if not args.labeled:
                 i = args.num_labels  # while
