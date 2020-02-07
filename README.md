@@ -37,10 +37,10 @@ clone this repository and navigate into the root directory
 
 ### Generating the embeding and assigning each image to its pseudo subdomain
 - learn an embedding with respect to data from all classes
-    - make build 
-    - for fashion-mnist, it takes 30mins on a fujitsu-celcius workstation
-    - equivalently you could do  'python main.py --cluster True'
-    - cluster directly here won't be used since the cluster will most probably correspond to different classes, so we cluster with respect to each class label and merge them
+    - make common_embed
+    - for fashion-mnist, it takes 30 mins on a fujitsu-celcius workstation
+    - equivalently you could do  'python main.py --cluster False'
+    - cluster directly here won't be used since the cluster will most probably correspond to different classes, so we cluster with respect to each class label and merge them: python main.py --label False --cluster True, but this is not used in the experiment
 
 - learn an embedding with respect to each class label and merge randomly
     - make label 
@@ -82,7 +82,7 @@ results for each class label and L-1(not label-wise) stores the global embedding
 - 'make distribution_y': plot the histogram of class distribution for each cluster, result is store in distribution_y.txt
 
 #### Reproduce Plotting in the paper
-- go to  /plots and execute the R code to generate the beautiful ggplot
+- go to  /Rsrc4plots and execute the R code to generate the beautiful ggplot
 
 ## Code structure 
 - utils_parent.py is used in neural network classification for getting data and misc things
