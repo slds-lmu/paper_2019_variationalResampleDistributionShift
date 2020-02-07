@@ -21,9 +21,12 @@ clone this repository and navigate into the root directory
 - pip freeze
 - see here: https://medium.com/python-pandemonium/better-python-dependency-and-package-management-b5d8ea29dff1
 
+#### Testing if all dependencies met and the code could run properly
+- make test
+- make test_label
+- The above command will use minimal epochs to test if the whole process below works
 
-### Configuration
-in root folder and folder 'refactor_Bayesian_CNN', files start with config stores global configuration parameters.
+### Experiment Process
 
 #### arguments for main.py in project root
   python main.py
@@ -32,17 +35,7 @@ in root folder and folder 'refactor_Bayesian_CNN', files start with config store
   --z_dim <1-inf,62(default)>
   --labeled <True,False (default)>
 
-#### Specific files
-- config_manager.py took arguments from main()'s parser
-- config.py is a volatile file, which is written by config_manager's 'write_config_file()' method in the main resample process (in main.py). after calculation is finished, the volatile file config.py is further read by route of statistics and neural network classification
-- utils_parent.py is used in neural network classificaiton for getting data and misc things
-
-#### Testing if all dependencies met and the code could run properly
-- make test
-- make test_label
-- The above command will use minimal epochs to test if the whole process below works
-
-### Generating the resampling fold (assigning each image to its pseudo subdomain)
+### Generating the embeding and assigning each image to its pseudo subdomain
 - learn an embedding with respect to data from all classes
     - make build 
     - for fashion-mnist, it takes 30mins on a fujitsu-celcius workstation
@@ -56,17 +49,29 @@ in root folder and folder 'refactor_Bayesian_CNN', files start with config store
 
 - The result of the main routine (embed_cluster)  generate a file which stores the global index, which is a dictionary with key corresponding to cluster index, while value corresponding to the absolute index of the original data
 
-#### Intermediate files
+### After the vae-vgmm subdomain assignment
+
+#### Result files
+- config.py is a volatile file storing information to retrieve results, which will be rewriten each time the embed_cluster routine is runned
 - in folder 'results', for example, one possible folder name can be VAE-fashion-mnist-64-10 where 64 is
 the batch size and 10 is the length of the latent dimension, inside which L0 to L9 stores the
 results for each class label and L-1(not label-wise) stores the global embedding for all classes instances
 - in folder checkpoint/VAE-fashion-mnist-64-10/L-1, VAE will store results for global embeding for all classes, delete this folder if you want to rerun experiment
 
-### Evaluate different Neural Network Prediction Performance on the artificial sub-domains
+#### Get access to the result
+- after running the experiment, one could load config again to get a subset of the original merged train-test data from SubdomainDataset, which is inherited from torch.utils.data.dataset.Dataset
+
+  ```
+  import config
+  from mdataset_class import SubdomainDataset
+  subds = SubdomainDataset(config_volatile=config, list_idx=[0, 2], transform=None)
+  ```
+
+#### Evaluate different Neural Network Prediction Performance on the artificial sub-domains
 - change directory to refactor_Bayesian_CNN
 - make rand frand|vgmm|fvgmm_alexnet
 
-### Statistics and Visualization
+#### Statistics and Visualization
 - before you run this command, you should previously run 
     - make build
     - make label
@@ -76,8 +81,13 @@ results for each class label and L-1(not label-wise) stores the global embedding
 - 'make t-SNE': generate t-SNE plot for all data divided by vgmm-vae  (results could be stored in /results/VAE_fashion-mnist_64_62 for example)
 - 'make distribution_y': plot the histogram of class distribution for each cluster, result is store in distribution_y.txt
 
-### Reproduce Plotting in the paper
+#### Reproduce Plotting in the paper
 - go to  /plots and execute the R code to generate the beautiful ggplot
+
+## Code structure 
+- utils_parent.py is used in neural network classification for getting data and misc things
+- config_manager.py took arguments from main()'s parser and also hard codedly defined some paths to
+  store intermediate files
 
 ## Misc Resources
 

@@ -1,5 +1,6 @@
+import get_source_code_dir
 class config_manager(object):
-    def __init__(self,args):
+    def __init__(self, args):
         self.dataset_name = args.dataset
         self.epoch = args.epoch
         self.batch_size = args.batch_size
@@ -13,6 +14,11 @@ class config_manager(object):
         self.num_labels = args.num_labels
         self.num_clusters = args.num_clusters
         self.plot = args.plot
+        #
+        self.rst_dir = get_source_code_dir.current_dir
+        #
+        self.log_dir = "./config.py"  # the volatile file should live in the directory where the program is exceculted
+        # hard coded
         self.global_index_name = "/global_index_cluster_data.npy"
         self.TSNE_data_name = "/TSNE_transformed_data_dict.npy"
         self.cluster_index_json_name = "/cluster_dict.json"
@@ -50,10 +56,8 @@ class config_manager(object):
             self.batch_size, self.z_dim, "L" + str(label))
 
     def write_config_file(self):
-        file = open('config.py', 'w')
-        file.write("SOURCE_URL_Mnist = 'http://yann.lecun.com/exdb/mnist/'")
-        file.write('\n')
-        file.write("SOURCE_URL_FMnist = 'https://storage.googleapis.com/tensorflow/tf-keras-datasets/'")
+        file = open(self.log_dir, 'w')
+        file.write("rst_dir = '{}'".format(self.rst_dir))
         file.write('\n')
         file.write("data_path = '{}'".format(self.get_data_path()))
         file.write('\n')

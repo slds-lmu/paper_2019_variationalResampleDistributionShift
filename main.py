@@ -15,7 +15,7 @@ from config_manager import config_manager
 def parse_args():
     desc = "Tensorflow implementation of embedding"
     parser = argparse.ArgumentParser(description=desc)
-
+    parser.add_argument('--rst_dir', type=str, default='./',help='absolute result directory, default to be the same folder as where the code lies')
     parser.add_argument('--dataset', type=str, default='cifar10', choices=['mnist', 'fashion-mnist', 'cifar10', 'celebA'],
                         help='The name of dataset')
     parser.add_argument('--epoch', type=int, default=20, help='The number of epochs to run')
@@ -67,7 +67,12 @@ def embed_cluster():
     args = parse_args()
     if args is None:
       exit()
+
+    if args.dataset == 'fashion-mnist': args.dataset = "FashionMNIST"
+    elif args.dataset =='cifar10': args.dataset = "CIFAR10"
+
     config_m = config_manager(args)
+
     if args.model_name == "VAE":   # choose between VAE or ACGAN for the latent mapping
         if not args.labeled: i = -1 # train VAE on all classes to get a common latent representation for visualization and calculation of wasserstein distance
         else: i = 0 # train model on data splited according to label, starting with index 0, declare instance for VAE for each label

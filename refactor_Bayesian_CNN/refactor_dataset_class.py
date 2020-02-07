@@ -30,7 +30,6 @@ sys.path.insert(0, parent_dir)
 
 import utils_parent
 
-# FIXME: the problem is the folder above has the same module named utils
 from data_manipulator import concatenate_data_from_dir
 #sys.path.pop(0)  # remove parent folder from search path
 #os.path.realpath(__file__)
@@ -79,12 +78,60 @@ class CVDataset(Dataset):
     def __getitem__(self, idx):
         return self.subset.__getitem__(idx)
 
-class VGMMDataset(Dataset):
-    """Dataset after VGMM clustering"""
-    def __init__(self, pattern = "/global_index_cluster_data.npy", root_dir = '../results/VAE_fashion-mnist_64_62', transform=None, list_idx = [0], dsname = "fashion-mnist", num_labels = 10, num_cluster = 5):
+class TrTeData():
+    def __init__(self, dataset_name, transform = None):
+        tv_method = getattr(torchvision.datasets, dataset_name)
+        trainset_temp = tv_method(root='./data', train=True, download=True, transform=transform)
+        testset_temp = tv_method(root='./data', train=False, download=False, transform=transform)
+        trte = ConcatDataset((trainset_temp, testset_temp))
+        self.data = trte
+
+class SubdomainDataset(Dataset):
+    """Torch Dataset gathering data from input subdomain indice"""
+    def __init__(self, config_volatile, transform=None, list_idx=[0]):
         """
         Args:
-            pattern (string): Path to the npy file.
+            config_volatile (module): python module with configurations written down
+            transform (callable, optional): Optional transform to be applied on a sample. See Torch documentation
+            list_idx (list): the list of indexes of the cluster to choose as trainset or testset, for example
+            trainset = SubdomainDataset(list_idx = [0,1, 2, 3])
+            testset = SubdomainDataset(list_idx = [4])
+        """
+        self.root_dir = os.path.join(config_volatile.rst_dir, config_volatile.data_path)
+        self.pattern = config_volatile.global_index_name
+        self.transform = transform
+        if not tf.gfile.Exists(os.path.join(self.root_dir, self.pattern)):
+            _, self.global_index = concatenate_data_from_dir(self.root_dir, num_labels=config_volatile.num_labels, num_clusters=config_volatile.num_clusters)
+        else:
+            self.global_index = np.load(os.path.join(self.root_dir, self.pattern), allow_pickle=True)
+        self.list_idx = list_idx
+        all_inds = []
+        print('cluster index list:' + str(list_idx))
+        for index in self.list_idx:  # iterate all **chosen** clusters/subdomains
+            to_append = self.global_index.get(str(index))   # self.global_index is a dictionary of {'0': [15352, 2152,21, 25,...], '1':[1121, 1252, 3195,...]}
+            to_append = self.global_index.get(str(index))   # self.global_index is a dictionary of {'0': [15352, 2152,21, 25,...], '1':[1121, 1252, 3195,...]}
+            print('\n size of cluster:' + str(np.shape(to_append)) + '\n')
+            all_inds = np.append(all_inds, to_append)
+            print(all_inds.shape)
+        self.all_inds = all_inds.tolist()
+        self.all_inds = [round(x) for x in self.all_inds]   # make to be integer # self.all_inds = map(round, self.all_inds)
+        trte = TrTeData(config_volatile.dataset_name, transform=transform)  # transform image to tensor
+        self.subset = torch.utils.data.Subset(trte.data, self.all_inds)
+
+    def __len__(self):
+        return self.subset.__len__()
+
+    def __getitem__(self, idx):
+        return self.subset.__getitem__(idx)
+
+
+
+class VGMMDataset(Dataset):
+    """Dataset after VGMM clustering"""
+    def __init__(self, pattern="/global_index_cluster_data.npy", root_dir='../results/VAE_fashion-mnist_64_62', transform=None, list_idx=[0], dsname="fashion-mnist", num_labels=10, num_cluster=5):
+        """
+        Args:
+            pattern (string): file name of the npy file which stores the global index of each cluster/subdomain as a dictionary
             root_dir (string): Directory with all the images.
             transform (callable, optional): Optional transform to be applied
                 on a sample.
@@ -97,23 +144,20 @@ class VGMMDataset(Dataset):
         self.root_dir = root_dir
         self.pattern = pattern
         self.transform = transform
-        #if cluster ==True:
         if not tf.gfile.Exists(self.root_dir + self.pattern):
-            _, self.global_index = concatenate_data_from_dir(self.root_dir, num_labels=num_labels,
-                                                                num_clusters=num_cluster)
+            _, self.global_index = concatenate_data_from_dir(self.root_dir, num_labels=num_labels, num_clusters=num_cluster)
         else:
             self.global_index = np.load(self.root_dir + pattern, allow_pickle=True)
         self.list_idx = list_idx
         all_inds = []
         print('cluster index list:' + str(list_idx))
-        for index in self.list_idx:
+        for index in self.list_idx:  # iterate all **chosen** clusters/subdomains
             to_append = self.global_index.item().get(str(index))   # self.global_index is a dictionary of {'0': [15352, 2152,21, 25,...], '1':[1121, 1252, 3195,...]}
             print('\n size of cluster:' + str(np.shape(to_append)) + '\n')
             all_inds = np.append(all_inds, to_append)
             print(all_inds.shape)
         self.all_inds = all_inds.tolist()
-        self.all_inds = [round(x) for x in self.all_inds]
-        # self.all_inds = map(round, self.all_inds)
+        self.all_inds = [round(x) for x in self.all_inds]   # make to be integer # self.all_inds = map(round, self.all_inds)
         trainset_temp = torchvision.datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform)
         testset_temp = torchvision.datasets.FashionMNIST(root='./data', train=False, download=False, transform=transform)
         cd = ConcatDataset((trainset_temp, testset_temp))
@@ -165,7 +209,6 @@ class VGMMDatasetold(Dataset):
             self.all_inds = [round(a) for a in self.all_inds]
             self.samples = {"x": X.take(self.all_inds, axis=0), "y": y.take(self.all_inds, axis=0)}
             print('\n size of dataset:' + str(np.shape(self.all_inds)) + '\n')
-            #breakpoint()
 
         #else:
         #    self.all_inds = index
