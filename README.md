@@ -68,7 +68,7 @@ results for each class label and L-1(not label-wise) stores the global embedding
   ```
 
 #### Evaluate different Neural Network Prediction Performance on the artificial sub-domains
-- change directory to refactor_Bayesian_CNN
+- change directory to experiment_Bayesian_CNN
 - make rand frand|vgmm|fvgmm_alexnet
 
 #### Statistics and Visualization
