@@ -29,30 +29,29 @@ clone this repository and navigate into the root directory
 ### Experiment Process
 
 #### arguments for main.py in project root
+```
   python main.py
   --cluster <True,False (default)>
-  --dataset <'cifar10', 'mnist', 'fashion-mnist' (default)>
+  --dataset <'cifar10', 'fashion-mnist' (default)>
   --z_dim <1-inf,62(default)>
   --labeled <True,False (default)>
+```
 
 ### Generating the embeding and assigning each image to its pseudo subdomain
-- learn an embedding with respect to data from all classes
-    - make common_embed
-    - for fashion-mnist, it takes 30 mins on a fujitsu-celcius workstation
-    - equivalently you could do  'python main.py --cluster False'
+- learn an embedding with respect to data from all classes: `python main.py --dataset fashion-mnist --cluster False`
+    - equivalently you could do `make common_embed`
     - cluster directly here won't be used since the cluster will most probably correspond to different classes, so we cluster with respect to each class label and merge them: python main.py --label False --cluster True, but this is not used in the experiment
 
-- learn an embedding with respect to each class label and merge randomly
-    - make label 
+- learn an embedding with respect to each class label and merge randomly: `python main.py --dataset fashion-mnist --labeled True --cluster True`
+    - equivalently you could do `make label` 
     - for fashion-mnist, it takes 1 hours on fujitsu-celcius workstation
-    - equivalently you could do 'python main.py --labeled True --cluster True' 
 
-- The result of the main routine (embed_cluster)  generate a file which stores the global index, which is a dictionary with key corresponding to cluster index, while value corresponding to the absolute index of the original data
+- The result of the main routine `embed_cluster()`  generate a file which stores the global index, which is a dictionary with key corresponding to cluster index, while value corresponding to the absolute index of the original data. The path of this result file is stored in a volatile python file, see below "Result files"
 
 ### After the vae-vgmm subdomain assignment
 
 #### Result files
-- config.py is a volatile file storing information to retrieve results, which will be rewriten each time the embed_cluster routine is runned
+- config.py is a volatile file storing information to retrieve results, which will be rewriten each time the `embed_cluster` routine is runned
 - in folder 'results', for example, one possible folder name can be VAE-fashion-mnist-64-10 where 64 is
 the batch size and 10 is the length of the latent dimension, inside which L0 to L9 stores the
 results for each class label and L-1(not label-wise) stores the global embedding for all classes instances
@@ -72,14 +71,13 @@ results for each class label and L-1(not label-wise) stores the global embedding
 - make rand frand|vgmm|fvgmm_alexnet
 
 #### Statistics and Visualization
-- before you run this command, you should previously run 
-    - make build
-    - make label
+- before you run this command, you should finish the vae-vgmm subdomain assignment first with result
+  files saved on disk
 - change directory to root folder
-- 'make wasser_cv_emd' : compute wasserstein distance for random cross validation
-- 'make wasser_vgmm_emd': compute wasserstein distance for vgmm-vae cross validation
-- 'make t-SNE': generate t-SNE plot for all data divided by vgmm-vae  (results could be stored in /results/VAE_fashion-mnist_64_62 for example)
-- 'make distribution_y': plot the histogram of class distribution for each cluster, result is store in distribution_y.txt
+- `make wasser_cv_emd` : compute wasserstein distance for random cross validation
+- `make wasser_vgmm_emd`: compute wasserstein distance for vgmm-vae cross validation
+- `make t-SNE`: generate t-SNE plot for all data divided by vgmm-vae  (results could be stored in /results/VAE_fashion-mnist_64_62 for example)
+- `make distribution_y`: plot the histogram of class distribution for each cluster, result is store in distribution_y.txt
 
 #### Reproduce Plotting in the paper
 - go to  /Rsrc4plots and execute the R code to generate the beautiful ggplot
