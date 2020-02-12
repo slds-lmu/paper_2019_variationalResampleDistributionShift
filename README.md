@@ -1,25 +1,14 @@
 # Variational Gaussian Mixture Model Variational AutoEncoder Cross Validation Reampling onBayesian and Frequest Neural Networks
 
-## Credit
-- VAE code is adapted from this project
-https://github.com/hwalsuklee/tensorflow-generative-model-collections.git
-- Bayesian CNN and Frequenst ones are adapted from the following projects
-https://github.com/felix-laumann/Bayesian_CNN
-https://github.com/kumar-shridhar/PyTorch-BayesianCNN
 
- 
 ## How to reproduce the experiment
 
-clone this repository and navigate into the root directory
+clone this repository and navigate into the project directory
 
 ### Install Dependencies
-- pip install -r requirements_cpu.txt
-- pip install Cython
-- pip install pot, if you have conda, install pot with:  conda install -c conda-forge pot
-
-#### Tips on generating dependencies file from a project
-- pip freeze
-- see here: https://medium.com/python-pandemonium/better-python-dependency-and-package-management-b5d8ea29dff1
+- `pip install -r requirements_cpu.txt`
+- `pip install Cython`
+- `pip install pot` or `conda install -c conda-forge pot`
 
 #### Testing if all dependencies met and the code could run properly
 - make test
@@ -76,18 +65,30 @@ results for each class label and L-1(not label-wise) stores the global embedding
 - change directory to root folder
 - `make wasser_cv_emd` : compute wasserstein distance for random cross validation
 - `make wasser_vgmm_emd`: compute wasserstein distance for vgmm-vae cross validation
-- `make t-SNE`: generate t-SNE plot for all data divided by vgmm-vae  (results could be stored in /results/VAE_fashion-mnist_64_62 for example)
+- `make t-SNE`: generate t-SNE plot for all data divided by vgmm-vae  (results could be stored in ./results/VAE_fashion-mnist_64_62 for example)
 - `make distribution_y`: plot the histogram of class distribution for each cluster, result is store in distribution_y.txt
 
 #### Reproduce Plotting in the paper
-- go to  /Rsrc4plots and execute the R code to generate the beautiful ggplot
+- go to  ./Rsrc4plots and execute the R code to generate the beautiful ggplot
 
 ## Code structure 
 - utils_parent.py is used in neural network classification for getting data and misc things
 - config_manager.py took arguments from main()'s parser and also hard codedly defined some paths to
   store intermediate files
 
+## Credit and Licences
+- See folder ./licences
+- VAE code is adapted from this project
+https://github.com/hwalsuklee/tensorflow-generative-model-collections.git
+- Bayesian CNN and Frequenst ones are adapted from the following projects
+https://github.com/felix-laumann/Bayesian_CNN
+https://github.com/kumar-shridhar/PyTorch-BayesianCNN
+
 ## Misc Resources
+
+### Tips on generating dependencies file from a project
+- pip freeze
+- see here: https://medium.com/python-pandemonium/better-python-dependency-and-package-management-b5d8ea29dff1
 
 ### Semi-supervised vae
 - https://pyro.ai/examples/ss-vae.html
@@ -121,6 +122,5 @@ results for each class label and L-1(not label-wise) stores the global embedding
 - docker system prune -af
 - https://stackoverflow.com/questions/40115043/no-space-left-on-device-error-while-fitting-sklearn-model 
 - It seems, that your are running out of shared memory (/dev/shm when you run df -h). Try setting JOBLIB_TEMP_FOLDER environment variable to something different: e.g., to /tmp. 
-
-%env JOBLIB_TEMP_FOLDER=/tmp
+- %env JOBLIB_TEMP_FOLDER=/tmp
 

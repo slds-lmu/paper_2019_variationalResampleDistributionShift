@@ -1,4 +1,7 @@
+import argparse
 import get_source_code_dir
+import utils_parent
+
 class config_manager(object):
     def __init__(self, args):
         self.dataset_name = args.dataset
@@ -88,3 +91,56 @@ class config_manager(object):
         file.write("y_name='{}'".format(self.y_name))
         file.write('\n')
         file.close()
+
+## parsing and configuration
+def parse_args():
+    desc = "Tensorflow implementation of embedding"
+    parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument('--rst_dir', type=str, default='./', help='absolute result directory, default to be the same folder as where the code lies')
+    parser.add_argument('--dataset', type=str, default='fashion-mnist', choices=['fashion-mnist', 'cifar10'],
+                        help='The name of dataset')
+    parser.add_argument('--epoch', type=int, default=20, help='The number of epochs to run')
+    parser.add_argument('--batch_size', type=int, default=64, help='The size of batch')
+    parser.add_argument('--z_dim', type=int, default=62, help='Dimension of noise vector')
+    parser.add_argument('--checkpoint_dir', type=str, default='checkpoint',
+                        help='Directory name to save the checkpoints')
+    parser.add_argument('--result_dir', type=str, default='results',
+                        help='Directory name to save the generated images')
+    parser.add_argument('--log_dir', type=str, default='logs',
+                        help='Directory name to save training logs')
+
+    # arguments specified for model
+    parser.add_argument('--labeled', type=bool, default=False, help="whether train on specific labeled data")
+    parser.add_argument('--cluster', type=bool, default=False, help="whether cluster using latent space")
+    parser.add_argument('--num_labels', type=int, default=10, help="number of labels")
+    parser.add_argument('--model_name', type=str, default='VAE', help="the name of model to be trained")
+    parser.add_argument('--plot', type=bool, default=True, help="visualise the result of cluster")
+    parser.add_argument('--num_clusters', type=int, default=5, help="number of clusters")
+    return check_args(parser.parse_args())
+
+"""checking arguments"""
+def check_args(args):
+    # --checkpoint_dir
+    utils_parent.check_folder(args.checkpoint_dir)
+
+    # --result_dir
+    utils_parent.check_folder(args.result_dir)
+
+    # --log_dir
+    utils_parent.check_folder(args.log_dir)
+
+    # --epoch
+    assert args.epoch >= 1, 'number of epochs must be larger than or equal to one'
+
+    # --batch_size
+    assert args.batch_size >= 1, 'batch size must be larger than or equal to one'
+
+    # --z_dim
+    assert args.z_dim >= 1, 'dimension of noise vector must be larger than or equal to one'
+
+    # --num_labels
+    assert args.num_labels >=1, 'number of labels must be larger than or equal to one'
+
+    return args
+
+
