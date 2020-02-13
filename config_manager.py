@@ -3,7 +3,6 @@ import get_source_code_dir
 import utils_parent
 
 class ConfigManager(object):
-    #FIXME: delete the non static operation
     global_index_name = "/global_index_cluster_data.npy"
     TSNE_data_name = "/TSNE_transformed_data_dict.npy"
     cluster_index_json_name = "/cluster_dict.json"
@@ -30,13 +29,13 @@ class ConfigManager(object):
         #
         self.log_dir = "./config.py"  # the volatile file should live in the directory where the program is exceculted
         # hard coded
-        self.global_index_name = "/global_index_cluster_data.npy"
-        self.TSNE_data_name = "/TSNE_transformed_data_dict.npy"
-        self.cluster_index_json_name = "/cluster_dict.json"
-        self.cluster_predict_tsv_name = "/cluster_predict.tsv"
-        self.cluster_predict_npy_name = "/cluster_predict.npy"
-        self.z_name ="/z.npy"
-        self.y_name = "/y.npy"
+        self.global_index_name = ConfigManager.global_index_name
+        self.TSNE_data_name = ConfigManager.TSNE_data_name
+        self.cluster_index_json_name = ConfigManager.cluster_index_json_name
+        self.cluster_predict_tsv_name = ConfigManager.cluster_predict_tsv_name
+        self.cluster_predict_npy_name = ConfigManager.cluster_predict_npy_name
+        self.z_name =ConfigManager.z_name
+        self.y_name = ConfigManager.y_name
 
 
     def get_model_dir(self,label):
