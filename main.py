@@ -11,9 +11,9 @@ from ACGAN import ACGAN
 from config_manager import config_manager
 from config_manager import parse_args
 
-def embed_cluster():
+def embed_cluster(raw_args=None):
     # parse arguments
-    args = parse_args()
+    args = parse_args(raw_args)
     if args is None:
       exit()
 

@@ -93,7 +93,7 @@ class config_manager(object):
         file.close()
 
 ## parsing and configuration
-def parse_args():
+def parse_args(raw_args=None):
     desc = "Tensorflow implementation of embedding"
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('--rst_dir', type=str, default='./', help='absolute result directory, default to be the same folder as where the code lies')
@@ -116,7 +116,7 @@ def parse_args():
     parser.add_argument('--model_name', type=str, default='VAE', help="the name of model to be trained")
     parser.add_argument('--plot', type=bool, default=True, help="visualise the result of cluster")
     parser.add_argument('--num_clusters', type=int, default=5, help="number of clusters")
-    return check_args(parser.parse_args())
+    return check_args(parser.parse_args(raw_args))
 
 """checking arguments"""
 def check_args(args):
