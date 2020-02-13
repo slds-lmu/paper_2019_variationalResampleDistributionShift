@@ -14,7 +14,6 @@ import json
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 from six.moves import urllib
-import config
 
 import torch
 from torch.utils.data.dataset import ConcatDataset

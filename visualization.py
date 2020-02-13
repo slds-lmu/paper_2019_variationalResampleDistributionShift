@@ -13,7 +13,6 @@ import json
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
 # from utils import *
-import config
 # import data_manipulator
 # from data_manipulator import concatenate_data_from_dir
 
@@ -103,7 +102,7 @@ def visualization(log_path,data_path):
         # Saves a config file that TensorBoard will read during startup.
         projector.visualize_embeddings(tf.summary.FileWriter(LOG_DIR), config)
 
-def concatenate_data_from_dir(data_path,num_labels,num_clusters):
+def concatenate_data_from_dir_deprecated(data_path,num_labels,num_clusters):
     pos ={}
     # pos[j]:cluster j
     global_index = {}

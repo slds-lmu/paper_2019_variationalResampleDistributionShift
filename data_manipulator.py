@@ -3,7 +3,6 @@ import utils_parent as utils_parent
 from VGMM import VGMM
 from visualization import T_SNE_Plot
 import json
-import config
 
 def cluster_save2disk_label(result_path, z, num_clusters):
     print("cluster given z data from arguments")
@@ -20,15 +19,15 @@ def cluster_save2disk_label(result_path, z, num_clusters):
 
 
 
-def concatenate_data_from_dir(data_path, num_labels, num_clusters):
+def concatenate_data_from_dir(config_volatile):
     pos = {}  # pos[i_cluster] correspond to the z value (concatenated) of cluster i_cluster
     global_index = {}  # global_index['cluster_1'] correspond to the global index with respect to the original data of cluster 1
-
+    data_path, num_labels, num_clusters = config_volatile.data_path, config_volatile.num_labels, config_volatile.num_clusters
     for i_label in range(num_labels):
         path = data_path + "/L" + str(i_label)   #FIXME! $"/L"
-        z = np.load(path + config.z_name)  # z = np.load(path + "/z.npy")
-        y = np.load(path + config.y_name)  # y is the index dictionary with respect to global data
-        cluster_predict = np.load(path + config.cluster_predict_npy_name)
+        z = np.load(path + config_volatile.z_name)  # z = np.load(path + "/z.npy")
+        y = np.load(path + config_volatile.y_name)  # y is the index dictionary with respect to global data
+        cluster_predict = np.load(path + config_volatile.cluster_predict_npy_name)
         if i_label == 0:  # initialize the dictionary, using the first class label for each key of the dictionary, where key is the cluster index
             for i_cluster in range(num_clusters):
                 pos[str(i_cluster)] = z[np.where(cluster_predict == i_cluster)]
