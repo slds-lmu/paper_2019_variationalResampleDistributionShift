@@ -2,7 +2,15 @@ import argparse
 import get_source_code_dir
 import utils_parent
 
-class config_manager(object):
+class ConfigManager(object):
+    #FIXME: delete the non static operation
+    global_index_name = "/global_index_cluster_data.npy"
+    TSNE_data_name = "/TSNE_transformed_data_dict.npy"
+    cluster_index_json_name = "/cluster_dict.json"
+    cluster_predict_tsv_name = "/cluster_predict.tsv"
+    cluster_predict_npy_name = "/cluster_predict.npy"
+    z_name ="/z.npy"
+    y_name = "/y.npy"
     def __init__(self, args):
         self.dataset_name = args.dataset
         self.epoch = args.epoch

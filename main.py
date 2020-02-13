@@ -8,7 +8,7 @@ import data_manipulator
 import visualization
 from VAE import VAE
 from ACGAN import ACGAN
-from config_manager import config_manager
+from config_manager import ConfigManager
 from config_manager import parse_args
 
 def embed_cluster(raw_args=None):
@@ -20,7 +20,7 @@ def embed_cluster(raw_args=None):
     if args.dataset == 'fashion-mnist': args.dataset = "FashionMNIST"
     elif args.dataset =='cifar10': args.dataset = "CIFAR10"
 
-    config_m = config_manager(args)
+    config_m = ConfigManager(args)
 
     if args.model_name == "VAE":   # choose between VAE or ACGAN for the latent mapping
         if not args.labeled: i = -1 # train VAE on all classes to get a common latent representation for visualization and calculation of wasserstein distance
@@ -89,7 +89,7 @@ def embed_cluster(raw_args=None):
         if args.labeled:  # merge the clusters from each label
             print(" [*] merging clusters from each label....")
             # concatenate clustered data into one dict after clustering
-            data_dict, global_index = data_manipulator.concatenate_data_from_dir(data_path=config_m.get_data_path(), num_labels=config_m.num_labels, num_clusters=config_m.num_clusters)
+            data_dict, global_index = data_manipulator.concatenate_data_from_dir(config_m)
             # global_index is the final result of this routine
             # save global index for cluster data
             np.save(config_m.get_data_path()+ config_m.global_index_name, global_index, allow_pickle=True)

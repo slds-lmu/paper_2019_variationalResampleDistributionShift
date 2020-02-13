@@ -8,6 +8,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 #from utils import check_folder
 import utils_parent as utils_parent
+from config_manager import ConfigManager
 import json
 # import matplotlib as plt
 import matplotlib.pyplot as plt
@@ -57,7 +58,7 @@ def T_SNE_Plot_with_datadict(data_dict,num_clusters,result_path):
     plt.grid(True)
     plt.savefig(result_path+"/TSNE.pdf")
     # np.save(result_path + "/TSNE_transformed_data_dict.npy", fashion_pca_tsne)
-    np.save(result_path + config.TSNE_data_name, fashion_pca_tsne)
+    np.save(result_path + ConfigManager.TSNE_data_name, fashion_pca_tsne)
 
 
 
@@ -110,12 +111,12 @@ def concatenate_data_from_dir_deprecated(data_path,num_labels,num_clusters):
     for i in range(num_labels):
         path = data_path + "/L" + str(i)
         # z = np.load(path + "/z.npy")
-        z = np.load(path + config.z_name)
+        z = np.load(path + ConfigManager.z_name)
         # y is the index dictionary with respect to global data
         # y = np.load(path + "/y.npy")
-        y = np.load(path + config.y_name)
+        y = np.load(path + ConfigManager.y_name)
         # cluster_predict = np.load(path + "/cluster_predict.npy")
-        cluster_predict = np.load(path + config.cluster_predict_npy_name)
+        cluster_predict = np.load(path + ConfigManager.cluster_predict_npy_name)
         if i == 0:
             for j in range(num_clusters):
                 pos[str(j)] = z[np.where(cluster_predict == j)]
@@ -132,6 +133,7 @@ if __name__ == '__main__':
     # visualization(log_path,data_path)
 
     # t-SNE plot for labeled data
+    import config
     data_dict, _ = concatenate_data_from_dir(data_path=config.data_path,
                                                         num_labels=config.num_labels,
                                                         num_clusters=config.num_clusters)

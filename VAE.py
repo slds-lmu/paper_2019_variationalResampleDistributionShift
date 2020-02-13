@@ -10,7 +10,6 @@ from ops import *
 import utils_parent as utils_parent
 import prior_factory as prior
 from data_manipulator import split_data_according_to_label
-from config_manager import config_manager
 epsilon4stddev = 1e-6
 
 class VAE(object):

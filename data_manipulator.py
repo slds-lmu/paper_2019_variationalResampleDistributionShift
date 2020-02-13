@@ -2,6 +2,7 @@ import numpy as np
 import utils_parent as utils_parent
 from VGMM import VGMM
 from visualization import T_SNE_Plot
+from config_manager import ConfigManager
 import json
 
 def cluster_save2disk_label(result_path, z, num_clusters):
@@ -9,11 +10,11 @@ def cluster_save2disk_label(result_path, z, num_clusters):
     vgmm = VGMM(num_clusters)
     mdict, X_prediction_vgmm = vgmm.cluster(z)
     # save the result of clustering
-    path = result_path + config.cluster_index_json_name  # path = result_path + "/" + "cluster_dict.json"
+    path = result_path + ConfigManager.cluster_index_json_name  # path = result_path + "/" + "cluster_dict.json"
     vgmm.save_dict(path, mdict)
-    path = result_path + config.cluster_predict_tsv_name # path = result_path + "/" + "cluster_predict.tsv"
+    path = result_path + ConfigManager.cluster_predict_tsv_name # path = result_path + "/" + "cluster_predict.tsv"
     vgmm.save_predict(path, X_prediction_vgmm)
-    path = result_path + config.cluster_predict_npy_name # path = result_path + "/" + "cluster_predict.npy"
+    path = result_path + ConfigManager.cluster_predict_npy_name # path = result_path + "/" + "cluster_predict.npy"
     np.save(path, X_prediction_vgmm)
     print("cluster results saved to labeled path")
 
@@ -22,7 +23,7 @@ def cluster_save2disk_label(result_path, z, num_clusters):
 def concatenate_data_from_dir(config_volatile):
     pos = {}  # pos[i_cluster] correspond to the z value (concatenated) of cluster i_cluster
     global_index = {}  # global_index['cluster_1'] correspond to the global index with respect to the original data of cluster 1
-    data_path, num_labels, num_clusters = config_volatile.data_path, config_volatile.num_labels, config_volatile.num_clusters
+    data_path, num_labels, num_clusters = config_volatile.get_data_path(), config_volatile.num_labels, config_volatile.num_clusters
     for i_label in range(num_labels):
         path = data_path + "/L" + str(i_label)   #FIXME! $"/L"
         z = np.load(path + config_volatile.z_name)  # z = np.load(path + "/z.npy")
@@ -68,9 +69,9 @@ def concatenate_index_array(d, num_labels, num_clusters):
     return pos # pos[j]: represent cluster j with multi-label
 
 def cluster_common_embeding_labelwise(data_path, num_labels, num_clusters):
-    z = np.load(data_path + config.z_name)
+    z = np.load(data_path + ConfigManager.z_name)
     # global ground truth
-    y = np.load(data_path + config.y_name)[:z.shape[0]]
+    y = np.load(data_path + ConfigManager.y_name)[:z.shape[0]]
     d_label = split_data_according_to_label(z, y, num_labels)
     # cluster data of each label
     vgmm = VGMM(num_clusters)
@@ -86,10 +87,10 @@ def cluster_common_embeding_labelwise(data_path, num_labels, num_clusters):
             # store the index of cluster j into dictionary ij, i represent label i , cluster j
             pos[str(i) + str(j)] = data_pos[np.where(data_pred == j)[0]]
     pos_index_cluster = concatenate_index_array(pos,num_labels=num_labels, num_clusters=num_clusters)
-    vgmm.save_dict(data_path + config.cluster_index_json_name, pos_index_cluster)
+    vgmm.save_dict(data_path + ConfigManager.cluster_index_json_name, pos_index_cluster)
     #generate metadata for visualization
     m = np.zeros(y.shape)
     m = generate_metadata(m, pos_index_cluster, num_clusters=num_clusters)
-    vgmm.save_predict(data_path + config.cluster_predict_tsv_name, m)
+    vgmm.save_predict(data_path + ConfigManager.cluster_predict_tsv_name, m)
     print(z.shape)
     T_SNE_Plot(z, pos_index_cluster, num_clusters, data_path)
