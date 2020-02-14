@@ -95,7 +95,7 @@ class SubdomainDataset(Dataset):
         self.pattern = config_volatile.global_index_name
         self.transform = transform
         if not tf.gfile.Exists(os.path.join(self.root_dir, self.pattern)):
-            _, self.global_index = concatenate_data_from_dir(self.root_dir, num_labels=config_volatile.num_labels, num_clusters=config_volatile.num_clusters)
+            _, self.global_index = concatenate_data_from_dir(config_volatile)
         else:
             self.global_index = np.load(os.path.join(self.root_dir, self.pattern), allow_pickle=True)
             # global_index example:{'0': [15352, 21, ..], '1':[1121, 3195,...]}
