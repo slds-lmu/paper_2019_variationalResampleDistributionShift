@@ -27,7 +27,7 @@ class ConfigManager(object):
         #
         self.rst_dir = get_source_code_dir.current_dir
         #
-        self.log_dir = "./config.py"  # the volatile file should live in the directory where the program is exceculted
+        self.persist_dir = "./config.py"  # the volatile file should live in the directory where the program is exceculted
         # hard coded
         self.global_index_name = ConfigManager.global_index_name
         self.TSNE_data_name = ConfigManager.TSNE_data_name
@@ -66,7 +66,7 @@ class ConfigManager(object):
             self.batch_size, self.z_dim, "L" + str(label))
 
     def write_config_file(self):
-        file = open(self.log_dir, 'w')
+        file = open(self.persist_dir, 'w')
         file.write("rst_dir = '{}'".format(self.rst_dir))
         file.write('\n')
         file.write("data_path = '{}'".format(self.get_data_path()))

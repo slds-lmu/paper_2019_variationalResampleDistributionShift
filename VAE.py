@@ -7,7 +7,8 @@ import numpy as np
 from ops import *
 
 # from this project
-import utils_parent as utils_parent
+import utils_parent
+import mdataset_class
 import prior_factory as prior
 from data_manipulator import split_data_according_to_label
 epsilon4stddev = 1e-6
@@ -15,44 +16,29 @@ epsilon4stddev = 1e-6
 class VAE(object):
     model_name = "VAE"     # name for checkpoint
 
-    def __init__(self, sess, epoch, batch_size, z_dim, dataset_name, checkpoint_dir, result_dir, log_dir, label = -1, num_labels=10, config_manager=None):
+    def __init__(self, sess, label, config_manager):
         self.sess = sess
-        self.dataset_name = dataset_name
-        self.checkpoint_dir = checkpoint_dir
-        self.result_dir = result_dir
-        self.log_dir = log_dir
-        self.epoch = epoch
-        self.batch_size = batch_size
-        self.label = label
         self.config_manager = config_manager
-        self.num_labels = num_labels
-
-        if dataset_name == 'fashion-mnist': self.dataset_name = "FashionMNIST"
-        elif dataset_name =='cifar10': self.dataset_name = "CIFAR10"
-        #    raise NotImplementedError
-        #else: raise NotImplementedError
-
+        #
+        self.dataset_name = config_manager.dataset_name
+        self.checkpoint_dir = config_manager.checkpoint_dir
+        self.result_dir = config_manager.result_dir
+        self.log_dir = config_manager.log_dir
+        self.epoch = config_manager.epoch
+        self.batch_size = config_manager.batch_size
+        self.num_labels = config_manager.num_labels
+        self.z_dim = config_manager.z_dim
+        #
+        self.label = label
         # train
         self.learning_rate = 0.0002
         self.beta1 = 0.5
 
         # test
         self.sample_num = 64  # number of generated images to be saved
-
-        # load mnist
-        # if flag labeled is true, train data is the subset of data(Mnist) which has same label
-        if label != -1:
-            X, y = utils_parent.load_torchvision_data2np(self.dataset_name,)
-            # dict[i] represent data index with label i
-            dict = split_data_according_to_label(X, y, num_labels)
-            # extract data with label i from global training data
-            self.data_X = X[dict[str(label)]]
-            # y represent the index with label i
-            self.data_y = dict[str(label)]
-            # self.data_y = y[dict[str(label)]]
-        else:
-            self.data_X, self.data_y = utils_parent.load_torchvision_data2np(self.dataset_name)
-
+        ds = mdataset_class.InputDataset(self.dataset_name, label, self.num_labels)
+        self.data_X = ds.data_X
+        self.data_y = ds.data_y
         # get number of batches for a single epoch
         self.num_batches = len(self.data_X) // self.batch_size
 
@@ -62,7 +48,6 @@ class VAE(object):
         self.output_height = self.input_height
         self.output_width = self.input_width
 
-        self.z_dim = z_dim         # dimension of noise-vector
         self.c_dim = self.data_X.shape[3]
 
     # Gaussian Encoder
@@ -313,16 +298,8 @@ class VAE(object):
         # return r are only (69952,62) from original dataset which are 70000, 50 datapoints
         #
         # Reload the data without shuffling before mapping it to z space
-        if self.label != -1:
-            X, y = utils_parent.load_torchvision_data2np(self.dataset_name, shuffle=False)
-            d = split_data_according_to_label(X, y, self.num_labels)
-            noshuffle_data_X = X[d[str(self.label)]]
-            # y represent the index with label i
-            noshuffle_data_y = d[str(self.label)]
-        else:
-            noshuffle_data_X, noshuffle_data_y = utils_parent.load_torchvision_data2np(self.dataset_name,
-                                                               shuffle=False)
-
+        noshuffle_data_X = self.data_X
+        noshuffle_data_y = self.data_y
         batch_images = noshuffle_data_X[0:self.batch_size]
         r = self.sess.run(self.mu, feed_dict={self.inputs: batch_images})
         for idx in range(1, self.num_batches):     # from the beginning to the end of the dataset, each time do batchsize, conform to the net tensor definition

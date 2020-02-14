@@ -32,13 +32,6 @@ def embed_cluster(raw_args=None):
             with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
                 vae = None
                 vae = VAE(sess,
-                          epoch=args.epoch,
-                          batch_size=args.batch_size,
-                          z_dim=args.z_dim,
-                          dataset_name=args.dataset,
-                          checkpoint_dir=args.checkpoint_dir,
-                          result_dir=args.result_dir,
-                          log_dir=args.log_dir,
                           label=i,  # the difference with respect to non-label sensitive, by default label = -1, without label, built up a common latent representation of all instances from all classes
                           config_manager=config_m
                           )

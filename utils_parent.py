@@ -10,42 +10,13 @@ from six.moves import xrange
 import matplotlib.pyplot as plt
 import os, gzip
 import json
+import torch
+import torchvision
 
+from torch.utils.data.dataset import ConcatDataset
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 from six.moves import urllib
-
-import torch
-from torch.utils.data.dataset import ConcatDataset
-import torchvision
-
-def load_torchvision_data2np(dataset_name = "CIFAR10", num_classes = 10, shuffle=True, seed=547, allowed_input_channels = [1, 3]):
-
-    tv_method = getattr(torchvision.datasets, dataset_name)
-    # train = True
-    # function transform is defined in this module as a hook to torchvision
-    trainset_temp = tv_method(root='./data', train=True, download=True, transform=transform)
-    trX = trainset_temp.data
-    if(trX.shape[-1] != allowed_input_channels[0] and trX.shape[-1] != allowed_input_channels[1]): trX = trX.unsqueeze(-1)
-    trY = trainset_temp.targets
-    # train = False
-    testset_temp = tv_method(root='./data', train=False, download=False, transform=transform)
-    teX = testset_temp.data
-    if(teX.shape[-1] != allowed_input_channels[0] and trX.shape[-1] != allowed_input_channels[1]): teX = teX.unsqueeze(-1)
-    teY = testset_temp.targets
-    # torch
-    cd = ConcatDataset((trainset_temp, testset_temp))
-    #return cd.data, cd.targets
-    X = np.concatenate((trX, teX), axis=0)
-    y = np.concatenate((trY, teY), axis=0).astype(np.int)
-    yy = np.zeros((len(y), num_classes))
-    yy[np.arange(len(y)), y] = 1
-    if shuffle:
-        np.random.seed(seed)
-        np.random.shuffle(X)
-        np.random.seed(seed)
-        np.random.shuffle(yy)
-    return X/255., yy
 
 
 """
