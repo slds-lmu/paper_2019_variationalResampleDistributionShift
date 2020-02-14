@@ -8,7 +8,7 @@ from torch.nn.modules.utils import _pair
 
 cuda = torch.cuda.is_available()
 import getpass
-if getpass.getuser() == "sunxd": cuda = False
+#if getpass.getuser() == "sunxd": cuda = False
 if cuda: print("using cuda")
 #cuda = False
 

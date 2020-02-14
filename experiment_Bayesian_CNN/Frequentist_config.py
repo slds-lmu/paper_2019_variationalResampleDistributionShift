@@ -43,6 +43,6 @@ def get_hms(seconds):
 
 def use_cuda():
     use_cuda = torch.cuda.is_available()
-    import getpass
-    if getpass.getuser() == "sunxd": use_cuda = False
+    #import getpass
+    #if getpass.getuser() == "sunxd": use_cuda = False
     return use_cuda
