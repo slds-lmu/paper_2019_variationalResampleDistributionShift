@@ -23,7 +23,7 @@ def cluster_save2disk_label(result_path, z, num_clusters):
 def concatenate_data_from_dir(config_volatile):
     pos = {}  # pos[i_cluster] correspond to the z value (concatenated) of cluster i_cluster
     global_index = {}  # global_index['cluster_1'] correspond to the global index with respect to the original data of cluster 1
-    data_path, num_labels, num_clusters = config_volatile.get_data_path(), config_volatile.num_labels, config_volatile.num_clusters
+    data_path, num_labels, num_clusters = config_volatile.data_path, config_volatile.num_labels, config_volatile.num_clusters
     for i_label in range(num_labels):
         path = data_path + "/L" + str(i_label)   #FIXME! $"/L"
         z = np.load(path + config_volatile.z_name)  # z = np.load(path + "/z.npy")
