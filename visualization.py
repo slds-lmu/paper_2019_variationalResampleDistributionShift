@@ -38,7 +38,7 @@ def T_SNE_Plot(data_x,pos,num_clusters,result_path):
     plt.grid(True)
     plt.savefig(result_path+"/TSNE.pdf")
     # np.save(result_path+"/TSNE_transformed_data_dict.npy",fashion_pca_tsne)
-    np.save(result_path + config.TSNE_data_name,fashion_pca_tsne)
+    np.save(result_path + ConfigManager.TSNE_data_name,fashion_pca_tsne)
 
 def T_SNE_Plot_with_datadict(data_dict,num_clusters,result_path):
     from sklearn.manifold import TSNE

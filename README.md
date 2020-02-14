@@ -57,7 +57,8 @@ results for each class label and L-1(not label-wise) stores the global embedding
 
 #### Evaluate different Neural Network Prediction Performance on the artificial sub-domains
 - change directory to experiment_Bayesian_CNN
-- make rand frand|vgmm|fvgmm_alexnet
+- test if code works by `make bdebugvgmm` and `make bdebugrand`
+- check the Makefile for other tasks like  `make bvgmm_alexnet`, `make fvgmm_alexnet` etc
 
 #### Statistics and Visualization
 - before you run this command, you should finish the vae-vgmm subdomain assignment first with result
