@@ -42,7 +42,9 @@ from sklearn.model_selection import KFold
 import config as config_parent
 
 best_acc = 0
-
+from pathlib import Path
+rstfolder = "./result"
+Path(rstfolder).mkdir(parents=True, exist_ok=True)
 
 def getNetwork(args,inputs,outputs):
     if (args.net_type == 'lenet'):
@@ -334,9 +336,9 @@ def cross_validation(num_labels,num_cluster,args):
         vi = GaussianVariationalInference(torch.nn.CrossEntropyLoss())
 
         #logfile = os.path.join('diagnostics_Bayes{}_{}.txt'.format(args.net_type, args.dataset))
-        logfile_train = os.path.join('diagnostics_Bayes{}_{}_cv{}_train_rand.txt'.format(args.net_type, args.dataset, i))
-        logfile_test = os.path.join('diagnostics_Bayes{}_{}_cv{}_test_rand.txt'.format(args.net_type, args.dataset, i))
-        logfile_eval = os.path.join('diagnostics_Bayes{}_{}_cv{}_val_rand.txt'.format(args.net_type, args.dataset, i))
+        logfile_train = os.path.join(rstfolder, 'diagnostics_Bayes{}_{}_cv{}_train_rand.txt'.format(args.net_type, args.dataset, i))
+        logfile_test = os.path.join(rstfolder, 'diagnostics_Bayes{}_{}_cv{}_test_rand.txt'.format(args.net_type, args.dataset, i))
+        logfile_eval = os.path.join(rstfolder, 'diagnostics_Bayes{}_{}_cv{}_val_rand.txt'.format(args.net_type, args.dataset, i))
 
         print('\n[Phase 3] : Training model')
         print('| Training Epochs = ' + str(num_epochs))
