@@ -339,7 +339,7 @@ def cross_validation_parallel(i,args,global_rand_idx):
     use_cuda = cf.use_cuda()
     if use_cuda is True:
         ngpu = torch.cuda.device_count()
-        torch.cuda.set_device(i%(ngpu-1))
+        torch.cuda.set_device(i%ngpu)
     # best_acc = 0
     resize = cf.resize
     start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
@@ -435,7 +435,7 @@ def cross_validation_for_clustered_data_parallel(i,args):
     use_cuda = cf.use_cuda()
     if use_cuda is True:
         ngpu = torch.cuda.device_count()
-        torch.cuda.set_device(i%(ngpu-1))
+        torch.cuda.set_device(i%ngpu)
     # best_acc = 0
     resize = cf.resize
     start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
