@@ -468,9 +468,9 @@ def cross_validation_for_clustered_data_parallel(i,args):
     net.share_memory()
     vi = GaussianVariationalInference(torch.nn.CrossEntropyLoss())
 
-    logfile_train = os.path.join('diagnostics_Bayes{}_{}_cv{}_train_vgmm.txt'.format(args.net_type, args.dataset, i))
-    logfile_test = os.path.join('diagnostics_Bayes{}_{}_cv{}_test_vgmm.txt'.format(args.net_type, args.dataset, i))
-    logfile_eval = os.path.join('diagnostics_Bayes{}_{}_cv{}_val_vgmm.txt'.format(args.net_type, args.dataset, i))
+    logfile_train = os.path.join(rstfolder, 'diagnostics_Bayes{}_{}_cv{}_train_vgmm.txt'.format(args.net_type, args.dataset, i))
+    logfile_test = os.path.join(rstfolder, 'diagnostics_Bayes{}_{}_cv{}_test_vgmm.txt'.format(args.net_type, args.dataset, i))
+    logfile_eval = os.path.join(rstfolder, 'diagnostics_Bayes{}_{}_cv{}_val_vgmm.txt'.format(args.net_type, args.dataset, i))
 
     print('\n[Phase 3] : Training model with validation')
     print('| Training Epochs = ' + str(num_epochs))

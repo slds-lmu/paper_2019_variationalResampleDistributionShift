@@ -11,6 +11,11 @@ import torchvision
 import utils_parent
 from data_manipulator import split_data_according_to_label
 
+def dataset_name_tr(dataset_name):
+    if dataset_name == 'fashion-mnist': dataset_name = "FashionMNIST"
+    elif dataset_name =='cifar10': dataset_name = "CIFAR10"
+    return dataset_name
+
 class InputDataset():
     def __init__(self, dataset_name, label, num_labels):
         self.dataset_name = dataset_name
@@ -29,8 +34,7 @@ class InputDataset():
 
     def load_torchvision_data2np(self, dataset_name = "CIFAR10", num_classes = 10, shuffle=True, seed=547, allowed_input_channels = [1, 3]):
         """This looks like bad code since we are not using Dataloader here, but access the data directly Dataset.data, however, since our data need to be feed to tensorflow, we have to make them  numpy array"""
-        if dataset_name == 'fashion-mnist': dataset_name = "FashionMNIST"
-        elif dataset_name =='cifar10': dataset_name = "CIFAR10"
+        dataset_name = dataset_name_tr(dataset_name)
         tv_method = getattr(torchvision.datasets, dataset_name)
         # train = True
         # function transform is defined in this module as a hook to torchvision
@@ -58,30 +62,45 @@ class InputDataset():
         return X/255., yy
 
 
-class SubDatasetByIndices(Dataset):
-    def __init__(self, dataset_name, indices, transform=None):
+class TrTeData(Dataset):
+    """Concatenate Data wrapper, concatenate train and test"""
+    allowed_input_channels = 3
+    def __init__(self, dataset_name, transform=None):
+        dataset_name = dataset_name_tr(dataset_name)
         tv_method = getattr(torchvision.datasets, dataset_name)
         trainset_temp = tv_method(root='./data', train=True, download=True, transform=transform)
         testset_temp = tv_method(root='./data', train=False, download=False, transform=transform)
-        trte_ds = ConcatDataset((trainset_temp, testset_temp))
-        self.subset = torch.utils.data.Subset(trte_ds, indices)
+        trte = ConcatDataset((trainset_temp, testset_temp))
+        self.data = trte
+        self.num_classes = len(trainset_temp.classes)
+        self.num_channels = trainset_temp.data.shape[-1]
+        if (self.num_channels > 1) and (self.num_channels != self.allowed_input_channels):
+            self.num_channels = 1
 
+    def __len__(self):
+        return self.data.__len__()
+
+    def __getitem__(self, idx):
+        return self.data.__getitem__(idx)
+
+
+
+class SubDatasetByIndices(Dataset):
+    """Used for random cross validation"""
+    def __init__(self, dataset_name, indices, transform=None):
+        trte_ds = TrTeData(dataset_name, transform)
+        self.num_classes = trte_ds.num_classes
+        self.num_channels = trte_ds.num_channels
+        self.subset = torch.utils.data.Subset(trte_ds, indices)
     def __len__(self):
         return self.subset.__len__()
 
     def __getitem__(self, idx):
         return self.subset.__getitem__(idx)
 
-class TrTeData():
-    def __init__(self, dataset_name, transform=None):
-        tv_method = getattr(torchvision.datasets, dataset_name)
-        trainset_temp = tv_method(root='./data', train=True, download=True, transform=transform)
-        testset_temp = tv_method(root='./data', train=False, download=False, transform=transform)
-        trte = ConcatDataset((trainset_temp, testset_temp))
-        self.data = trte
 
 class SubdomainDataset(Dataset):
-    """Torch Dataset gathering data from input subdomain indice"""
+    """Used for VGMM cross validation, Torch Dataset gathering data from input subdomain indice, is an index set"""
     def __init__(self, config_volatile, transform=None, list_idx=[0]):
         """
         Args:
@@ -110,8 +129,11 @@ class SubdomainDataset(Dataset):
             print(all_inds.shape)
         self.all_inds = all_inds.tolist()
         self.all_inds = [round(x) for x in self.all_inds] # make to be integer
-        trte = TrTeData(config_volatile.dataset_name)
+        trte = TrTeData(config_volatile.dataset_name, transform)
         self.subset = torch.utils.data.Subset(trte.data, self.all_inds)
+        self.num_classes = trte.num_classes
+        self.num_channels = trte.num_channels
+
 
     def __len__(self):
         return self.subset.__len__()

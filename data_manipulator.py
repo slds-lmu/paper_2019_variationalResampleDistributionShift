@@ -4,6 +4,7 @@ from VGMM import VGMM
 from visualization import T_SNE_Plot
 from config_manager import ConfigManager
 import json
+import os
 
 def cluster_save2disk_label(result_path, z, num_clusters):
     print("cluster given z data from arguments")
@@ -26,6 +27,7 @@ def concatenate_data_from_dir(config_volatile):
     data_path, num_labels, num_clusters = config_volatile.data_path, config_volatile.num_labels, config_volatile.num_clusters
     for i_label in range(num_labels):
         path = data_path + "/L" + str(i_label)   #FIXME! $"/L"
+        path = os.path.join(config_volatile.rst_dir, path)
         z = np.load(path + config_volatile.z_name)  # z = np.load(path + "/z.npy")
         y = np.load(path + config_volatile.y_name)  # y is the index dictionary with respect to global data
         cluster_predict = np.load(path + config_volatile.cluster_predict_npy_name)

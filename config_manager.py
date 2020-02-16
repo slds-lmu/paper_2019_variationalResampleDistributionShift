@@ -1,3 +1,4 @@
+import os
 import argparse
 import get_source_code_dir
 import utils_parent
@@ -25,7 +26,8 @@ class ConfigManager(object):
         self.num_clusters = args.num_clusters
         self.plot = args.plot
         #
-        self.rst_dir = get_source_code_dir.current_dir
+        # self.rst_dir = get_source_code_dir.current_dir   source code dir is not the best place to put the result file!
+        self.rst_dir = os.getcwd()
         #
         self.persist_dir = "./config.py"  # the volatile file should live in the directory where the program is exceculted
         # hard coded
