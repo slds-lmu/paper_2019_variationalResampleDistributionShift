@@ -19,9 +19,9 @@ python-dateutil==2.8.0
 pillow
 scipy==1.2.1
 six==1.12.0
-tensorboard==1.13.1
-tensorflow==1.13.1
-tensorflow-estimator==1.13.0
+#tensorboard==1.13.1
+#tensorflow==1.13.1
+#tensorflow-estimator==1.13.0
 termcolor==1.1.0
 tornado
 Werkzeug==0.15.2

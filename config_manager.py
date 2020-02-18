@@ -9,6 +9,7 @@ class ConfigManager(object):
     cluster_index_json_name = "/cluster_dict.json"
     cluster_predict_tsv_name = "/cluster_predict.tsv"
     cluster_predict_npy_name = "/cluster_predict.npy"
+    label_name = "/L"
     z_name ="/z.npy"
     y_name = "/y.npy"
     def __init__(self, args):
@@ -51,7 +52,7 @@ class ConfigManager(object):
             self.model_name, self.dataset_name,
             self.batch_size, self.z_dim)
 
-    def get_data_path(self):
+    def get_data_path(self):  # FIXME: repetitive
         return "{}/{}_{}_{}_{}".format(
             self.result_dir,self.model_name, self.dataset_name,
             self.batch_size, self.z_dim)

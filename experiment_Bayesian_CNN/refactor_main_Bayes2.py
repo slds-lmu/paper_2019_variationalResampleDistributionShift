@@ -29,17 +29,20 @@ import json
 
 import Bayesian_config as cf
 
-
+GPUIndex = 2
 from utils.BBBlayers import GaussianVariationalInference
 
 from utils.BayesianModels.Bayesian3Conv3FC import BBB3Conv3FC
 from utils.BayesianModels.BayesianAlexNet import BBBAlexNet
 from utils.BayesianModels.BayesianLeNet import BBBLeNet
-
-import refactor_dataset_class
-import utils_parent as utils_parent
 from sklearn.model_selection import KFold
+#import refactor_dataset_class
+import sys
+sys.path.insert(0,'..')
+import utils_parent as utils_parent
 import config as config_parent
+import mdataset_class
+import cv
 
 best_acc = 0
 from pathlib import Path
@@ -190,7 +193,7 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
 
 
 
-def prepare_data(args,train_eval_list,test_list,resize):
+def prepare_data(args,train_eval_list,test_list,resize, method):
     # Data Uplaod
     print('\n[Phase 1] : Data Preparation')
 
@@ -205,63 +208,8 @@ def prepare_data(args,train_eval_list,test_list,resize):
         transforms.ToTensor(),
         transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
     ])
+    return cv.split_te_tr_val(config_parent, method, train_eval_list, test_list, transform_train, transform_test, True)
 
-    if (args.dataset == 'cifar10'):
-        print("| Preparing CIFAR-10 dataset...")
-        sys.stdout.write("| ")
-        trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
-        testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=False, transform=transform_test)
-        outputs = 10
-        inputs = 3
-
-    elif (args.dataset == 'cifar100'):
-        print("| Preparing CIFAR-100 dataset...")
-        sys.stdout.write("| ")
-        trainset = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=transform_train)
-        testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=False, transform=transform_test)
-        outputs = 100
-        inputs = 3
-
-    elif (args.dataset == 'fashion-mnist'):
-        print("| Preparing Fashion-MNIST dataset...")
-        sys.stdout.write("| ")
-        if args.debug ==True:
-            train_eval_set = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                                root_dir="../" + config_parent.data_path,
-                                                                list_idx=train_eval_list, transform=transform_train)
-            # only get subset of original dataset
-            small_size = int(0.01*len(train_eval_set))
-            drop_size = len(train_eval_set)-small_size
-            train_eval_set,_ = torch.utils.data.random_split(train_eval_set, [small_size, drop_size])
-
-            # split train_eval_set into trainset and evalset
-            train_size = int(0.8 * len(train_eval_set))
-            eval_size = len(train_eval_set) - train_size
-            trainset, evalset = torch.utils.data.random_split(train_eval_set, [train_size, eval_size])
-            testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                         root_dir="../" + config_parent.data_path, list_idx=test_list,
-                                                         transform=transform_test)
-            small_size = int(0.01 * len(testset))
-            drop_size = len(testset) - small_size
-            testset,_ =torch.utils.data.random_split(testset, [small_size, drop_size])
-            outputs = 10
-            inputs = 1
-        else:
-
-            train_eval_set = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                                root_dir="../" + config_parent.data_path,
-                                                                list_idx=train_eval_list, transform=transform_train)
-            # split train_eval_set into trainset and evalset
-            train_size = int(0.8 * len(train_eval_set))
-            eval_size = len(train_eval_set) - train_size
-            trainset, evalset = torch.utils.data.random_split(train_eval_set, [train_size, eval_size])
-            testset = refactor_dataset_class.VGMMDataset(pattern=config_parent.global_index_name,
-                                                         root_dir="../" + config_parent.data_path, list_idx=test_list,
-                                                         transform=transform_test)
-            outputs = 10
-            inputs = 1
-
-    return trainset, evalset, testset, inputs,outputs
 
 def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
     # Data Uplaod
@@ -279,6 +227,10 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
         transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
     ])
 
+    return prepare_data(args,train_eval_list,test_list,resize, method = "rand")
+    ############################################################################
+    ############################################################################
+    ############################################################################
     if (args.dataset == 'fashion-mnist'):
         print("| Preparing fashion Fashion-MNIST dataset for random cv...")
         sys.stdout.write("| ")
@@ -316,24 +268,41 @@ def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):
     return trainset, evalset, testset, inputs,outputs
 
 def cross_validation(num_labels,num_cluster,args):
+    method = args.cv_type
     print("cross validation for random resampling")
     best_acc = 0
     resize = cf.resize
     start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
     results = {}
-    X, y = utils_parent.load_mnist('fashion-mnist')
+    ds = mdataset_class.InputDataset("fashion-mnist", -1, 10)
+    #X, y = utils_parent.load_mnist('fashion-mnist')
+    X, y = ds.data_X, ds.data_y
     kf = KFold(n_splits=num_cluster, shuffle = True)
-    i = 0
-    for train_eval_idx, test_idx in kf.split(X, y):  #iterator
+    mlist = list(kf.split(X,y))
+    #i = 0
+    #for train_eval_idx, test_idx in kf.split(X, y):  #iterator
+    for i in range(num_cluster):  #iterator
         #breakpoint()  iter = kf.split(X,y); for xx in iter: print(xx);  it seems that KFold.split works
         cv_idx = i
-        i = i +1
-        trainset, evalset, testset, inputs, outputs = prepare_data_for_normal_cv(args, train_eval_idx, test_idx, resize)
+        if method == "rand":
+        #i = i +1
+            train_eval_idx = list(mlist[i][0])
+            test_idx = list(mlist[i][1])
+            trainset, evalset, testset, inputs, outputs = prepare_data_for_normal_cv(args, train_eval_idx, test_idx, resize)
+        elif method == "vgmm":
+            test_list = [i]
+            train_eval_list = list(range(num_cluster))
+            train_eval_list = [x for x in train_eval_list if x != i]
+            print(test_list,train_eval_list)
+            trainset, evalset, testset,inputs,outputs = prepare_data(args,train_eval_list,test_list,resize, method = "vgmm")
+        else:
+            raise NotImplementedError
+
         # Hyper Parameter settings
         use_cuda = torch.cuda.is_available()
         use_cuda = cf.use_cuda()
         if use_cuda is True:
-            torch.cuda.set_device(0)
+            torch.cuda.set_device(GPUIndex)
         best_acc = 0
         resize = cf.resize
         start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
@@ -424,7 +393,7 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
         use_cuda = torch.cuda.is_available()
         use_cuda = cf.use_cuda()
         if use_cuda is True:
-            torch.cuda.set_device(0)
+            torch.cuda.set_device(GPUIndex)
         best_acc = 0
         resize = cf.resize
         start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
@@ -456,9 +425,9 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
 
         vi = GaussianVariationalInference(torch.nn.CrossEntropyLoss())
 
-        logfile_train = os.path.join('diagnostics_Bayes{}_{}_cv{}_train_vgmm.txt'.format(args.net_type, args.dataset, i))
-        logfile_test = os.path.join('diagnostics_Bayes{}_{}_cv{}_test_vgmm.txt'.format(args.net_type, args.dataset, i))
-        logfile_eval = os.path.join('diagnostics_Bayes{}_{}_cv{}_val_vgmm.txt'.format(args.net_type, args.dataset, i))
+        logfile_train = os.path.join(rstfolder, 'diagnostics_Bayes{}_{}_cv{}_train_vgmm.txt'.format(args.net_type, args.dataset, i))
+        logfile_test = os.path.join(rstfolder, 'diagnostics_Bayes{}_{}_cv{}_test_vgmm.txt'.format(args.net_type, args.dataset, i))
+        logfile_eval = os.path.join(rstfolder, 'diagnostics_Bayes{}_{}_cv{}_val_vgmm.txt'.format(args.net_type, args.dataset, i))
 
         print('\n[Phase 3] : Training model with validation')
         print('| Training Epochs = ' + str(num_epochs))
@@ -517,10 +486,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
     global cv_idx
     cv_idx = 0
-    if args.cv_type == "vgmm":
-        result = cross_validation_for_clustered_data(num_labels=config_parent.num_labels,num_cluster=config_parent.num_clusters,args=args)
-    else:
-        result = cross_validation(config_parent.num_labels,config_parent.num_clusters,args)
+    #if args.cv_type == "vgmm":
+    #    result = cross_validation_for_clustered_data(num_labels=config_parent.num_labels,num_cluster=config_parent.num_clusters,args=args)
+    #else:
+    #    result = cross_validation(config_parent.num_labels,config_parent.num_clusters,args)
+
+    result = cross_validation(num_labels=config_parent.num_labels,num_cluster=config_parent.num_clusters,args=args)
 
     final_file_prefix = "Bayes_"+args.cv_type + '_' + args.net_type + '_cross_validation_result'
     with open(final_file_prefix + '.p', 'wb') as fp:

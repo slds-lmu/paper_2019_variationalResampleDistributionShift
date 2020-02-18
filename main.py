@@ -21,6 +21,7 @@ def embed_cluster(raw_args=None):
     elif args.dataset =='cifar10': args.dataset = "CIFAR10"
 
     config_m = ConfigManager(args)
+    isinstance(config_m, ConfigManager)
 
     if args.model_name == "VAE":   # choose between VAE or ACGAN for the latent mapping
         if not args.labeled: i = -1 # train VAE on all classes to get a common latent representation for visualization and calculation of wasserstein distance
