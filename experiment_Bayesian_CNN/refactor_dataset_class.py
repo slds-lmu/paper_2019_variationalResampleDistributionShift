@@ -29,8 +29,7 @@ sys.path.insert(0, parent_dir)
 #print('The value of dataset_name could only be: {}'.format("mnist or fashion-mnist"))
 
 import utils_parent
-
-from data_manipulator import concatenate_data_from_dir
+from mdataset_class import InputDataset
 #sys.path.pop(0)  # remove parent folder from search path
 #os.path.realpath(__file__)
 #sys.path.append(os.path.dirname(os.path.dirname()))
@@ -101,7 +100,7 @@ class SubdomainDataset(Dataset):
         self.pattern = config_volatile.global_index_name
         self.transform = transform
         if not tf.gfile.Exists(os.path.join(self.root_dir, self.pattern)):
-            _, self.global_index = concatenate_data_from_dir(self.root_dir, num_labels=config_volatile.num_labels, num_clusters=config_volatile.num_clusters)
+            _, self.global_index = InputDataset.concatenate_data_from_dir(self.root_dir, num_labels=config_volatile.num_labels, num_clusters=config_volatile.num_clusters)
         else:
             self.global_index = np.load(os.path.join(self.root_dir, self.pattern), allow_pickle=True)
         self.list_idx = list_idx
@@ -145,7 +144,7 @@ class VGMMDataset(Dataset):
         self.pattern = pattern
         self.transform = transform
         if not tf.gfile.Exists(self.root_dir + self.pattern):
-            _, self.global_index = concatenate_data_from_dir(self.root_dir, num_labels=num_labels, num_clusters=num_cluster)
+            _, self.global_index = InputDataset.concatenate_data_from_dir(self.root_dir, num_labels=num_labels, num_clusters=num_cluster)
         else:
             self.global_index = np.load(self.root_dir + pattern, allow_pickle=True)
         self.list_idx = list_idx
@@ -191,7 +190,7 @@ class VGMMDatasetold(Dataset):
         self.transform = transform
         #if cluster ==True:
         if not tf.gfile.Exists(self.root_dir + self.pattern):
-            _, self.global_index = concatenate_data_from_dir(self.root_dir, num_labels=num_labels,
+            _, self.global_index = InputDataset.concatenate_data_from_dir(self.root_dir, num_labels=num_labels,
                                                                 num_clusters=num_cluster)
         else:
             self.global_index = np.load(self.root_dir + pattern, allow_pickle=True)

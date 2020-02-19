@@ -10,6 +10,7 @@ from VAE import VAE
 from ACGAN import ACGAN
 from config_manager import ConfigManager
 from config_manager import parse_args
+from mdataset_class import InputDataset
 
 def embed_cluster(raw_args=None):
     # parse arguments
@@ -83,7 +84,7 @@ def embed_cluster(raw_args=None):
         if args.labeled:  # merge the clusters from each label
             print(" [*] merging clusters from each label....")
             # concatenate clustered data into one dict after clustering
-            data_dict, global_index = data_manipulator.concatenate_data_from_dir(config_m)
+            data_dict, global_index = InputDataset.concatenate_data_from_dir(config_m)
             # global_index is the final result of this routine
             # save global index for cluster data
             np.save(config_m.get_data_path()+ config_m.global_index_name, global_index, allow_pickle=True)

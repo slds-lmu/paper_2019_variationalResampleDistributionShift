@@ -11,8 +11,6 @@ import numpy as np
 import tensorflow as tf
 
 import utils_parent
-from data_manipulator import concatenate_data_from_dir
-from data_manipulator import split_data_according_to_label
 from config_manager import ConfigManager
 
 def dataset_name_tr(dataset_name):
@@ -62,20 +60,55 @@ class InputDataset(Data2ResampleBase):
         trainset, evalset = torch.utils.data.random_split(train_eval_set, [train_size, eval_size])   # split train_eval_set into trainset and evalset
         return trainset, evalset, testset, inputs, outputs
 
+    @staticmethod
+    def split_data_according_to_label(z, y, num_labels):
+        d = {}
+        for i in range(num_labels):
+            # d[i]: represent the index of data with label i
+            d[str(i)] = np.where(y[:, i] == 1)[0]
+        return d
+
+    @staticmethod
+    def concatenate_data_from_dir(config_volatile):
+        pos = {}  # pos[i_cluster] correspond to the z value (concatenated) of cluster i_cluster
+        global_index = {}  # global_index['cluster_1'] correspond to the global index with respect to the original data of cluster 1
+
+        if isinstance(config_volatile, ConfigManager):
+            data_path = config_volatile.get_data_path()
+        else:
+            data_path = config_volatile.data_path
+        data_path, num_labels, num_clusters = data_path, config_volatile.num_labels, config_volatile.num_clusters
+        for i_label in range(num_labels):
+            path = data_path + ConfigManager.label_name + str(i_label)   #FIXME! $"/L"
+            path = os.path.join(config_volatile.rst_dir, path)
+            z = np.load(path + config_volatile.z_name)  # z = np.load(path + "/z.npy")
+            y = np.load(path + config_volatile.y_name)  # y is the index dictionary with respect to global data
+            cluster_predict = np.load(path + config_volatile.cluster_predict_npy_name)
+            if i_label == 0:  # initialize the dictionary, using the first class label for each key of the dictionary, where key is the cluster index
+                for i_cluster in range(num_clusters):
+                    pos[str(i_cluster)] = z[np.where(cluster_predict == i_cluster)]
+                    global_index[str(i_cluster)] = y[np.where(cluster_predict == i_cluster)]
+            else:
+                for i_cluster in range(num_clusters):
+                    pos[str(i_cluster)] = np.concatenate((pos[str(i_cluster)], z[np.where(cluster_predict == i_cluster)]))
+                    global_index[str(i_cluster)] = np.concatenate((global_index[str(i_cluster)], y[np.where(cluster_predict == i_cluster)]))
+        return pos, global_index
+
+
     def __init__(self, dataset_name, label, num_labels):
         self.dataset_name = dataset_name
         # if flag labeled is true, train data is the subset of data(Mnist) which has same label
+        X, y = self.load_torchvision_data2np(self.dataset_name,)
         if label != -1:
-            X, y = self.load_torchvision_data2np(self.dataset_name,)
             # dict[i] represent data index with label i
-            mdict = split_data_according_to_label(X, y, num_labels)
+            mdict4gind = InputDataset.split_data_according_to_label(X, y, num_labels)
             # extract data with label i from global training data
-            self.data_X = X[mdict[str(label)]]
+            self.data_X = X[mdict4gind[str(label)]]
             # y represent the index with label i
-            self.data_y = mdict[str(label)]
-            # self.data_y = y[dict[str(label)]]
+            self.data_y = y[mdict4gind[str(label)]]
+            self.data_gind = mdict4gind[str(label)]
         else:
-            self.data_X, self.data_y = self.load_torchvision_data2np(self.dataset_name)
+            self.data_X, self.data_y = X, y
 
     def load_torchvision_data2np(self, dataset_name = "CIFAR10", num_classes = 10, shuffle=False, seed=547, allowed_input_channels = [1, 3]):
         """This looks like bad code since we are not using Dataloader here, but access the data directly Dataset.data, however, since our data need to be feed to tensorflow, we have to make them  numpy array"""
@@ -159,7 +192,7 @@ class SubdomainDataset(Dataset):
         self.pattern = config_volatile.global_index_name
         self.transform = transform
         if not tf.gfile.Exists(os.path.join(self.root_dir, self.pattern)):
-            _, self.global_index = concatenate_data_from_dir(config_volatile)
+            _, self.global_index = InputDataset.concatenate_data_from_dir(config_volatile)
         else:
             self.global_index = np.load(os.path.join(self.root_dir, self.pattern), allow_pickle=True)
             # global_index example:{'0': [15352, 21, ..], '1':[1121, 3195,...]}

@@ -6,7 +6,7 @@ import config
 import utils_parent as utils_parent
 import argparse
 from sklearn.model_selection import KFold
-from data_manipulator import concatenate_data_from_dir
+from mdataset_class import InputDataset
 from sklearn.model_selection import train_test_split
 
 import numpy as np
@@ -225,7 +225,7 @@ def cross_validation_for_clustered_data(X,y,data_path,num_labels,num_cluster,arg
     print("cross validation for clustered data")
     results = {}
     if not tf.gfile.Exists(data_path+"/global_index_cluster_data.npy"):
-        _,global_index = concatenate_data_from_dir(data_path,num_labels=num_labels,num_clusters=num_cluster)
+        _,global_index = InputDataset.concatenate_data_from_dir(data_path,num_labels=num_labels,num_clusters=num_cluster)
     else:global_index = np.load(data_path+"/global_index_cluster_data.npy",allow_pickle=True)
     for i in range(num_cluster):
         index = global_index.item().get(str(i))

@@ -3,6 +3,7 @@ import utils_parent as utils_parent
 from VGMM import VGMM
 from visualization import T_SNE_Plot
 from config_manager import ConfigManager
+from mdataset_class import InputDataset
 import json
 import os
 
@@ -21,38 +22,6 @@ def cluster_save2disk_label(result_path, z, num_clusters):
 
 
 
-def concatenate_data_from_dir(config_volatile):
-    pos = {}  # pos[i_cluster] correspond to the z value (concatenated) of cluster i_cluster
-    global_index = {}  # global_index['cluster_1'] correspond to the global index with respect to the original data of cluster 1
-
-    if isinstance(config_volatile, ConfigManager):
-        data_path = config_volatile.get_data_path()
-    else:
-        data_path = config_volatile.data_path
-    data_path, num_labels, num_clusters = data_path, config_volatile.num_labels, config_volatile.num_clusters
-    for i_label in range(num_labels):
-        path = data_path + ConfigManager.label_name + str(i_label)   #FIXME! $"/L"
-        path = os.path.join(config_volatile.rst_dir, path)
-        z = np.load(path + config_volatile.z_name)  # z = np.load(path + "/z.npy")
-        y = np.load(path + config_volatile.y_name)  # y is the index dictionary with respect to global data
-        cluster_predict = np.load(path + config_volatile.cluster_predict_npy_name)
-        if i_label == 0:  # initialize the dictionary, using the first class label for each key of the dictionary, where key is the cluster index
-            for i_cluster in range(num_clusters):
-                pos[str(i_cluster)] = z[np.where(cluster_predict == i_cluster)]
-                global_index[str(i_cluster)] = y[np.where(cluster_predict == i_cluster)]
-        else:
-            for i_cluster in range(num_clusters):
-                pos[str(i_cluster)] = np.concatenate((pos[str(i_cluster)], z[np.where(cluster_predict == i_cluster)]))
-                global_index[str(i_cluster)] = np.concatenate((global_index[str(i_cluster)], y[np.where(cluster_predict == i_cluster)]))
-    return pos, global_index
-
-
-def split_data_according_to_label(z, y, num_labels):
-    d = {}
-    for i in range(num_labels):
-        # d[i]: represent the index of data with label i
-        d[str(i)] = np.where(y[:, i] == 1)[0]
-    return d
 
 def generate_metadata(m, mdict, num_clusters):
     for i in range(num_clusters):
@@ -79,7 +48,7 @@ def cluster_common_embeding_labelwise(data_path, num_labels, num_clusters):
     z = np.load(data_path + ConfigManager.z_name)
     # global ground truth
     y = np.load(data_path + ConfigManager.y_name)[:z.shape[0]]
-    d_label = split_data_according_to_label(z, y, num_labels)
+    d_label = InputDataset.split_data_according_to_label(z, y, num_labels)
     # cluster data of each label
     vgmm = VGMM(num_clusters)
     pos = {}

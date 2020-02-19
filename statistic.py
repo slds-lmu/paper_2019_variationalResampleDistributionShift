@@ -1,7 +1,7 @@
 #import seaborn as sns
 import numpy as np
 import json
-from  data_manipulator import concatenate_data_from_dir
+from mdataset_class import InputDataset
 import config as config
 # from utils import *
 import utils_parent as utils_parent
@@ -161,7 +161,7 @@ def gromov_wasserstein_distance(data_path,num_labels,num_clusters,result_path):
         pos_index_dict = json.load(f)   # cluster index dictionary, not according to label. cluster on the whole space
 
     # dict: dictionary of data which training and clustering within label
-    dict = concatenate_data_from_dir(data_path, num_labels,num_clusters)
+    dict = InputDataset.concatenate_data_from_dir(data_path, num_labels,num_clusters)
 
     for i in range(num_clusters):
         # Compute distance kernels, normalize them and then display

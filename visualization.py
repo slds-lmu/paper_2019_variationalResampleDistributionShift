@@ -13,9 +13,7 @@ import json
 # import matplotlib as plt
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
-# from utils import *
-# import data_manipulator
-# from data_manipulator import concatenate_data_from_dir
+from mdataset_class import InputDataset
 
 def T_SNE_Plot(data_x,pos,num_clusters,result_path):
     from sklearn.manifold import TSNE
@@ -134,7 +132,7 @@ if __name__ == '__main__':
 
     # t-SNE plot for labeled data
     import config
-    data_dict, _ = concatenate_data_from_dir(data_path=config.data_path,
+    data_dict, _ = InputDataset.concatenate_data_from_dir(data_path=config.data_path,
                                                         num_labels=config.num_labels,
                                                         num_clusters=config.num_clusters)
     T_SNE_Plot_with_datadict(data_dict=data_dict, num_clusters=config.num_clusters,
