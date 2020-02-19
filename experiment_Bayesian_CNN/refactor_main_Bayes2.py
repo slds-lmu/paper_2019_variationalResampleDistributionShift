@@ -208,7 +208,7 @@ def prepare_data(args,train_eval_list,test_list,resize, method):
         transforms.ToTensor(),
         transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
     ])
-    return cv.split_te_tr_val(config_parent, method, train_eval_list, test_list, transform_train, transform_test, True)
+    return cv.split_te_tr_val(config_parent, method, train_eval_list, test_list, transform_train, transform_test, debug = False)
 
 
 def prepare_data_for_normal_cv(args,train_eval_list,test_list,resize):

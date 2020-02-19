@@ -32,7 +32,7 @@ class InputDataset():
         else:
             self.data_X, self.data_y = self.load_torchvision_data2np(self.dataset_name)
 
-    def load_torchvision_data2np(self, dataset_name = "CIFAR10", num_classes = 10, shuffle=True, seed=547, allowed_input_channels = [1, 3]):
+    def load_torchvision_data2np(self, dataset_name = "CIFAR10", num_classes = 10, shuffle=False, seed=547, allowed_input_channels = [1, 3]):
         """This looks like bad code since we are not using Dataloader here, but access the data directly Dataset.data, however, since our data need to be feed to tensorflow, we have to make them  numpy array"""
         dataset_name = dataset_name_tr(dataset_name)
         tv_method = getattr(torchvision.datasets, dataset_name)
