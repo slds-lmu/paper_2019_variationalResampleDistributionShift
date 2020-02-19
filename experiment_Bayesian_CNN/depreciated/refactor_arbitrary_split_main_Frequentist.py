@@ -9,8 +9,7 @@ import Frequentist_config as cf
 
 from torch.utils.data.sampler import SubsetRandomSampler
 
-import torchvision
-import torchvision.transforms as transforms
+import torchvision import torchvision.transforms as transforms
 from torch.utils.data.dataset import ConcatDataset
 
 import os
