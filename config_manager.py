@@ -12,6 +12,8 @@ class ConfigManager(object):
     label_name = "/L"
     z_name ="/z.npy"
     y_name = "/y.npy"
+    debug_subset_frac = 0.01
+    train_val_frac = 0.8
     def __init__(self, args):
         self.dataset_name = args.dataset
         self.epoch = args.epoch

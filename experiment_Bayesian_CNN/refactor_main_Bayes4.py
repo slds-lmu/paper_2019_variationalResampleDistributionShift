@@ -42,7 +42,6 @@ sys.path.insert(0,'..')
 import utils_parent as utils_parent
 import config as config_parent
 import mdataset_class
-import cv
 
 best_acc = 0
 from pathlib import Path
@@ -193,24 +192,6 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
 
 
 
-def prepare_data(args,train_eval_list,test_list,resize, method):
-    # Data Uplaod
-    debug = args.debug
-    print('\n[Phase 1] : Data Preparation')
-
-    transform_train = transforms.Compose([
-        transforms.Resize((resize, resize)),
-        transforms.ToTensor(),
-        transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
-    ])  # meanstd transformation
-
-    transform_test = transforms.Compose([
-        transforms.Resize((resize, resize)),
-        transforms.ToTensor(),
-        transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
-    ])
-    return cv.split_te_tr_val(config_parent, method, train_eval_list, test_list, transform_train, transform_test, debug)
-
 
 def cross_validation(num_labels,num_cluster,args):
     method = args.cv_type
@@ -226,20 +207,34 @@ def cross_validation(num_labels,num_cluster,args):
     mlist = list(kf.split(X,y))
     #i = 0
     #for train_eval_idx, test_idx in kf.split(X, y):  #iterator
+
+    transform_train = transforms.Compose([
+        transforms.Resize((resize, resize)),
+        transforms.ToTensor(),
+        transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
+    ])  # meanstd transformation
+
+    transform_test = transforms.Compose([
+        transforms.Resize((resize, resize)),
+        transforms.ToTensor(),
+        transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
+    ])
+
     for i in range(num_cluster):  #iterator
         #breakpoint()  iter = kf.split(X,y); for xx in iter: print(xx);  it seems that KFold.split works
         cv_idx = i
+        print('\n[Phase 1] : Data Preparation')
         if method == "rand":
         #i = i +1
             train_eval_idx = list(mlist[i][0])
             test_idx = list(mlist[i][1])
-            trainset, evalset, testset, inputs, outputs = prepare_data(args, train_eval_idx, test_idx, resize, method = method)
+            trainset, evalset, testset, inputs, outputs = ds.prepare_data(config_parent, args, train_eval_idx, test_idx, resize, method, transform_train, transform_test)
         elif method == "vgmm":
             test_list = [i]
             train_eval_list = list(range(num_cluster))
             train_eval_list = [x for x in train_eval_list if x != i]
             print(test_list,train_eval_list)
-            trainset, evalset, testset,inputs,outputs = prepare_data(args,train_eval_list,test_list,resize, method = method)
+            trainset, evalset, testset,inputs,outputs = ds.prepare_data(config_parent, args,train_eval_list,test_list,resize, method, transform_train, transform_test)
         else:
             raise NotImplementedError
 

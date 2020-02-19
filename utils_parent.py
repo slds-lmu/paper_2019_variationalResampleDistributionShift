@@ -210,10 +210,6 @@ def npy2csv(fileinput, fileoutput):
     data = np.load(fileinput)
     np.savetxt(fileoutput, data, delimiter=",")
 
-#split data accordingt to label
-def prepare_data():
-    return 0
-
 def save_dict(path,dict):
     with open(path, 'w') as f:
         json.dump(dict, f)

@@ -1,22 +1,67 @@
 """Subset a dataset with different methods"""
 import os
-import torchvision
+
 import torch
-import numpy as np
-import tensorflow as tf
 from torch.utils.data import Dataset
 from torch.utils.data.dataset import ConcatDataset
-from data_manipulator import concatenate_data_from_dir
 import torchvision
+import torchvision.transforms as transforms
+
+import numpy as np
+import tensorflow as tf
+
 import utils_parent
+from data_manipulator import concatenate_data_from_dir
 from data_manipulator import split_data_according_to_label
+from config_manager import ConfigManager
 
 def dataset_name_tr(dataset_name):
     if dataset_name == 'fashion-mnist': dataset_name = "FashionMNIST"
     elif dataset_name =='cifar10': dataset_name = "CIFAR10"
     return dataset_name
 
-class InputDataset():
+class Data2ResampleBase(object):
+    def init_load(self, *args, **kwargs):  # *args, **kwargs for subclass to override with custom parameters
+        raise NotImplementedError
+    def get_subdomain_data(self):
+        pass
+
+class InputDataset(Data2ResampleBase):
+    def init_load(self, *args, **kwargs):
+        pass
+
+    def prepare_data(self, config_parent, args,train_eval_list,test_list,resize, method, transform_train, transform_test):
+        # Data Uplaod
+        debug = args.debug
+        return self.split_te_tr_val(config_parent, method, train_eval_list, test_list, transform_train, transform_test, debug)
+
+    def split_te_tr_val(self, config_volatile, method, train_eval_list, test_list, transform_train, transform_test, debug = False):
+        debug_frac = ConfigManager.debug_subset_frac
+        train_val_frac = ConfigManager.train_val_frac
+        dataset_name = config_volatile.dataset_name
+        if method == "vgmm":
+            train_eval_set = SubdomainDataset(config_volatile = config_volatile,  transform=transform_train, list_idx=train_eval_list)
+            testset = SubdomainDataset(config_volatile = config_volatile, transform=transform_test, list_idx=test_list, )
+        elif method == "rand":
+            train_eval_set = SubDatasetByIndices(dataset_name= dataset_name, indices=train_eval_list, transform=transform_train)
+            testset = SubDatasetByIndices(dataset_name = dataset_name, indices=test_list, transform=transform_test)
+        else:
+            raise NotImplementedError
+        outputs = train_eval_set.num_classes
+        inputs = train_eval_set.num_channels
+        if debug:
+            small_size = int(debug_frac*len(train_eval_set))
+            drop_size = len(train_eval_set)-small_size
+            train_eval_set,_ = torch.utils.data.random_split(train_eval_set, [small_size, drop_size])
+
+            small_size = int(debug_frac * len(testset))
+            drop_size = len(testset) - small_size
+            testset, _ = torch.utils.data.random_split(testset, [small_size, drop_size])
+        train_size = int(train_val_frac * len(train_eval_set))
+        eval_size = len(train_eval_set) - train_size
+        trainset, evalset = torch.utils.data.random_split(train_eval_set, [train_size, eval_size])   # split train_eval_set into trainset and evalset
+        return trainset, evalset, testset, inputs, outputs
+
     def __init__(self, dataset_name, label, num_labels):
         self.dataset_name = dataset_name
         # if flag labeled is true, train data is the subset of data(Mnist) which has same label
