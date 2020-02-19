@@ -123,7 +123,7 @@ def parse_args(raw_args=None):
 
     # arguments specified for model
     parser.add_argument('--labeled', type=bool, default=False, help="whether train on specific labeled data")
-    parser.add_argument('--cluster', type=bool, default=False, help="whether cluster using latent space")
+    parser.add_argument('--cluster', default=False, action = "store_true", help="whether cluster using latent space")
     parser.add_argument('--num_labels', type=int, default=10, help="number of labels")
     parser.add_argument('--model_name', type=str, default='VAE', help="the name of model to be trained")
     parser.add_argument('--plot', type=bool, default=True, help="visualise the result of cluster")

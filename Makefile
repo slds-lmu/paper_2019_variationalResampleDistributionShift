@@ -13,11 +13,11 @@ test_convnet:
 	python convnet.py
 
 common_embed:
-	python main.py --cluster False  # the same vae to map all the data, then use vgmm. This is useful to calculate the wasserstein distance
+	python main.py  # the same vae to map all the data, then use vgmm. This is useful to calculate the wasserstein distance
 
 
 label:
-	python main.py --labeled True --cluster True     # use different vae to each label, then cluster according to each label
+	python main.py --labeled True --cluster     # use different vae to each label, then cluster according to each label
 
 convnet: 
 	python convnet.py --epoch 10    # compare of cv and rfms

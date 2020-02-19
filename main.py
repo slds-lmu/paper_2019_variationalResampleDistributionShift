@@ -64,18 +64,19 @@ def embed_cluster(raw_args=None):
                     np.save(config_m.get_data_path_for_each_label(i)+ config_m.y_name, g_ind_y)
                     print(" [*] latent representation and correponding class label saved!")
                 print(" [*] going to enter clustering (or not) ....")
-                if args.cluster:
-                    print(" [*] clustering....")
-                    # cluster latent space using VGMM: cluster the transformed latent space, and store the dictionary and prediction into result_path
-                    if not args.labeled:   # if not divided by label, cluster by label and merge
-                        print(" [*] VAE training without label, run cluster for each label now")
-                        filepath = config_m.get_data_path_for_each_label(-1) + config_m.cluster_index_json_name  # "/cluster_dict.json"
-                        if not tf.gfile.Exists(filepath):
-                            data_manipulator.cluster_common_embeding_labelwise(config_m.get_data_path_for_each_label(-1), num_labels=config_m.num_labels, num_clusters=config_m.num_clusters)
-                        print(" [*] after VAE training without label information, cluster by each label and merge finished and saved!")
-                    else:  # data comes in, divided by label
-                        data_manipulator.cluster_save2disk_label(config_m.get_data_path_for_each_label(i), z, config_m.num_clusters)  # if data already comes by label, then run VGMM directly
-                        print("vgmm cluster on label", i, "finished")
+            #with tf.session
+            if args.cluster:   # inside a tensorflow session, the behavior can be different, so better put cluster outside a tf session
+                print(" [*] clustering....")
+                # cluster latent space using VGMM: cluster the transformed latent space, and store the dictionary and prediction into result_path
+                if not args.labeled:   # if not divided by label, cluster by label and merge
+                    print(" [*] VAE training without label, run cluster for each label now")
+                    filepath = config_m.get_data_path_for_each_label(-1) + config_m.cluster_index_json_name  # "/cluster_dict.json"
+                    if not tf.gfile.Exists(filepath):
+                        data_manipulator.cluster_common_embeding_labelwise(config_m.get_data_path_for_each_label(-1), num_labels=config_m.num_labels, num_clusters=config_m.num_clusters)
+                    print(" [*] after VAE training without label information, cluster by each label and merge finished and saved!")
+                else:  # data comes in, divided by label
+                    data_manipulator.cluster_save2disk_label(config_m.get_data_path_for_each_label(i), z, config_m.num_clusters)  # if data already comes by label, then run VGMM directly
+                    print("vgmm cluster on label", i, "finished")
             if not args.labeled:
                 i = args.num_labels  # while
                 print("label", i, "finished")
