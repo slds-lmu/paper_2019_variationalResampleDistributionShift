@@ -88,7 +88,7 @@ https://github.com/kumar-shridhar/PyTorch-BayesianCNN
 ## Misc Resources
 
 ### Tips on generating dependencies file from a project
-- pip freeze
+- `pip freeze` will print out all package versions on the computer
 - see here: https://medium.com/python-pandemonium/better-python-dependency-and-package-management-b5d8ea29dff1
 
 ### Semi-supervised vae
