@@ -10,7 +10,6 @@ from ops import *
 import utils_parent
 import mdataset_class
 import prior_factory as prior
-from data_manipulator import split_data_according_to_label
 epsilon4stddev = 1e-6
 
 class VAE(object):
@@ -39,6 +38,7 @@ class VAE(object):
         ds = mdataset_class.InputDataset(self.dataset_name, label, self.num_labels)
         self.data_X = ds.data_X
         self.data_y = ds.data_y
+        self.g_ind_y = ds.g_ind_y
         # get number of batches for a single epoch
         self.num_batches = len(self.data_X) // self.batch_size
 
@@ -299,11 +299,10 @@ class VAE(object):
         #
         # Reload the data without shuffling before mapping it to z space
         noshuffle_data_X = self.data_X
-        noshuffle_data_y = self.data_y
         batch_images = noshuffle_data_X[0:self.batch_size]
         r = self.sess.run(self.mu, feed_dict={self.inputs: batch_images})
         for idx in range(1, self.num_batches):     # from the beginning to the end of the dataset, each time do batchsize, conform to the net tensor definition
             batch_images = noshuffle_data_X[idx * self.batch_size:(idx + 1) * self.batch_size]
             z = self.sess.run(self.mu, feed_dict={self.inputs: batch_images})
             r = tf.concat([r, z], 0)
-        return r, noshuffle_data_y
+        return r, self.g_ind_y

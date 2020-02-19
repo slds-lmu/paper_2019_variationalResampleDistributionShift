@@ -48,7 +48,7 @@ def cluster_common_embeding_labelwise(data_path, num_labels, num_clusters):
     z = np.load(data_path + ConfigManager.z_name)
     # global ground truth
     y = np.load(data_path + ConfigManager.y_name)[:z.shape[0]]
-    d_label = InputDataset.split_data_according_to_label(z, y, num_labels)
+    d_label = InputDataset.split_data_according_to_label(y, num_labels)
     # cluster data of each label
     vgmm = VGMM(num_clusters)
     pos = {}

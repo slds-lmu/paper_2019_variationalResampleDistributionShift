@@ -55,13 +55,13 @@ def embed_cluster(raw_args=None):
                 filepath = config_m.get_data_path_for_each_label(i) + config_m.z_name
 
                 if (not tf.gfile.Exists(filepath)) or args.labeled:
-                    z, noshuffle_data_y = vae.transform()
+                    z, g_ind_y = vae.transform()
                     z = z.eval()  # z is not used for cluster in the case of args.labeled=False, but should be used to calculate wasserstein distance, calculating z for all data can be very time consuming!
                     print(" [*] latent representation calculation finished!")
 
                 if not tf.gfile.Exists(filepath):
                     np.save(filepath, z)
-                    np.save(config_m.get_data_path_for_each_label(i)+ config_m.y_name, noshuffle_data_y)
+                    np.save(config_m.get_data_path_for_each_label(i)+ config_m.y_name, g_ind_y)
                     print(" [*] latent representation and correponding class label saved!")
                 print(" [*] going to enter clustering (or not) ....")
                 if args.cluster:
