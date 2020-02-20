@@ -41,7 +41,6 @@ from utils.BayesianModels.BayesianLeNet import BBBLeNet
 import sys
 sys.path.insert(0,'..')  # FIXME
 import utils_parent as utils_parent
-import config as config_parent
 import mdataset_class
 
 best_acc = 0
@@ -193,19 +192,22 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
     return test_diagnostics_to_write
 
 
+def mresample(config_volatile, args):
+    num_labels=config_volatile.num_labels
+    num_cluster=config_volatile.num_clusters
+    ds = mdataset_class.InputDataset(args.dataset, -1, 10)
+    ds.gen_rand_resample_list(num_cluster)
+    results = {}
+    for i in range(num_cluster):  #iterator
+        cv_idx = i
+        results[str(i)] = tr_val_te(ds, num_labels, num_cluster, args, cv_idx, config_volatile)
+    return results
 
-
-def cross_validation(num_labels,num_cluster,args):
-    method = args.cv_type
+def tr_val_te(ds, num_labels, num_cluster, args, cv_idx, config_parent):
     print("cross validation for random resampling")
     best_acc = 0
     resize = cf.resize
     start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
-    results = {}
-    ds = mdataset_class.InputDataset(args.dataset, -1, 10)
-    #X, y = utils_parent.load_mnist('fashion-mnist')
-    #i = 0
-    #for train_eval_idx, test_idx in kf.split(X, y):  #iterator
 
     transform_train = transforms.Compose([
         transforms.Resize((resize, resize)),
@@ -219,89 +221,84 @@ def cross_validation(num_labels,num_cluster,args):
         transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
     ])
 
-    ds.gen_rand_resample_list(num_cluster)
+    print('\n[Phase 1] : Data Preparation')
+    trainset, evalset, testset, inputs, outputs = ds.prepare_data(config_parent, args, transform_train, transform_test, cv_idx, num_cluster)
+    # Hyper Parameter settings
+    use_cuda = torch.cuda.is_available()
+    use_cuda = cf.use_cuda()
+    if use_cuda is True:
+        torch.cuda.set_device(args.g)
+        print("*** using gpu ind", args.g)
+    best_acc = 0
+    resize = cf.resize
+    start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
 
-    for i in range(num_cluster):  #iterator
-        cv_idx = i
-        print('\n[Phase 1] : Data Preparation')
-        trainset, evalset, testset, inputs, outputs = ds.prepare_data(config_parent, args, method, transform_train, transform_test, i, num_cluster)
-        # Hyper Parameter settings
-        use_cuda = torch.cuda.is_available()
-        use_cuda = cf.use_cuda()
-        if use_cuda is True:
-            torch.cuda.set_device(args.g)
-            print("*** using gpu ind", args.g)
-        best_acc = 0
-        resize = cf.resize
-        start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
+    evalloader = torch.utils.data.DataLoader(evalset, batch_size=batch_size, shuffle=False, num_workers=4)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
 
-        trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
-        evalloader = torch.utils.data.DataLoader(evalset, batch_size=batch_size, shuffle=False, num_workers=4)
-        testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
+    # num_workers: how many subprocesses to use for data loading. 0 means that the data will be loaded in the main process. (default: 0)# Return network & file name
 
-        # num_workers: how many subprocesses to use for data loading. 0 means that the data will be loaded in the main process. (default: 0)# Return network & file name
+    # Model
+    print('\n[Phase 2] : Model setup')
+    if args.resume:
+        # Load checkpoint
+        print('| Resuming from checkpoint...')
+        assert os.path.isdir('checkpoint'), 'Error: No checkpoint directory found!'
+        _, file_name = getNetwork(args, inputs, outputs)
 
-        # Model
-        print('\n[Phase 2] : Model setup')
-        if args.resume:
-            # Load checkpoint
-            print('| Resuming from checkpoint...')
-            assert os.path.isdir('checkpoint'), 'Error: No checkpoint directory found!'
-            _, file_name = getNetwork(args, inputs, outputs)
+        checkpoint = torch.load('./checkpoint/' + args.dataset + os.sep + file_name+ args.cv_type + str(cv_idx)  + '.t7')
+        net = checkpoint['net']
+        best_acc = checkpoint['acc']
+        start_epoch = checkpoint['epoch']
+    else:
+        print('| Building net type [' + args.net_type + ']...')
+        net, file_name = getNetwork(args, inputs, outputs)
 
-            checkpoint = torch.load('./checkpoint/' + args.dataset + os.sep + file_name+ args.cv_type + str(cv_idx)  + '.t7')
-            net = checkpoint['net']
-            best_acc = checkpoint['acc']
-            start_epoch = checkpoint['epoch']
-        else:
-            print('| Building net type [' + args.net_type + ']...')
-            net, file_name = getNetwork(args, inputs, outputs)
+    if use_cuda:
+        net.cuda()
 
-        if use_cuda:
-            net.cuda()
+    vi = GaussianVariationalInference(torch.nn.CrossEntropyLoss())
 
-        vi = GaussianVariationalInference(torch.nn.CrossEntropyLoss())
+    rstfolder = args.rst_dir
+    logfile_train = os.path.join(rstfolder, 'diagnostics_Bayes{}_{}_cv{}_train_{}.txt'.format(args.net_type, args.dataset, cv_idx, args.cv_type))
+    logfile_test = os.path.join(rstfolder, 'diagnostics_Bayes{}_{}_cv{}_test_{}.txt'.format(args.net_type, args.dataset, cv_idx, args.cv_type))
+    logfile_eval = os.path.join(rstfolder, 'diagnostics_Bayes{}_{}_cv{}_val_{}.txt'.format(args.net_type, args.dataset, cv_idx, args.cv_type))
 
-        #logfile = os.path.join('diagnostics_Bayes{}_{}.txt'.format(args.net_type, args.dataset))
-        logfile_train = os.path.join(rstfolder, 'diagnostics_Bayes{}_{}_cv{}_train_{}.txt'.format(args.net_type, args.dataset, i, args.cv_type))
-        logfile_test = os.path.join(rstfolder, 'diagnostics_Bayes{}_{}_cv{}_test_{}.txt'.format(args.net_type, args.dataset, i, args.cv_type))
-        logfile_eval = os.path.join(rstfolder, 'diagnostics_Bayes{}_{}_cv{}_val_{}.txt'.format(args.net_type, args.dataset, i, args.cv_type))
+    print('\n[Phase 3] : Training model')
+    print('| Training Epochs = ' + str(num_epochs))
+    print('| Initial Learning Rate = ' + str(args.lr))
+    print('| Optimizer = ' + str(optim_type))
 
-        print('\n[Phase 3] : Training model')
-        print('| Training Epochs = ' + str(num_epochs))
-        print('| Initial Learning Rate = ' + str(args.lr))
-        print('| Optimizer = ' + str(optim_type))
+    elapsed_time = 0
 
-        elapsed_time = 0
+    train_return = []
+    test_return = []
+    eval_return = []
 
-        train_return = []
-        test_return = []
-        eval_return = []
+    for epoch in range(start_epoch, start_epoch + num_epochs):
+        start_time = time.time()
 
-        for epoch in range(start_epoch, start_epoch + num_epochs):
-            start_time = time.time()
+        temp_train_return = train(epoch, trainset, inputs, net, batch_size, trainloader, resize, num_epochs, use_cuda, vi, logfile_train)
+        temp_eval_return = test(epoch, evalset, inputs, batch_size, evalloader, net, use_cuda, num_epochs, resize, vi, logfile_eval, file_name)
+        temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi, logfile_test, "test")
 
-            temp_train_return = train(epoch, trainset, inputs, net, batch_size, trainloader, resize, num_epochs, use_cuda, vi, logfile_train)
-            temp_eval_return = test(epoch, evalset, inputs, batch_size, evalloader, net, use_cuda, num_epochs, resize, vi, logfile_eval,file_name)
-            temp_test_return = test(epoch, testset, inputs, batch_size, testloader, net, use_cuda, num_epochs, resize, vi, logfile_test, "test")
+        train_return = np.append(train_return,temp_train_return)
+        eval_return = np.append(eval_return,temp_eval_return)
+        test_return = np.append(test_return, temp_test_return)
 
-            train_return = np.append(train_return,temp_train_return)
-            eval_return = np.append(eval_return,temp_eval_return)
-            test_return = np.append(test_return, temp_test_return)
+        print(temp_train_return)
+        print(temp_eval_return)
+        print(temp_test_return)
 
-            print(temp_train_return)
-            print(temp_eval_return)
-            print(temp_test_return)
+        epoch_time = time.time() - start_time
+        elapsed_time += epoch_time
+        print('| Elapsed time : %d:%02d:%02d' % (cf.get_hms(elapsed_time)))
 
-            epoch_time = time.time() - start_time
-            elapsed_time += epoch_time
-            print('| Elapsed time : %d:%02d:%02d' % (cf.get_hms(elapsed_time)))
-
-        print('\n[Phase 4] : Testing model')
-        print('* Test results : Acc@1 = %.2f%%' % (best_acc))
-        results[str(i)] = {"train": train_return, "test": test_return, "eval": eval_return}
-        print(results)
-    return results
+    print('\n[Phase 4] : Testing model')
+    print('* Test results : Acc@1 = %.2f%%' % (best_acc))
+    rst = {"train": train_return, "test": test_return, "eval": eval_return}
+    return rst
 
 
 if __name__ == '__main__':
@@ -331,7 +328,8 @@ if __name__ == '__main__':
 
     global cv_idx
     cv_idx = 0
-    result = cross_validation(num_labels=config_parent.num_labels,num_cluster=config_parent.num_clusters,args=args)
+    import config as config_parent
+    result = mresample(config_parent, args)
 
     final_file_prefix = "Bayes_"+args.cv_type + '_' + args.net_type + '_cross_validation_result'
     with open(final_file_prefix + '.p', 'wb') as fp:

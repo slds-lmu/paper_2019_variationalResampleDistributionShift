@@ -31,9 +31,10 @@ class InputDataset(Data2ResampleBase):
     def init_load(self, *args, **kwargs):
         pass
 
-    def prepare_data(self, config_parent, args, method, transform_train, transform_test, i, num_cluster):
+    def prepare_data(self, config_parent, args, transform_train, transform_test, i, num_cluster):
         # Data Uplaod
         debug = args.debug
+        method = args.cv_type
         if method == "rand":
             train_eval_idx_list = list(self.resample_list[i][0])
             test_idx_list = list(self.resample_list[i][1])
