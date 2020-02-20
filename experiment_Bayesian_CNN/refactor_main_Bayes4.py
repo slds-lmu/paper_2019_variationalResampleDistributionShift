@@ -34,7 +34,8 @@ from utils.BBBlayers import GaussianVariationalInference
 from utils.BayesianModels.Bayesian3Conv3FC import BBB3Conv3FC
 from utils.BayesianModels.BayesianAlexNet import BBBAlexNet
 from utils.BayesianModels.BayesianLeNet import BBBLeNet
-from sklearn.model_selection import KFold
+
+
 
 
 import sys
@@ -203,9 +204,6 @@ def cross_validation(num_labels,num_cluster,args):
     results = {}
     ds = mdataset_class.InputDataset(args.dataset, -1, 10)
     #X, y = utils_parent.load_mnist('fashion-mnist')
-    X, y = ds.data_X, ds.data_y
-    kf = KFold(n_splits=num_cluster, shuffle = True)
-    mlist = list(kf.split(X,y))
     #i = 0
     #for train_eval_idx, test_idx in kf.split(X, y):  #iterator
 
@@ -221,14 +219,14 @@ def cross_validation(num_labels,num_cluster,args):
         transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
     ])
 
+    ds.gen_rand_resample_list(num_cluster)
+
     for i in range(num_cluster):  #iterator
-        #breakpoint()  iter = kf.split(X,y); for xx in iter: print(xx);  it seems that KFold.split works
         cv_idx = i
         print('\n[Phase 1] : Data Preparation')
         if method == "rand":
-        #i = i +1
-            train_eval_idx = list(mlist[i][0])
-            test_idx = list(mlist[i][1])
+            train_eval_idx = list(ds.resample_list[i][0])
+            test_idx = list(ds.resample_list[i][1])
             trainset, evalset, testset, inputs, outputs = ds.prepare_data(config_parent, args, train_eval_idx, test_idx, resize, method, transform_train, transform_test)
         elif method == "vgmm":
             test_list = [i]

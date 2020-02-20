@@ -7,6 +7,9 @@ from torch.utils.data.dataset import ConcatDataset
 import torchvision
 import torchvision.transforms as transforms
 
+
+from sklearn.model_selection import KFold
+
 import numpy as np
 import tensorflow as tf
 
@@ -32,6 +35,11 @@ class InputDataset(Data2ResampleBase):
         # Data Uplaod
         debug = args.debug
         return self.split_te_tr_val(config_parent, method, train_eval_list, test_list, transform_train, transform_test, debug)
+
+    def gen_rand_resample_list(self, fold):
+        X, y = self.data_X, self.data_y
+        kf = KFold(n_splits=fold, shuffle=True)
+        self.resample_list = list(kf.split(X, y))
 
     def split_te_tr_val(self, config_volatile, method, train_eval_list, test_list, transform_train, transform_test, debug = False):
         debug_frac = ConfigManager.debug_subset_frac
@@ -111,7 +119,7 @@ class InputDataset(Data2ResampleBase):
             self.data_X, self.data_y = X, y
             self.g_ind_y = np.asarray(np.arange(np.shape(X)[0]))
 
-    def load_torchvision_data2np(self, dataset_name, num_classes, shuffle=False, seed=547, allowed_input_channels = [1, 3]):
+    def load_torchvision_data2np(self, dataset_name, shuffle=False, seed=547, allowed_input_channels = [1, 3]):
         """This looks like bad code since we are not using Dataloader here, but access the data directly Dataset.data, however, since our data need to be feed to tensorflow, we have to make them  numpy array"""
         dataset_name = dataset_name_tr(dataset_name)
         tv_method = getattr(torchvision.datasets, dataset_name)
@@ -131,6 +139,8 @@ class InputDataset(Data2ResampleBase):
         #return cd.data, cd.targets
         X = np.concatenate((trX, teX), axis=0)
         y = np.concatenate((trY, teY), axis=0).astype(np.int)
+
+        num_classes = len(trainset_temp.classes)
         yy = np.zeros((len(y), num_classes))
         yy[np.arange(len(y)), y] = 1
         if shuffle:
