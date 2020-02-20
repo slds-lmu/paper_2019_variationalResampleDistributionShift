@@ -224,19 +224,7 @@ def cross_validation(num_labels,num_cluster,args):
     for i in range(num_cluster):  #iterator
         cv_idx = i
         print('\n[Phase 1] : Data Preparation')
-        if method == "rand":
-            train_eval_idx = list(ds.resample_list[i][0])
-            test_idx = list(ds.resample_list[i][1])
-            trainset, evalset, testset, inputs, outputs = ds.prepare_data(config_parent, args, train_eval_idx, test_idx, resize, method, transform_train, transform_test)
-        elif method == "vgmm":
-            test_list = [i]
-            train_eval_list = list(range(num_cluster))
-            train_eval_list = [x for x in train_eval_list if x != i]
-            print(test_list,train_eval_list)
-            trainset, evalset, testset,inputs,outputs = ds.prepare_data(config_parent, args,train_eval_list,test_list,resize, method, transform_train, transform_test)
-        else:
-            raise NotImplementedError
-
+        trainset, evalset, testset, inputs, outputs = ds.prepare_data(config_parent, args, method, transform_train, transform_test, i, num_cluster)
         # Hyper Parameter settings
         use_cuda = torch.cuda.is_available()
         use_cuda = cf.use_cuda()

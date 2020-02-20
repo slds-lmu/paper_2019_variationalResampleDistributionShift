@@ -31,12 +31,24 @@ class InputDataset(Data2ResampleBase):
     def init_load(self, *args, **kwargs):
         pass
 
-    def prepare_data(self, config_parent, args,train_eval_list,test_list,resize, method, transform_train, transform_test):
+    def prepare_data(self, config_parent, args, method, transform_train, transform_test, i, num_cluster):
         # Data Uplaod
         debug = args.debug
-        return self.split_te_tr_val(config_parent, method, train_eval_list, test_list, transform_train, transform_test, debug)
+        if method == "rand":
+            train_eval_idx_list = list(self.resample_list[i][0])
+            test_idx_list = list(self.resample_list[i][1])
+        elif method == "vgmm":
+            test_idx_list = [i]
+            train_eval_idx_list = list(range(num_cluster))
+            train_eval_idx_list = [x for x in train_eval_idx_list if x != i]
+        else:
+            raise NotImplementedError
 
-    def gen_rand_resample_list(self, fold):
+        print(test_idx_list, train_eval_idx_list)
+
+        return self.split_te_tr_val(config_parent, method, train_eval_idx_list, test_idx_list, transform_train, transform_test, debug)
+
+    def gen_rand_resample_list(self, fold):  # must be generated before hand the cross validation
         X, y = self.data_X, self.data_y
         kf = KFold(n_splits=fold, shuffle=True)
         self.resample_list = list(kf.split(X, y))
