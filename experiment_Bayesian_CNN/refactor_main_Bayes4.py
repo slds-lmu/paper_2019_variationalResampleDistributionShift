@@ -29,7 +29,6 @@ import json
 
 import Bayesian_config as cf
 
-GPUIndex = 1
 from utils.BBBlayers import GaussianVariationalInference
 
 from utils.BayesianModels.Bayesian3Conv3FC import BBB3Conv3FC
@@ -165,7 +164,10 @@ def test(epoch,testset,inputs,batch_size,testloader,net,use_cuda,num_epochs,resi
 
     acc = (100 * correct.to(dtype=torch.float) / float(total)) / args.num_samples
     # print('\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%' %(epoch, loss.data[0], acc))
-    print('\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%' % (epoch, loss.data, acc))
+    if file_name != "test":
+        print('\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%' % (epoch, loss.data, acc))
+    else:
+        print('\n| Testing Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%' % (epoch, loss.data, acc))
     # test_diagnostics_to_write = {'Validation Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': acc}
     test_diagnostics_to_write = {'Epoch': epoch, 'Loss': loss.data, 'Accuracy': acc}
     with open(logfile, 'a') as lf:
@@ -200,7 +202,7 @@ def cross_validation(num_labels,num_cluster,args):
     resize = cf.resize
     start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
     results = {}
-    ds = mdataset_class.InputDataset("fashion-mnist", -1, 10)
+    ds = mdataset_class.InputDataset(args.dataset, -1, 10)
     #X, y = utils_parent.load_mnist('fashion-mnist')
     X, y = ds.data_X, ds.data_y
     kf = KFold(n_splits=num_cluster, shuffle = True)
@@ -242,7 +244,8 @@ def cross_validation(num_labels,num_cluster,args):
         use_cuda = torch.cuda.is_available()
         use_cuda = cf.use_cuda()
         if use_cuda is True:
-            torch.cuda.set_device(GPUIndex)
+            torch.cuda.set_device(args.g)
+            print("*** using gpu ind", args.g)
         best_acc = 0
         resize = cf.resize
         start_epoch, num_epochs, batch_size, optim_type = cf.start_epoch, cf.num_epochs, cf.batch_size, cf.optim_type
@@ -325,14 +328,15 @@ if __name__ == '__main__':
     parser.add_argument('--num_samples', default=10, type=int, help='Number of samples')
     parser.add_argument('--beta_type', default="Blundell", type=str, help='Beta type')
     parser.add_argument('--p_logvar_init', default=0, type=int, help='p_logvar_init')
+    parser.add_argument('--g', default=0, type=int, help='default gpu')
     parser.add_argument('--q_logvar_init', default=-10, type=int, help='q_logvar_init')
     parser.add_argument('--weight_decay', default=0.0005, type=float, help='weight_decay')
     parser.add_argument('--dataset', default='fashion-mnist', type=str,
-                        help='dataset = [mnist/cifar10/cifar100]')
+                        help='dataset = [fashion-mnist/cifar10/cifar100]')
     parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
     parser.add_argument('--cv_type', '-v', default = 'vgmm', type=str, help='cv_type=[rand/vgmm]')
-    parser.add_argument('--debug',default=False,type=bool,help="debug mode has smaller data")
+    parser.add_argument('--debug',default=False, action='store_true', help="debug mode has smaller data")
     parser.add_argument('--cv_idx', default=0, type=int, help='index of cv')
     args = parser.parse_args()
     global cv_idx

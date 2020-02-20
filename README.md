@@ -27,13 +27,14 @@ clone this repository and navigate into the project directory
 ```
 
 ### Generating the embeding and assigning each image to its pseudo subdomain
-- learn an embedding with respect to data from all classes: `python main.py --dataset fashion-mnist --cluster False`
+- learn an embedding with respect to data from all classes: `python main.py --dataset fashion-mnist`
     - equivalently you could do `make common_embed`
     - cluster directly here won't be used since the cluster will most probably correspond to different classes, so we cluster with respect to each class label and merge them: python main.py --label False --cluster True, but this is not used in the experiment
+    - for fashion-mnist, it takes 20 mins on titan gpu
 
-- learn an embedding with respect to each class label and merge randomly: `python main.py --dataset fashion-mnist --labeled True --cluster True`
+- learn an embedding with respect to each class label and merge randomly: `python main.py --dataset fashion-mnist --labeled True --cluster`
     - equivalently you could do `make label` 
-    - for fashion-mnist, it takes 1 hours on fujitsu-celcius workstation
+    - for fashion-mnist, it takes 1 hours on fujitsu-celcius workstation, 20 mins on titan gpu
 
 - The result of the main routine `embed_cluster()`  generate a file which stores the global index, which is a dictionary with key corresponding to cluster index, while value corresponding to the absolute index of the original data. The path of this result file is stored in a volatile python file, see below "Result files"
 

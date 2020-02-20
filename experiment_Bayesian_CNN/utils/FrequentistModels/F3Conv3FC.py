@@ -13,7 +13,7 @@ def conv_init(m):
 class F3Conv3FC(nn.Module):
     """
     To train on CIFAR-10:
-    https://arxiv.org/pdf/1207.0580.pdf
+    https://arxiv.org/pdf/1206.0580.pdf
     """
     def __init__(self, outputs, inputs):
         super(F3Conv3FC, self).__init__()

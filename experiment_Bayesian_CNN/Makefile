@@ -10,10 +10,10 @@ bdebugrand:
 	python refactor_main_Bayes4.py --cv_type "rand" --debug True --net_type "3conv3fc"
 
 bvgmm:
-	python refactor_main_Bayes4.py --cv_type "vgmm" --net_type "3conv3fc" # default debug False
+	python refactor_main_Bayes4.py --cv_type "vgmm" --net_type "3conv3fc" --g "0" # default debug False
 
 brand:
-	python refactor_main_Bayes4.py --cv_type "rand" --net_type "3conv3fc" # default --debug False
+	python refactor_main_Bayes4.py --cv_type "rand" --net_type "3conv3fc" --g "2" # default --debug False
 
 fdebugrand:  # frequenst
 	python refactor_main_Frequentist.py --cv_type "rand" --debug True --net_type "3conv3fc" # default --debug False

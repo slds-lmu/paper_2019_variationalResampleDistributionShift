@@ -7,10 +7,10 @@ from mdataset_class import InputDataset
 import json
 import os
 
-def cluster_save2disk_label(result_path, z, num_clusters):
-    print("cluster given z data from arguments")
+def cluster_save2disk_label(result_path, phi, num_clusters):
+    print("clustering given variational parameter phi(mu/sigma) data from arguments")
     vgmm = VGMM(num_clusters)
-    mdict, X_prediction_vgmm = vgmm.cluster(z)
+    mdict, X_prediction_vgmm = vgmm.cluster(phi)
     # save the result of clustering
     path = result_path + ConfigManager.cluster_index_json_name  # path = result_path + "/" + "cluster_dict.json"
     vgmm.save_dict(path, mdict)
@@ -44,10 +44,10 @@ def concatenate_index_array(d, num_labels, num_clusters):
 
     return pos # pos[j]: represent cluster j with multi-label
 
-def cluster_common_embeding_labelwise(data_path, num_labels, num_clusters):
+def cluster_common_embeding_labelwise(y, data_path, num_labels, num_clusters):
     z = np.load(data_path + ConfigManager.z_name)
     # global ground truth
-    y = np.load(data_path + ConfigManager.y_name)[:z.shape[0]]
+    # y = np.load(data_path + ConfigManager.y_name)[:z.shape[0]]
     d_label = InputDataset.split_data_according_to_label(y, num_labels)
     # cluster data of each label
     vgmm = VGMM(num_clusters)

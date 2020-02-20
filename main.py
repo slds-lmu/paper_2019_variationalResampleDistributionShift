@@ -72,7 +72,8 @@ def embed_cluster(raw_args=None):
                     print(" [*] VAE training without label, run cluster for each label now")
                     filepath = config_m.get_data_path_for_each_label(-1) + config_m.cluster_index_json_name  # "/cluster_dict.json"
                     if not tf.gfile.Exists(filepath):
-                        data_manipulator.cluster_common_embeding_labelwise(config_m.get_data_path_for_each_label(-1), num_labels=config_m.num_labels, num_clusters=config_m.num_clusters)
+                        ds = InputDataset(args.dataset, -1, args.num_labels)  # FIXME: change InputDataset into singleton to avoid too initialization of InputDataset generate two different setting
+                        data_manipulator.cluster_common_embeding_labelwise(ds.data_y, config_m.get_data_path_for_each_label(-1), num_labels=config_m.num_labels, num_clusters=config_m.num_clusters)
                     print(" [*] after VAE training without label information, cluster by each label and merge finished and saved!")
                 else:  # data comes in, divided by label
                     data_manipulator.cluster_save2disk_label(config_m.get_data_path_for_each_label(i), z, config_m.num_clusters)  # if data already comes by label, then run VGMM directly
@@ -81,15 +82,18 @@ def embed_cluster(raw_args=None):
                 i = args.num_labels  # while
                 print("label", i, "finished")
             i = i+1 # while
+        # while
         # After for loop is finished
-        if args.labeled:  # merge the clusters from each label
+        if args.labeled and args.cluster:  # merge the clusters from each label
             print(" [*] merging clusters from each label....")
             # concatenate clustered data into one dict after clustering
             data_dict, global_index = InputDataset.concatenate_data_from_dir(config_m)
             # global_index is the final result of this routine
             # save global index for cluster data
             np.save(config_m.get_data_path()+ config_m.global_index_name, global_index, allow_pickle=True)
-            visualization.T_SNE_Plot_with_datadict(data_dict=data_dict, num_clusters=config_m.num_clusters, result_path=config_m.get_data_path())
+            if args.plot:
+                print(" [*] creating T-SNE plot....")
+                visualization.T_SNE_Plot_with_datadict(data_dict=data_dict, num_clusters=config_m.num_clusters, result_path=config_m.get_data_path())
         config_m.write_config_file()
         print("* volatile configuration file written")
     # not yet used
