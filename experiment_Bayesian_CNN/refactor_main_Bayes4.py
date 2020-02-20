@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import os
-import sys
+
 import time
 import argparse
 import datetime
@@ -35,17 +35,16 @@ from utils.BayesianModels.Bayesian3Conv3FC import BBB3Conv3FC
 from utils.BayesianModels.BayesianAlexNet import BBBAlexNet
 from utils.BayesianModels.BayesianLeNet import BBBLeNet
 from sklearn.model_selection import KFold
-#import refactor_dataset_class
+
+
 import sys
-sys.path.insert(0,'..')
+sys.path.insert(0,'..')  # FIXME
 import utils_parent as utils_parent
 import config as config_parent
 import mdataset_class
 
 best_acc = 0
 from pathlib import Path
-rstfolder = "./result4Bayes4"
-Path(rstfolder).mkdir(parents=True, exist_ok=True)
 
 def getNetwork(args,inputs,outputs):
     if (args.net_type == 'lenet'):
@@ -323,6 +322,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch Training')
     parser.add_argument('--lr', default=0.0001, type=float, help='learning_rate')
     parser.add_argument('--net_type', default='3conv3fc', type=str, help='model')
+    parser.add_argument('--rst_dir', default='result', type=str, help='model')
     # parser.add_argument('--depth', default=28, type=int, help='depth of model')
     # parser.add_argument('--widen_factor', default=10, type=int, help='width of model')
     parser.add_argument('--num_samples', default=10, type=int, help='Number of samples')
@@ -339,6 +339,10 @@ if __name__ == '__main__':
     parser.add_argument('--debug',default=False, action='store_true', help="debug mode has smaller data")
     parser.add_argument('--cv_idx', default=0, type=int, help='index of cv')
     args = parser.parse_args()
+
+    rstfolder = args.rst_dir
+    Path(rstfolder).mkdir(parents=True, exist_ok=True)
+
     global cv_idx
     cv_idx = 0
     result = cross_validation(num_labels=config_parent.num_labels,num_cluster=config_parent.num_clusters,args=args)

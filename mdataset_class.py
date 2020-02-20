@@ -209,7 +209,7 @@ class SubdomainDataset(Dataset):
         self.all_inds = all_inds.tolist()
         self.all_inds = [round(x) for x in self.all_inds] # make to be integer
         trte = TrTeData(config_volatile.dataset_name, transform)
-        self.subset = torch.utils.data.Subset(trte.data, self.all_inds)
+        self.subset = torch.utils.data.Subset(trte, self.all_inds)
         self.num_classes = trte.num_classes
         self.num_channels = trte.num_channels
 
