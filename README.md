@@ -6,7 +6,7 @@
 clone this repository and navigate into the project directory
 
 ### Install Dependencies
-- `pip install -r requirements_cpu.txt`
+- `pip install -r requirements_compact.txt`
 - `pip install Cython`
 - `pip install pot` or `conda install -c conda-forge pot`
 
@@ -14,25 +14,35 @@ clone this repository and navigate into the project directory
 - make test
 - make test_label
 - The above command will use minimal epochs to test if the whole process below works
+- The above command will generate results with different folder names so will not affect the major
+  result
 
 ### Experiment Process
 
 #### arguments for main.py in project root
 ```
   python main.py
-  --cluster <True,False (default)>
+  --cluster <True, False(default)>
   --dataset <'cifar10', 'fashion-mnist' (default)>
   --z_dim <1-inf,62(default)>
-  --labeled <True,False (default)>
+  --labeled <True, False(default)>
+  --result_dir<String, "results(default)>
+  --persist_file_path<String, "ignore_flat_rst_meta_persist_FashionMNIST.py"(default)>
 ```
+- 'persist_file_path': A volatile python file name(name must end with .py!) storing information to retrieve results, which will be overwritten each time the `embed_cluster` routine is runned
+- `result_dir`: in folder 'result_dir' relative to the current directory, results will be stored.
+For example, one possible folder name can be VAE-fashion-mnist-64-10 where 64 is the batch size and 10 is the length of the latent dimension, inside which L0 to L9 stores the results for each class label and L-1(-1 means for all classes) stores the global embedding for all classes instances. Note that these results won't be overwritten!
+- in folder checkpoint/VAE-fashion-mnist-64-10/L-1, VAE will store results for global embeding for all classes, delete this folder if you want to rerun experiment
+
+
 
 ### Generating the embeding and assigning each image to its pseudo subdomain
 - learn an embedding with respect to data from all classes: `python main.py --dataset fashion-mnist`
     - equivalently you could do `make common_embed`
-    - cluster directly here won't be used since the cluster will most probably correspond to different classes, so we cluster with respect to each class label and merge them: python main.py --label False --cluster True, but this is not used in the experiment
+    - cluster directly here won't be used since the cluster will most probably correspond to different classes, so we cluster with respect to each class label and merge them: `python main.py --cluster`, but this is not used in the experiment
     - for fashion-mnist, it takes 20 mins on titan gpu
 
-- learn an embedding with respect to each class label and merge randomly: `python main.py --dataset fashion-mnist --labeled True --cluster`
+- learn an embedding with respect to each class label and merge randomly: `python main.py --dataset fashion-mnist --labeled --cluster`
     - equivalently you could do `make label` 
     - for fashion-mnist, it takes 1 hours on fujitsu-celcius workstation, 20 mins on titan gpu
 
@@ -40,24 +50,8 @@ clone this repository and navigate into the project directory
 
 ### After the vae-vgmm subdomain assignment
 
-#### Result files
-- config.py is a volatile file storing information to retrieve results, which will be rewriten each time the `embed_cluster` routine is runned
-- in folder 'results', for example, one possible folder name can be VAE-fashion-mnist-64-10 where 64 is
-the batch size and 10 is the length of the latent dimension, inside which L0 to L9 stores the
-results for each class label and L-1(not label-wise) stores the global embedding for all classes instances
-- in folder checkpoint/VAE-fashion-mnist-64-10/L-1, VAE will store results for global embeding for all classes, delete this folder if you want to rerun experiment
-
-#### Get access to the result
-- after running the experiment, one could load config again to get a subset of the original merged train-test data from SubdomainDataset, which is inherited from torch.utils.data.dataset.Dataset
-
-  ```
-  import config
-  from mdataset_class import SubdomainDataset
-  subds = SubdomainDataset(config_volatile=config, list_idx=[0, 2], transform=None)
-  ```
-
 #### Evaluate different Neural Network Prediction Performance on the artificial sub-domains
-- change directory to experiment_Bayesian_CNN
+- change directory to `experiment_Bayesian_CNN`
 - test if code works by `make bdebugvgmm` and `make bdebugrand`
 - check the Makefile for other tasks like  `make bvgmm_alexnet`, `make fvgmm_alexnet` etc
 

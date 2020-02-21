@@ -317,7 +317,7 @@ if __name__ == '__main__':
     parser.add_argument('--weight_decay', default=0.0005, type=float, help='weight_decay')
     parser.add_argument('--dataset', default='fashion-mnist', type=str,
                         help='dataset = [fashion-mnist/cifar10/cifar100]')
-    parser.add_argument('--persist_conf_path', default='./notapy.py', type=str,
+    parser.add_argument('--persist_conf_path', default='ignore_flat_rst_meta_persist_FashionMNIST.py', type=str,
                         help='the python volatile file which stores meta information of vgmm-vae')
     parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
@@ -337,12 +337,7 @@ if __name__ == '__main__':
     final_file_prefix = "Bayes_"+args.cv_type + '_' + args.net_type + '_cross_validation_result'
     with open(final_file_prefix + '.p', 'wb') as fp:
         pickle.dump(result, fp, protocol=pickle.HIGHEST_PROTOCOL)
-
-    # cause ndarray is not json serializable
-    # with open(args.cv_type + '_cross_validation_result.json', 'w') as fp:
-    #     json.dump(result, fp)
-
-    np.save(final_file_prefix + '.npy',result)
+    np.save(final_file_prefix + '.npy',result)   # json can not be used to dump result, since ndarray is not json seriablizable
     utils_parent.write_results_to_csv(final_file_prefix + '.csv', result)
 
 

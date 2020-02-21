@@ -28,12 +28,8 @@ class ConfigManager(object):
         self.num_labels = args.num_labels
         self.num_clusters = args.num_clusters
         self.plot = args.plot
-        #
-        # self.rst_dir = get_source_code_dir.current_dir   source code dir is not the best place to put the result file!
-        self.rst_dir = os.getcwd()
-        #
-        self.persist_file_path = args.persist_file_path  # the volatile file should live in the directory where the program is exceculted
-        # hard coded
+        self.rst_dir = os.getcwd()  # self.rst_dir = get_source_code_dir.current_dir   source code dir is not the best place to put the result file!
+        self.persist_file_path = os.path.join(self.rst_dir, args.persist_file_path + "_" + self.dataset_name + ".py")  # the volatile file should live in the directory where the program is exceculted
         self.global_index_name = ConfigManager.global_index_name
         self.TSNE_data_name = ConfigManager.TSNE_data_name
         self.cluster_index_json_name = ConfigManager.cluster_index_json_name
@@ -108,23 +104,19 @@ class ConfigManager(object):
 def parse_args(raw_args=None):
     desc = "Tensorflow implementation of embedding"
     parser = argparse.ArgumentParser(description=desc)
-    parser.add_argument('--rst_dir', type=str, default='./', help='absolute result directory, default to be the same folder as where the code lies')
-    parser.add_argument('--dataset', type=str, default='fashion-mnist', choices=['fashion-mnist', 'cifar10'],
-                        help='The name of dataset')
-    parser.add_argument('--epoch', type=int, default=20, help='The number of epochs to run')
-    parser.add_argument('--batch_size', type=int, default=64, help='The size of batch')
-    parser.add_argument('--z_dim', type=int, default=62, help='Dimension of noise vector')
+    parser.add_argument('--dataset', type=str, default='fashion-mnist', help='The name of dataset')
     parser.add_argument('--checkpoint_dir', type=str, default='checkpoint',
                         help='Directory name to save the checkpoints')
     parser.add_argument('--result_dir', type=str, default='results',
                         help='Directory name to save the generated images')
-    parser.add_argument('--persist_file_path', type=str, default='./config.py',
+    parser.add_argument('--persist_file_path', type=str, default='ignore_flat_rst_meta_persist',
                         help='volatile python file path to log down the subdomain assignment result')
-
     parser.add_argument('--log_dir', type=str, default='logs',
                         help='Directory name to save training logs')
-
     # arguments specified for model
+    parser.add_argument('--epoch', type=int, default=20, help='The number of epochs to run')
+    parser.add_argument('--batch_size', type=int, default=64, help='The size of batch')
+    parser.add_argument('--z_dim', type=int, default=62, help='Dimension of noise vector')
     parser.add_argument('--labeled', default=False, action = "store_true", help="whether train on specific labeled data")
     parser.add_argument('--cluster', default=False, action = "store_true", help="whether cluster using latent space")
     parser.add_argument('--num_labels', type=int, default=10, help="number of labels")
