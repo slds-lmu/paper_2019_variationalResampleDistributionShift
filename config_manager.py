@@ -72,6 +72,8 @@ class ConfigManager(object):
 
     def write_config_file(self):
         file = open(self.persist_dir, 'w')
+        file.write("dataset_name='{}'".format(self.dataset_name))
+        file.write('\n')
         file.write("rst_dir = '{}'".format(self.rst_dir))
         file.write('\n')
         file.write("data_path = '{}'".format(self.get_data_path()))
@@ -85,8 +87,6 @@ class ConfigManager(object):
         file.write('num_clusters={}'.format(self.num_clusters))
         file.write('\n')
         file.write('num_labels={}'.format(self.num_labels))
-        file.write('\n')
-        file.write("dataset_name='{}'".format(self.dataset_name))
         file.write('\n')
         file.write("global_index_name='{}'".format(self.global_index_name))
         file.write('\n')

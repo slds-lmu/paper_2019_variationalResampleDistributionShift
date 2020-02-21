@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 import os
-
 import time
 import argparse
 import datetime
@@ -42,6 +41,8 @@ import sys
 sys.path.insert(0,'..')  # FIXME
 import utils_parent as utils_parent
 import mdataset_class
+import importlib
+import import_from_path
 
 best_acc = 0
 from pathlib import Path
@@ -316,6 +317,8 @@ if __name__ == '__main__':
     parser.add_argument('--weight_decay', default=0.0005, type=float, help='weight_decay')
     parser.add_argument('--dataset', default='fashion-mnist', type=str,
                         help='dataset = [fashion-mnist/cifar10/cifar100]')
+    parser.add_argument('--persist_conf_path', default='./notapy.py', type=str,
+                        help='the python volatile file which stores meta information of vgmm-vae')
     parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
     parser.add_argument('--cv_type', '-v', default = 'vgmm', type=str, help='cv_type=[rand/vgmm]')
@@ -328,7 +331,7 @@ if __name__ == '__main__':
 
     global cv_idx
     cv_idx = 0
-    import config as config_parent
+    config_parent = import_from_path.load_config(args.persist_conf_path)  #  #config_parent = importlib.import_module()
     result = mresample(config_parent, args)
 
     final_file_prefix = "Bayes_"+args.cv_type + '_' + args.net_type + '_cross_validation_result'
