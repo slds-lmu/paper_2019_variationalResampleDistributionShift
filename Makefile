@@ -6,7 +6,7 @@
 
 # Test on a laptop, use all available options (cluster for example) to check if every function works
 test:  # only run 1 epoch to see if the code works 
-	python main.py --dataset "fashion-mnist" --epoch 1 --z_dim 10 --cluster False --num_clusters 3
+	python main.py --dataset "fashion-mnist" --epoch 1 --z_dim 10 --num_clusters 3
 test_label:
 	python main.py --dataset "fashion-mnist" --labeled True --epoch 1 --z_dim 10 --cluster True --num_clusters 3
 test_convnet:
