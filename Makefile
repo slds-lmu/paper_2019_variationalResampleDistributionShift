@@ -8,7 +8,7 @@
 test:  # only run 1 epoch to see if the code works 
 	python main.py --dataset "fashion-mnist" --epoch 1 --z_dim 10 --num_clusters 3
 test_label:
-	python main.py --dataset "fashion-mnist" --labeled True --epoch 1 --z_dim 10 --cluster True --num_clusters 3
+	python main.py --dataset "fashion-mnist" --labeled --epoch 1 --z_dim 10 --cluster  --num_clusters 3
 test_convnet:
 	python convnet.py
 
@@ -17,7 +17,7 @@ common_embed:
 
 
 label:
-	python main.py --labeled True --cluster     # use different vae to each label, then cluster according to each label
+	python main.py --labeled --cluster     # use different vae to each label, then cluster according to each label
 
 convnet: 
 	python convnet.py --epoch 10    # compare of cv and rfms
