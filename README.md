@@ -51,6 +51,8 @@ For example, one possible folder name can be VAE-fashion-mnist-64-10 where 64 is
 ### After the vae-vgmm subdomain assignment
 
 #### Evaluate different Neural Network Prediction Performance on the artificial sub-domains
+- copy your "persist_file_path" for example "ignore_flat_rst_meta_persist_FashionMNIST.py" into
+  "experiment_Bayesian_CNN" folder
 - change directory to `experiment_Bayesian_CNN`
 - test if code works by `make bdebugvgmm` and `make bdebugrand`
 - check the Makefile for other tasks like  `make bvgmm_alexnet`, `make fvgmm_alexnet` etc

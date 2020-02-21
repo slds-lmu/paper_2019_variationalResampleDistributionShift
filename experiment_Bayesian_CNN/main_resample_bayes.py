@@ -38,7 +38,7 @@ from utils.BayesianModels.BayesianLeNet import BBBLeNet
 
 
 import sys
-sys.path.insert(0,'..')  # FIXME
+sys.path.insert(0, '..')  # FIXME
 import utils_parent as utils_parent
 import mdataset_class
 import importlib
