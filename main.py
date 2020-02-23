@@ -17,10 +17,6 @@ def embed_cluster(raw_args=None):
     args = parse_args(raw_args)
     if args is None:
       exit()
-
-    if args.dataset == 'fashion-mnist': args.dataset = "FashionMNIST"
-    elif args.dataset =='cifar10': args.dataset = "CIFAR10"
-
     config_m = ConfigManager(args)
     isinstance(config_m, ConfigManager)
 
@@ -33,10 +29,8 @@ def embed_cluster(raw_args=None):
             # open session
             with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
                 vae = None
-                vae = VAE(sess,
-                          label=i,  # the difference with respect to non-label sensitive, by default label = -1, without label, built up a common latent representation of all instances from all classes
-                          config_manager=config_m
-                          )
+                #FIXME: use factory method here
+                vae = VAE(sess, label=i, config_manager=config_m) # the difference with respect to non-label sensitive, by default label = -1, without label, built up a common latent representation of all instances from all classes
                 # build graph
                 vae.build_model()
 
