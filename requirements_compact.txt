@@ -17,7 +17,7 @@ pbr==5.1.3
 protobuf==3.7.1
 pyparsing==2.4.0
 python-dateutil==2.8.0
-pillow
+pillow==6.1
 scipy==1.2.1
 six==1.12.0
 tensorboard==1.14.0  # cuda9
@@ -27,7 +27,7 @@ tensorflow-estimator==1.14.0
 termcolor==1.1.0
 tornado
 Werkzeug==0.15.2
-sklearn==0.21.3  # Kfold, vgmm
+scikit-learn==0.21.3  # Kfold, vgmm
 pandas
 torch==1.0.1.post2  # dataset class
 torchvision==0.2.2

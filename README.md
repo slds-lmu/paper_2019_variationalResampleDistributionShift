@@ -5,14 +5,16 @@
 
 clone this repository and navigate into the project directory
 
+The following has been tested with Python version 3.7.4.
+
 ### Install Dependencies
 - `pip install -r requirements_compact.txt`
 - `pip install Cython`
 - `pip install pot` or `conda install -c conda-forge pot`
 
 #### Testing if all dependencies met and the code could run properly
-- make test
-- make test_label
+- `make test`
+- `make test_label`
 - The above command will use minimal epochs to test if the whole process below works
 - The above command will generate results with different folder names so will not affect the major
   result
