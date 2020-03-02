@@ -300,9 +300,9 @@ class VAE(object):
         # Reload the data without shuffling before mapping it to z space
         noshuffle_data_X = self.data_X
         batch_images = noshuffle_data_X[0:self.batch_size]
-        r = self.sess.run(self.mu, feed_dict={self.inputs: batch_images})
+        mu4z = self.sess.run(self.mu, feed_dict={self.inputs: batch_images})
         for idx in range(1, self.num_batches):     # from the beginning to the end of the dataset, each time do batchsize, conform to the net tensor definition
             batch_images = noshuffle_data_X[idx * self.batch_size:(idx + 1) * self.batch_size]
             z = self.sess.run(self.mu, feed_dict={self.inputs: batch_images})
-            r = tf.concat([r, z], 0)
-        return r, self.g_ind_y
+            mu4z = tf.concat([mu4z, z], 0)
+        return mu4z, self.g_ind_y
