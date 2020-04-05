@@ -510,9 +510,9 @@ def cross_validation_for_clustered_data(num_labels,num_cluster,args):
 
         criterion = nn.CrossEntropyLoss()
         # logfile = os.path.join('diagnostics_NonBayes{}_{}.txt'.format(args.net_type, args.dataset))
-        logfile_train = os.path.join('diagnostics_NonBayes{}_{}_cv{}_train_vgmm.txt'.format(args.net_type, args.dataset, i))
-        logfile_test = os.path.join('diagnostics_NonBayes{}_{}_cv{}_test_vgmm.txt'.format(args.net_type, args.dataset, i))
-        logfile_eval = os.path.join('diagnostics_NonBayes{}_{}_cv{}_val_vgmm.txt'.format(args.net_type, args.dataset, i))
+        logfile_train = os.path.join('result', 'diagnostics_NonBayes{}_{}_cv{}_train_vgmm.txt'.format(args.net_type, args.dataset, i))
+        logfile_test = os.path.join('result', 'diagnostics_NonBayes{}_{}_cv{}_test_vgmm.txt'.format(args.net_type, args.dataset, i))
+        logfile_eval = os.path.join('result', 'diagnostics_NonBayes{}_{}_cv{}_val_vgmm.txt'.format(args.net_type, args.dataset, i))
 
         print('\n[Phase 3] : Training model')
         print('| Training Epochs = ' + str(num_epochs))
