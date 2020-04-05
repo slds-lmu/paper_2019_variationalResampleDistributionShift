@@ -322,7 +322,7 @@ if __name__ == '__main__':
     parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
     parser.add_argument('--cv_type', '-v', default = 'vgmm', type=str, help='cv_type=[rand/vgmm]')
-    parser.add_argument('--debug',default=False, action='store_true', help="debug mode has smaller data")
+    parser.add_argument('--debug', default=False, action='store_true', help="debug mode has smaller data")
     parser.add_argument('--cv_idx', default=0, type=int, help='index of cv')
     args = parser.parse_args()
 

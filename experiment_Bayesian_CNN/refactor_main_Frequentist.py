@@ -27,7 +27,7 @@ from utils.FrequentistModels.F3Conv3FC import F3Conv3FC
 import refactor_dataset_class
 import utils_parent as utils_parent
 from sklearn.model_selection import KFold
-import config as config_parent
+import ignore_flat_rst_meta_persist_FashionMNIST as config_parent
 try:
     import cPickle as pickle
 except ImportError:  # python 3.x
@@ -560,7 +560,7 @@ if __name__ == '__main__':
     parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
     parser.add_argument('--cv_type', '-v', default='vgmm', type=str, help='cv_type=[rand/vgmm]')
-    parser.add_argument('--debug', default=False, type=bool, help="debug mode has smaller data")
+    parser.add_argument('--debug', default=False, action="store_true", help="debug mode has smaller data")
     #parser.add_argument('--num_samples', default=10, type=int, help='Number of samples')
     parser.add_argument('--cv_idx',default=0,type=int,help='index of cv')
     args = parser.parse_args()
